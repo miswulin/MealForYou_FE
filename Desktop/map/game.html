@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>pop-pin | 여행 퀴즈 게임</title>
+  <style>
+    body {
+      background-color: rgb(20, 4, 68);
+      color: white;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .quiz-box {
+      max-width: 500px;
+      margin: auto;
+      background: #47394e;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    .question {
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      background: #645877;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .options button:hover {
+      background: #555;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .back-btn {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 10px 20px;
+      background: #fff;
+      color: black;
+      border-radius: 30px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-box" id="quizBox">
+    <div class="question" id="question">질문을 불러오는 중...</div>
+    <div class="options" id="options"></div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "🗼 이 도시는 어디일까요?",
+        options: ["도쿄", "서울", "파리", "뉴욕"],
+        answer: "파리"
+      },
+      {
+        question: "🗽 이 도시는 어디일까요?",
+        options: ["런던", "뉴욕", "시드니", "로마"],
+        answer: "뉴욕"
+      },
+      {
+        question: "🗻 후지산이 있는 도시는?",
+        options: ["도쿄", "오사카", "후쿠오카", "삿포로"],
+        answer: "도쿄"
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function loadQuiz() {
+      const quiz = quizData[currentIndex];
+      document.getElementById("question").innerText = quiz.question;
+      const optionsBox = document.getElementById("options");
+      optionsBox.innerHTML = "";
+
+      quiz.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+        btn.onclick = () => checkAnswer(option);
+        optionsBox.appendChild(btn);
+      });
+
+      document.getElementById("result").innerText = "";
+    }
+
+    function checkAnswer(selected) {
+      const correct = quizData[currentIndex].answer;
+      const result = document.getElementById("result");
+
+      if (selected === correct) {
+        result.innerText = "✅ 정답이에요!";
+        setTimeout(() => {
+          currentIndex++;
+          if (currentIndex < quizData.length) {
+            loadQuiz();
+          } else {
+            showEndScreen();
+          }
+        }, 1000);
+      } else {
+        result.innerText = "❌ 다시 생각해보세요!";
+      }
+    }
+
+    function showEndScreen() {
+      const quizBox = document.getElementById("quizBox");
+      quizBox.innerHTML = `
+        <h2>🎉 모두 맞혔어요!</h2>
+        <p>당신은 진정한 여행 마스터 ✈️</p>
+        <a href="index.html" class="back-btn">←돌아가기</a>
+      `;
+    }
+
+    // 초기 퀴즈 시작
+    loadQuiz();
+  </script>
+
+</body>
+</html>

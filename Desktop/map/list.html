@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>나의 여행 기록 리스트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      background-color: rgb(20, 4, 68);
+      color: white;
+      font-family: 'Arial', sans-serif;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 40px;
+    }
+
+    .list-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #47394e;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    .list-box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .list-box li {
+      padding: 12px 16px;
+      border-bottom: 1px solid #444;
+    }
+
+    .list-box li:last-child {
+      border-bottom: none;
+    }
+
+    .back-btn {
+      display: block;
+      text-align: center;
+      margin-top: 40px;
+      font-size: 16px;
+      padding: 10px 20px;
+      background-color: white;
+      color: black;
+      border: none;
+      border-radius: 25px;
+      text-decoration: none;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .back-btn:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>My Pop</h1>
+
+  <div class="list-box">
+    <ul id="diaryList">
+      <!-- JavaScript로 동적 생성 -->
+    </ul>
+  </div>
+
+  <a href="index.html" class="back-btn">← 돌아가기</a>
+
+  <script>
+    const list = document.getElementById("diaryList");
+    const records = JSON.parse(localStorage.getItem("diaryRecords") || "[]");
+
+    if (records.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = "아직 작성된 기록이 없어요.";
+      list.appendChild(li);
+    } else {
+      records.forEach(record => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>📖 일기:</strong> ${record.diary}<br>
+          <strong>🍜 음식:</strong> ${record.food}<br>
+          <strong>🎧 노래:</strong> ${record.music}<br>
+          <span style="font-size: 12px; color: #999;">🕒 ${record.timestamp}</span>
+        `;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>

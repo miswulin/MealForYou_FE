@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pop-pin | 여행 기록</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+    }
+
+    .modal-overlay {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal {
+      background: white;
+      color: black;
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .modal label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .modal input[type="text"],
+    .modal textarea,
+    .modal input[type="file"] {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .modal textarea {
+      resize: none;
+    }
+
+    .save-btn {
+      margin-top: 25px;
+      width: 100%;
+      background-color: black;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .save-btn:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal">
+      <h2>여행 기록 남기기</h2>
+
+      <label>📸 사진 업로드 (1장)</label>
+      <input type="file" accept="image/*" id="photo" />
+
+      <label>✍️ 여행 일기</label>
+      <textarea id="diary" placeholder="이곳에서 어떤 일이 있었나요?" rows="4"></textarea>
+
+      <label>🍜 추천 음식</label>
+      <input type="text" id="food" placeholder="예: 나폴리 피자, 쌀국수 등" />
+
+      <label>🎧 떠오른 노래</label>
+      <input type="text" id="music" placeholder="예: Coldplay - Paradise" />
+
+      <button class="save-btn" onclick="saveDiary()">저장하기</button>
+    </div>
+  </div>
+
+  <script>
+    function saveDiary() {
+      const diary = document.getElementById('diary').value;
+      const food = document.getElementById('food').value;
+      const music = document.getElementById('music').value;
+
+      if (!diary) {
+        alert("일기를 입력해주세요.");
+        return;
+      }
+
+      const record = {
+        diary,
+        food,
+        music,
+        timestamp: new Date().toLocaleString()
+      };
+
+      let records = JSON.parse(localStorage.getItem('diaryRecords') || '[]');
+      records.push(record);
+      localStorage.setItem('diaryRecords', JSON.stringify(records));
+
+      alert("저장 완료!");
+      window.location.href = "list.html";
+    }
+  </script>
+</body>
+</html>

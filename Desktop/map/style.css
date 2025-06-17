@@ -1,0 +1,167 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    background-image: radial-gradient(white 1px, transparent 1px);
+    background-size: 300px 300px;  /* 점의 간격을 넓게 조정 */
+    background-position: 0 0;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .container {
+    justify-content: center;
+    display: flex;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  .globe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250px;
+    transform: translate(-50%, -50%);
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translate(-50%, -52%);
+    }
+    50% {
+      transform: translate(-50%, -48%);
+    }
+  }
+  
+  .search-box {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .search-box input {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    font-size: 16px;
+    width: 250px;
+  }
+  
+  .zoom-controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .zoom-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .zoom-btn:hover {
+    background-color: #ddd;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  }
+  
+  .modal h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+  }
+  
+  .modal label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .modal input[type="text"],
+  .modal input[type="file"],
+  .modal textarea {
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  
+  .modal textarea {
+    resize: none;
+  }
+  
+  .save-btn {
+    margin-top: 25px;
+    width: 100%;
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  
+  .save-btn:hover {
+    background-color: #333;
+  }
+
+  .pin-icon {
+    position: absolute;
+    top: 34%;
+    left: 50%;
+    width: 30px;
+    transform: translateX(-50%);
+    animation: bounce 1s infinite;
+    z-index: 2;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translate(-50%, -100%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -110%) scale(1.1);
+    }
+  }
+  
+  
