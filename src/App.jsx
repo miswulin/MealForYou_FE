@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+import Pd from "./pages/Productdetail/pd";
+import "./App.css";
+
+function App() {
+  return (
+    <div style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
+      <Pd />
+    </div>
+=======
 import { useState } from 'react'
 import './App.css'
 
@@ -27,6 +37,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </>
+>>>>>>> 31763bf6fa25fb586b4e19f446c5b5624aacf1b1
   )
 }
 

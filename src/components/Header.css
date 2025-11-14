@@ -1,0 +1,95 @@
+.header {
+    height: 64px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    gap: 12px;
+  }
+
+  
+  /* 가운데 제목 */
+  .header-title {
+    flex: 1;
+    margin: 0 8px;
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+  
+  /* 아이콘 공통 */
+  .header-right {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .header-icon-btn {
+    width: 26px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 9999px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    position: relative; /* 뱃지 포지셔닝용 */
+  }
+
+  .header-icon-btn-b {
+    width: 15px;
+    height: 15px;
+    padding: 0 0 20 0;
+    border: none;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    position: relative; /* 뱃지 포지셔닝용 */
+  }
+
+
+/* 장바구니 뱃지 */
+.header-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #ea4335;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+
+  
+  /* 장바구니 뱃지 */
+  .header-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #ea4335;   /* 빨간색 */
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  
