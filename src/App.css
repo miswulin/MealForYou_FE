@@ -6,9 +6,9 @@
     system-ui, sans-serif;
 =======
 #root {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 475px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
