@@ -1,0 +1,39 @@
+.status-bar {
+    height: 44px;
+    padding: 0 12px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  
+  .status-time {
+    font-weight: 590;
+    text-align: center;
+    font-size: 17px;
+    line-height: 22px;
+
+  }
+  
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .status-icon-c {
+    height: 12.23px;
+    width: 19.2px;
+    display: block;
+  }
+  .status-icon-w {
+    height: 12.3px;
+    width: 17.14px;
+    display: block;
+  }
+  .status-icon-b {
+    height: 13px;
+    width: 27.2px;
+    display: block;
+  }
+  

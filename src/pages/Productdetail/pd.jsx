@@ -1,6 +1,8 @@
 import React, { useState }from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel } from "swiper/modules";
+import StatusBar from "../../components/StatusBar";
+import Header from "../../components/Header";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -8,6 +10,7 @@ import "swiper/css/pagination";
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
+import heart from "../../assets/images/heart-m.png"
 
 export default function Pd() {
     const images = [bibimbap, bibimbap2];
@@ -16,25 +19,18 @@ export default function Pd() {
     return (
         <div className="pd-root">
         {/* STATUS BAR */}
-        <div className="pd-status-bar">
-            <span className="pd-time">9:41</span>
-            <div className="pd-status-icons">
-            <span className="pd-icon">ᐧᐧᐧ</span>
-            </div>
-        </div>
+        <StatusBar/>
 
         {/* HEADER */}
-        <header className="pd-header">
-            <button className="pd-icon-btn" aria-label="뒤로가기">
-            ←
-            </button>
-            <h1 className="pd-header-title">[신상품] 밀포유 소고기…</h1>
-            <div className="pd-header-right">
-            <button className="pd-icon-btn" aria-label="공유">⤴︎</button>
-            <button className="pd-icon-btn" aria-label="찜">♡</button>
-            <button className="pd-icon-btn" aria-label="장바구니">🛒</button>
-            </div>
-        </header>
+        <Header
+        title="[신상품] 밀포유 소고기 비빔밥 키트"
+        onBack={() => window.history.back()}
+        onHeart={() => console.log("찜")}
+        onCart={() => console.log("장바구니")}
+        onPerson={() => console.log("마이페이지")}
+        
+        // showShare={true} showLike={true} showCart={true} // 노출 제어
+      />
 
       {/* 메인 스크롤 영역 */}
       <main className="pd-main">
@@ -60,14 +56,16 @@ export default function Pd() {
             ))}
           </Swiper>
          <div className="pd-img-indicator">
-            <span>{currentIndex + 1} / {images.length}</span>
+            <span>{currentIndex} / {images.length}</span>
         </div>
      </section>
 
         {/* PRODUCT TITLE / PRICE */}
         <section className="pd-product-title">
-          <p className="pd-tag">[신상품]</p>
-          <h2 className="pd-title-text">밀포유 소고기 비빔밥 키트</h2>
+        <div className="pd-title-row">
+            <span className="pd-tag">[신상품]</span>
+            <h2 className="pd-title-inline">밀포유 소고기 비빔밥 키트</h2>
+        </div>
 
           <div className="pd-price-row">
             <span className="pd-origin-price">29,000원</span>
@@ -142,7 +140,7 @@ export default function Pd() {
           상황에 맞게 조리할 수 있습니다.
         </p>
       </section>
-      
+
         <section className="pd-frame">
           <div className="pd-card">
             <h3 className="pd-section-title">조리법</h3>
@@ -184,12 +182,10 @@ export default function Pd() {
 
       {/* BOTTOM SHEET */}
       <div className="pd-bottom-sheet">
-        <div className="pd-bottom-left">
-          <p className="pd-bottom-price">
-            21,400<span className="pd-bottom-currency">원</span>
-          </p>
-        </div>
-        <button className="pd-buy-btn">구매하기</button>
+        <button className="pd-like-btn" aria-label="찜하기">
+            <img src={heart} alt="" />
+        </button> 
+        <button className="pd-buy-btn" onClick={() => console.log("구매하기 클릭")}> 구매하기 </button>
       </div>
     </div>
   );

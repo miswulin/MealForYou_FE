@@ -1,40 +1,13 @@
-/* 전체 페이지 박스 (375 x 아이폰 높이 느낌) */
 .pd-root {
     width: 375px;
-    height: 844px;          
+    height: 812px;          
     margin: 0 auto;
-    border: 1px solid #e5e5e5; /* 개발용 프레임 */
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
-      system-ui, sans-serif;
     color: #111111;
   }
   
-  /* STATUS BAR */
-  .pd-status-bar {
-    height: 44px;
-    padding: 0 12px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    font-size: 12px;
-  }
-  
-  .pd-time {
-    font-weight: 600;
-  }
-  
-  .pd-status-icons {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .pd-icon {
-    font-size: 10px;
-  }
   
   /* HEADER */
   .pd-header {
@@ -81,8 +54,9 @@
   /* PRODUCT IMAGE */
   .pd-product-img {
     position: relative;
-    width: 100%;
-    height: 320px;
+    width: 370px;
+    height: 350px;
+    display: flex;
     overflow: hidden;
     background-color: #f3f3f3;
   }
@@ -128,10 +102,24 @@
     padding: 16px 16px 12px;
   }
   
+  .pd-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
   .pd-tag {
-    font-size: 12px;
-    color: #8c8c8c;
-    margin-bottom: 4px;
+    font-size: 14px;
+    color: black;
+    font-weight: 400;
+  }
+  
+  .pd-title-inline {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.35;
+    color: black;
   }
   
   .pd-title-text {
@@ -150,7 +138,8 @@
   
   .pd-origin-price {
     font-size: 13px;
-    color: #b0b0b0;
+    font-weight: 400;
+    color:#6D7882;
     text-decoration: line-through;
   }
   
@@ -278,41 +267,58 @@
   
   /* BOTTOM SHEET */
   .pd-bottom-sheet {
-    height: 64px;
-    padding: 10px 16px;
-    border-top: 1px solid #e5e5ea;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 375px;
+    height: 60px;        
+    bottom: 0;
+    z-index: 20;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
-    background-color: #ffffff;
+    gap: 12px;
+    padding: 12px 16px 20px 16px; 
+    background: #fff;
+    border-top: 1px solid #e5e5ea;
+    box-shadow: 0 -6px 16px rgba(0,0,0,0.06);
   }
-  
-  .pd-bottom-left {
-    display: flex;
-    flex-direction: column;
+
+  .pd-like-btn {
+    flex: 0 0 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
-  
-  .pd-bottom-price {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-  }
-  
-  .pd-bottom-currency {
-    font-size: 13px;
-    margin-left: 2px;
-  }
+
   
   .pd-buy-btn {
-    flex-shrink: 0;
-    min-width: 160px;
-    height: 44px;
-    border-radius: 999px;
-    border: none;
-    background-color: #ff5c5c;
-    color: #ffffff;
+    flex: 1 0 0;
+    height: 40px;
+    min-width: 94px;
+    width: 293px;
+    border: 0;
+    border-radius: 18px;
+    background: #FE4F1A; 
+    color: #fff;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    display: flex;
+    padding: 0 18px;
+    justify-content: center;
+    align-items: center;
+    gap: var(--gap-2, 4px);
   }
+
+  
+
   
