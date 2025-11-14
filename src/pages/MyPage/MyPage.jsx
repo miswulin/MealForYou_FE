@@ -41,7 +41,6 @@ export default function MyPage() {
                 <p>밀키트 메뉴 이름</p>
                 <p className={styles.quantity}>1개</p>
               </div>
-              {/* 말줄임표 쓰기 */}
               <p className={styles.option}>
                 옵션1(100g) 1개, 옵션2(00g)1개, 옵션3(00g)1개,
               </p>

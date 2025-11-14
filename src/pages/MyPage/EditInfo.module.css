@@ -1,0 +1,83 @@
+/* #root {
+  width: 100%;
+  max-width: 475px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 16px; 
+} */
+
+p,
+h3 {
+  margin: 0;
+  padding: 0;
+  letter-spacing: -1px;
+}
+.profile h3 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+.profile img {
+  width: 78px;
+  height: 78px;
+}
+.hr1 {
+  height: 6px;
+  flex: 1 0 0;
+  border: none;
+  margin: 34px 0px;
+}
+/* 입력폼 */
+form {
+  display: flex;
+  flex-direction: column;
+  margin: 0px 16px;
+
+}
+input {
+  width: 100%;
+  padding: 13px 24px;
+  color: #8a949e;
+  font-size: 15px;
+  margin-bottom: 16px;
+  border-radius: 40px;
+  border: 2px solid #e6e8ea;
+  box-sizing: border-box;
+}
+label {
+  text-align: start;
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+.nameinput {
+  display: flex;
+  gap: 4px;
+  margin: 0 auto;
+}
+.phoneinput {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.email {
+  background-color: #e6e8ea;
+}
+/* 수정하기 버튼 */
+.editbtn {
+  display: flex;
+  background-color: #cdd1d5;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 60px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  height: 56px;
+  line-height: 1;
+  color: #fff;
+  margin-top: 118px; 
+}
+.editbtn:active {
+  background-color: #fe4f1a;
+}
