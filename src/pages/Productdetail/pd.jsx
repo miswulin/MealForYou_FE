@@ -3,6 +3,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel } from "swiper/modules";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
+import BottomSheet from "./BottomSheet";
+import CartModal from "./CartModal";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -15,9 +17,13 @@ import heart from "../../assets/images/heart-m.png"
 export default function Pd() {
     const images = [bibimbap, bibimbap2];
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
+
 
     return (
-        <div className="pd-root">
+    <div className="pd-root">
         {/* STATUS BAR */}
         <StatusBar/>
 
@@ -185,8 +191,47 @@ export default function Pd() {
         <button className="pd-like-btn" aria-label="찜하기">
             <img src={heart} alt="" />
         </button> 
-        <button className="pd-buy-btn" onClick={() => console.log("구매하기 클릭")}> 구매하기 </button>
+        <button className="pd-buy-btn" onClick={() => setIsSheetOpen(true)}>
+            구매하기
+        </button>
       </div>
+      <BottomSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+      >
+        <h3 className="pd-sheet-title">옵션 선택</h3>
+
+        <div className="pd-sheet-section">
+          <p className="pd-sheet-label">기본 옵션</p>
+          <div className="pd-sheet-row">
+            <span>옵션[000g]</span>
+            <div className="pd-sheet-counter">
+              <button>-</button>
+              <span>1</span>
+              <button>+</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="pd-sheet-actions">
+        <button className="pd-sheet-cart-btn" onClick={() => setIsCartModalOpen(true)}>
+            장바구니
+        </button>
+          <button className="pd-sheet-buy-btn">바로구매</button>
+        </div>
+      </BottomSheet>
+      <CartModal
+        isOpen={isCartModalOpen}
+        onClose={() => setIsCartModalOpen(false)}
+        onGoCart={() => {
+        setIsCartModalOpen(false);
+        console.log("장바구니 이동");
+        // navigate('/cart') 같은 라우팅 넣으면 됨
+        }}
+        />
+
+      
     </div>
+    
   );
 }
