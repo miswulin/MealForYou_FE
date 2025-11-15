@@ -1,0 +1,93 @@
+.cartmodal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+  }
+  
+  .cartmodal-container {
+    width: 277px;
+    max-width: 340px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px 30px 20px 30px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    animation: popup 0.28s ease-out;
+  }
+  
+  @keyframes popup {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .cartmodal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .cartmodal-text {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  .cartmodal-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* 쇼핑 계속하기 */
+  .cartmodal-btn-outline {
+    flex: 1 0 0;
+    height: 48px;
+    min-width: 90px;
+    border: 1.6px solid #dcdcdc;
+    border-radius: 40px;
+    background: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* 장바구니 이동 */
+  .cartmodal-btn-orange {
+    flex: 1 0 0;
+    height: 48px;
+    min-width: 90px;
+    border-radius: 40px;
+    background: #ff6b2b;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  /* 버튼 포커스(클릭) 시 생기는 검은 outline 제거 */
+.cartmodal-btn-outline,
+.cartmodal-btn-orange {
+  outline: none;
+  box-shadow: none;
+}
+
+.cartmodal-btn-outline:focus,
+.cartmodal-btn-orange:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.cartmodal-btn-outline:hover,
+.cartmodal-btn-orange:hover {
+  outline: none;
+  box-shadow: none;
+}
