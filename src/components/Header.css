@@ -46,6 +46,8 @@
     padding: 0 0 20 0;
     border: none;
     background: transparent;
+    flex-direction: column;
+    justify-content: center;
     display: grid;
     place-items: center;
     cursor: pointer;

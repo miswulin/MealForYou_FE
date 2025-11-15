@@ -2,6 +2,8 @@ import React from "react";
 import "./BottomSheet.css";
 
 export default function BottomSheet({ isOpen, onClose, children }) {
+  if (!isOpen) return null;
+
   return (
     <>
       {/* 배경 오버레이 */}

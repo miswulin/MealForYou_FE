@@ -1,24 +1,26 @@
 import React, { useState }from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
-import BottomSheet from "./BottomSheet";
+import BottomSheet from "./bottomsheet";
 import CartModal from "./CartModal";
 
 import "swiper/css";
 import "swiper/css/pagination";
 
-import "./pd.css";
+import "./Pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
-import heart from "../../assets/images/heart-m.png"
+import heart from "../../assets/images/heart-m.png";
 
 export default function Pd() {
     const images = [bibimbap, bibimbap2];
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+    const navigate = useNavigate();
 
 
 
@@ -30,10 +32,10 @@ export default function Pd() {
         {/* HEADER */}
         <Header
         title="[신상품] 밀포유 소고기 비빔밥 키트"
-        onBack={() => window.history.back()}
+        onBack={() => navigate(-1)}
         onHeart={() => console.log("찜")}
-        onCart={() => console.log("장바구니")}
-        onPerson={() => console.log("마이페이지")}
+        onCart={() => navigate("/cart")}
+        onPerson={() => navigate("/login")}
         
         // showShare={true} showLike={true} showCart={true} // 노출 제어
       />
@@ -224,9 +226,8 @@ export default function Pd() {
         isOpen={isCartModalOpen}
         onClose={() => setIsCartModalOpen(false)}
         onGoCart={() => {
-        setIsCartModalOpen(false);
-        console.log("장바구니 이동");
-        // navigate('/cart') 같은 라우팅 넣으면 됨
+          setIsCartModalOpen(false);
+          navigate("/cart");
         }}
         />
 
