@@ -8,6 +8,8 @@ import EditAddress from "../src/pages/MyPage/EditAddress.jsx";
 import Wishlist from "../src/pages/Wishlist/Wishlist.jsx";
 import Pd from "./pages/Productdetail/pd.jsx"
 import Cart from "./pages/Cart/Cart.jsx";
+import Order from "./pages/Order/Order.jsx";
+
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
         <Route path="/" element={<Pd />} />
         <Route path="/product-detail" element={<Pd />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/order" element={<Order />} />
       </Routes>
    
   );

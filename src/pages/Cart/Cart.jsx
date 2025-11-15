@@ -14,18 +14,32 @@ export default function Cart() {
     {
       id: 1,
       name: "밀키트 메뉴 이름",
-      optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
       price: 10000,
       qty: 1,
       checked: true,
+      isOptionsOpen: false,
+      options: [
+        { label: "옵션1(00g)", count: 1 },
+        { label: "옵션2(00g)", count: 1 },
+        { label: "옵션3(00g)", count: 1 },
+        { label: "옵션4(00g)", count: 0 },
+        { label: "옵션5(00g)", count: 0 },
+      ],
     },
     {
       id: 2,
       name: "밀키트 메뉴 이름",
-      optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
       price: 10000,
       qty: 1,
       checked: false,
+      isOptionsOpen: false,
+      options: [
+        { label: "옵션1(00g)", count: 1 },
+        { label: "옵션2(00g)", count: 0 },
+        { label: "옵션3(00g)", count: 0 },
+        { label: "옵션4(00g)", count: 0 },
+        { label: "옵션5(00g)", count: 0 },
+      ],
     },
   ]);
 
@@ -41,6 +55,15 @@ export default function Cart() {
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
 
+  // 옵션 요약 텍스트
+  const getOptionsSummary = (options) => {
+    const picked = options.filter((o) => o.count > 0);
+    if (picked.length === 0) return "옵션을 선택하세요";
+    return picked
+      .map((o) => `${o.label} ${o.count}개`)
+      .join(", ");
+  };
+
   // 전체 선택 / 해제
   const handleToggleAll = () => {
     const next = items.map((item) => ({ ...item, checked: !allChecked }));
@@ -55,7 +78,7 @@ export default function Cart() {
     setItems(next);
   };
 
-  // 수량 변경
+  // 수량 변경 (상단 메인 수량)
   const handleChangeQty = (id, delta) => {
     const next = items.map((item) => {
       if (item.id !== id) return item;
@@ -71,6 +94,28 @@ export default function Cart() {
     setItems(next);
   };
 
+  // 🔽 옵션 바 클릭 시 열기 / 닫기
+  const handleToggleOptionsOpen = (id) => {
+    const next = items.map((item) =>
+      item.id === id ? { ...item, isOptionsOpen: !item.isOptionsOpen } : item
+    );
+    setItems(next);
+  };
+
+  // 옵션별 수량 변경
+  const handleChangeOptionQty = (itemId, optionIndex, delta) => {
+    const next = items.map((item) => {
+      if (item.id !== itemId) return item;
+      const newOptions = item.options.map((opt, idx) => {
+        if (idx !== optionIndex) return opt;
+        const nextCount = Math.max(0, opt.count + delta);
+        return { ...opt, count: nextCount };
+      });
+      return { ...item, options: newOptions };
+    });
+    setItems(next);
+  };
+
   return (
     <div className="cart-root">
       {/* STATUS BAR */}
@@ -80,7 +125,6 @@ export default function Cart() {
       <Header
         title="장바구니"
         onBack={() => navigate(-1)}
-        // 장바구니 페이지라 상단 아이콘은 안 쓸 거라 숨겨둠
         showHeart={false}
         showCart={false}
         showPerson={false}
@@ -156,11 +200,52 @@ export default function Cart() {
                 </button>
               </div>
 
-              {/* 옵션 요약 줄 */}
-              <div className="cart-item-options-row">
-                <p className="cart-item-options-text">{item.optionsSummary}</p>
-                <button className="cart-item-options-toggle">⌄</button>
-              </div>
+              {/* 옵션 요약 줄 (클릭하면 드롭다운 열림) */}
+              <button
+                type="button"
+                className="cart-item-options-row"
+                onClick={() => handleToggleOptionsOpen(item.id)}
+              >
+                <p className="cart-item-options-text">
+                  {getOptionsSummary(item.options)}
+                </p>
+                <span className="cart-item-options-toggle">
+                  {item.isOptionsOpen ? "▴" : "▾"}
+                </span>
+              </button>
+
+              {/* 옵션 드롭다운 영역 */}
+              {item.isOptionsOpen && (
+                <div className="cart-options-panel">
+                  {item.options.map((opt, idx) => (
+                    <div key={opt.label} className="cart-option-row">
+                      <span className="cart-option-label">{opt.label}</span>
+                      <div className="cart-option-qty">
+                        <button
+                          className="cart-option-qty-btn"
+                          onClick={() =>
+                            handleChangeOptionQty(item.id, idx, -1)
+                          }
+                          disabled={opt.count === 0}
+                        >
+                          −
+                        </button>
+                        <span className="cart-option-qty-value">
+                          {opt.count}
+                        </span>
+                        <button
+                          className="cart-option-qty-btn"
+                          onClick={() =>
+                            handleChangeOptionQty(item.id, idx, 1)
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </article>
           ))}
         </section>
@@ -187,7 +272,7 @@ export default function Cart() {
         <button
           className="cart-order-btn"
           disabled={checkedCount === 0}
-          onClick={() => console.log("주문하기")}
+          onClick={() => navigate("/order")}
         >
           <span className="cart-order-count">{checkedCount}</span>
           <span className="cart-order-text">
