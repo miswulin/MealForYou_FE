@@ -9,6 +9,7 @@ import Wishlist from "../src/pages/Wishlist/Wishlist.jsx";
 import Pd from "./pages/Productdetail/pd.jsx"
 import Cart from "./pages/Cart/Cart.jsx";
 import Order from "./pages/Order/Order.jsx";
+import OrderComplete from "./pages/Order/OrderComplete.jsx";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/product-detail" element={<Pd />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order" element={<Order />} />
+        <Route path="/ordercomplete" element={<OrderComplete />} />
       </Routes>
    
   );

@@ -62,14 +62,23 @@ export default function Order() {
   const finalTotal = productsTotal + deliveryFee;
 
   const handlePay = () => {
-    // TODO: 결제 로직 연결
-    console.log("결제하기 클릭", {
-      items: selectedItems,
-      method: selectedMethod,
-      shipping,
-      finalTotal,
+    // 주문번호 간단 생성 (나중에 API 연동하면 서버에서 받은 값으로 대체)
+    const orderNumber = Date.now().toString();
+  
+    // 주문완료 페이지로 이동 + 주문 정보 같이 넘기기
+    navigate("/OrderComplete", {
+      state: {
+        order: {
+          orderNumber,
+          items: selectedItems,
+          deliveryFee,
+          shipping,
+          paidAt: new Date().toLocaleString("ko-KR"),
+          payMethod: selectedMethod,
+          totalPrice: finalTotal,
+        },
+      },
     });
-    alert("결제 요청을 보냈다고 치자 ✨");
   };
 
   return (
@@ -202,13 +211,13 @@ export default function Order() {
       {/* 하단 결제 버튼 */}
       <div className="order-bottom-bar">
         <button
-          className="order-pay-btn"
-          disabled={selectedItems.length === 0}
-          onClick={handlePay}
+            className="order-pay-btn"
+            disabled={selectedItems.length === 0}
+            onClick={handlePay}
         >
-          <span className="order-pay-text">결제하기</span>
+         <span className="order-pay-text">결제하기</span>
         </button>
-      </div>
+        </div>
     </div>
   );
 }
