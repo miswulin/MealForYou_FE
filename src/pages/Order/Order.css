@@ -1,10 +1,11 @@
 /* ===== 공통 레이아웃 ===== */
 .order-root {
     width: 100%;
-    max-width: 375px;           /* 아이폰 기준 */
+    max-width: 375px;          
     min-height: 100vh;
     margin: 0 auto;
-    background-color: #f5f5f7;
+    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+      system-ui, sans-serif
     
   }
   

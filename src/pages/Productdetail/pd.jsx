@@ -14,6 +14,7 @@ import "./Pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
 import heart from "../../assets/images/heart-m.png";
+import shareIcon from "../../assets/images/share.png"
 
 export default function Pd() {
     const images = [bibimbap, bibimbap2];
@@ -71,9 +72,14 @@ export default function Pd() {
         {/* PRODUCT TITLE / PRICE */}
         <section className="pd-product-title">
         <div className="pd-title-row">
+        <div className="pd-title-left">
             <span className="pd-tag">[신상품]</span>
             <h2 className="pd-title-inline">밀포유 소고기 비빔밥 키트</h2>
+
         </div>
+          <img src={shareIcon}  alt="공유하기" className="pd-share-icon" />
+        </div>
+       
 
           <div className="pd-price-row">
             <span className="pd-origin-price">29,000원</span>
@@ -95,6 +101,7 @@ export default function Pd() {
         {/* DETAILS 영역 */}
         <section className="pd-details">
           <h3 className="pd-section-title">상품정보</h3>
+          
 
           <dl className="pd-detail-list">
             <div className="pd-detail-row">
