@@ -105,18 +105,37 @@
   .pd-title-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: space-between;
     margin-bottom: 8px;
   }
   
   .pd-tag {
-    font-size: 14px;
+    font-size: 17px;
     color: black;
     font-weight: 400;
   }
+
+  .pd-share-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    cursor: pointer;
+    opacity: 0.8;
+    
+  }
+  
+  .pd-share-icon:hover {
+    opacity: 1;
+  }
+
+  .pd-title-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;       
+  }
   
   .pd-title-inline {
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 400;
     line-height: 1.35;
     color: black;
@@ -125,7 +144,7 @@
   .pd-title-text {
     font-size: 18px;
     font-weight: 700;
-    line-height: 1.35;
+    
     margin: 0 0 8px;
   }
   
@@ -158,6 +177,7 @@
     margin-top: 6px;
     font-size: 12px;
     color: #8c8c8c;
+    display: flex;
   }
   
   /* DIVIDER */
@@ -169,6 +189,8 @@
   /* DETAILS */
   .pd-details {
     padding: 16px;
+    display: flex;
+    flex-direction: column;
   }
   
   .pd-section-title {
@@ -190,12 +212,14 @@
   .pd-detail-row dt {
     width: 80px;
     color: #8c8c8c;
+    display: flex;
   }
   
   .pd-detail-row dd {
     margin: 0;
     flex: 1;
     color: #333333;
+    display: flex;
   }
   
   /* FRAME(카드형) */
