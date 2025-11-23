@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 
 import "./Order.css";
 import bibimbap from "../../assets/images/bibimbap.png";
+import upIcon from "../../assets/images/up.png"
 
 // 결제수단 목록
 const PAYMENT_METHODS = [
@@ -81,6 +82,7 @@ export default function Order() {
     });
   };
 
+  const [isShippingOpen, setIsShippingOpen] = useState(true);
   return (
     <div className="order-root">
       <StatusBar />
@@ -97,12 +99,11 @@ export default function Order() {
         <section className="order-section order-shipping">
           <div className="order-section-header">
             <h2 className="order-section-title">배송지</h2>
-            {/* 오른쪽 위/아래 아이콘 느낌의 토글 버튼 (지금은 동작 X, 필요하면 확장) */}
-            <button className="order-section-toggle" type="button">
-              ⋯
+            <button className="order-section-toggle" type="button" onClick={() => setIsShippingOpen((v) => !v)}>
+              <img src={upIcon} alt="열기" className={`toggle-icon ${isShippingOpen ? "open" : "closed"}`} />
             </button>
           </div>
-
+          {isShippingOpen && (
           <div className="order-shipping-body">
             <dl className="order-shipping-row">
               <dt>수령인</dt>
@@ -117,6 +118,7 @@ export default function Order() {
               <dd>{shipping.address}</dd>
             </dl>
           </div>
+        )}
         </section>
 
         {/* 주문 상품 */}
