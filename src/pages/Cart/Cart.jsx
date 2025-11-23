@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 
 import "./Cart.css";
 import bibimbap from "../../assets/images/bibimbap.png"; // 임시 썸네일
+import checkIcon from "../../assets/images/check.png"
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ export default function Cart() {
     setItems(next);
   };
 
-  // 🔽 옵션 바 클릭 시 열기 / 닫기
+  //  옵션 바 클릭 시 열기 / 닫기
   const handleToggleOptionsOpen = (id) => {
     const next = items.map((item) =>
       item.id === id ? { ...item, isOptionsOpen: !item.isOptionsOpen } : item
@@ -140,6 +141,7 @@ export default function Cart() {
               checked={allChecked}
               onChange={handleToggleAll}
             />
+            <span className="cart-checkbox-ui" />
             <span>
               전체 선택 ({checkedCount}/{items.length})
             </span>
@@ -158,6 +160,7 @@ export default function Cart() {
                     checked={item.checked}
                     onChange={() => handleToggleItem(item.id)}
                   />
+                  <span className="cart-checkbox-ui" />
                 </label>
 
                 <div className="cart-thumb-wrap">
@@ -172,19 +175,20 @@ export default function Cart() {
                   <h2 className="cart-item-name">{item.name}</h2>
 
                   <div className="cart-qty-row">
-                    <button
-                      className="cart-qty-btn"
-                      onClick={() => handleChangeQty(item.id, -1)}
-                    >
-                      −
-                    </button>
-                    <span className="cart-qty-value">{item.qty}</span>
-                    <button
-                      className="cart-qty-btn"
-                      onClick={() => handleChangeQty(item.id, 1)}
-                    >
-                      +
-                    </button>
+                    {/* 알약 모양 – 0 + 박스 */}
+                    <div className="qty-box">
+                      <button className="qty-btn minus" onClick={() => handleChangeQty(item.id, -1)}>
+                        −
+                      </button>
+
+                      <span className="qty-value">{item.qty}</span>
+
+                      <button className="qty-btn plus" onClick={() => handleChangeQty(item.id, 1)}>
+                        +
+                      </button>
+                    </div>
+
+                    {/* 오른쪽 가격 */}
                     <span className="cart-item-price">
                       {formatPrice(item.price * item.qty)}원
                     </span>
@@ -220,7 +224,7 @@ export default function Cart() {
                   {item.options.map((opt, idx) => (
                     <div key={opt.label} className="cart-option-row">
                       <span className="cart-option-label">{opt.label}</span>
-                      <div className="cart-option-qty">
+                      <div className="cart-option-qty-box">
                         <button
                           className="cart-option-qty-btn"
                           onClick={() =>
@@ -248,6 +252,19 @@ export default function Cart() {
               )}
             </article>
           ))}
+        </section>
+
+        <section className="cart-add-more">
+          <button
+            type="button"
+            className="cart-add-more-btn"
+            onClick={() => {
+              // 나중에 다른 메뉴 리스트 페이지로 이동하면 여기서 navigate() 쓰면 됨
+              // 예: navigate("/menu");
+            }}
+          >
+            + 다른 메뉴 추가하기
+          </button>
         </section>
 
         {/* 합계 영역 */}
