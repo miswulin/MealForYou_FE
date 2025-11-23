@@ -23,6 +23,45 @@ export default function Pd() {
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
     const navigate = useNavigate();
 
+    const [baseOptions, setBaseOptions] = useState([
+      { id: 1, name: "옵션1[000g]", qty: 1 },
+      { id: 2, name: "옵션2[000g]", qty: 1 },
+    ]);
+  
+    const [extraOptions, setExtraOptions] = useState([
+      { id: 3, name: "옵션3[000g]", qty: 0 },
+    ]);
+
+    const [selectedRecommendId, setSelectedRecommendId] = useState(null);
+
+    const recommendedOptions = [
+      { id: 1, label: "옵션[000g]", tags: ["고단백", "저염"] },
+      { id: 2, label: "옵션[000g]", tags: ["저염"] },
+      { id: 3, label: "옵션[000g]", tags: ["고단백"] },
+      { id: 4, label: "옵션[000g]", tags: ["저염"] },
+    ];
+
+
+    const changeBaseQty = (id, delta) => {
+      setBaseOptions((prev) =>
+        prev.map((opt) =>
+          opt.id === id
+            ? { ...opt, qty: Math.max(0, opt.qty + delta) }
+            : opt
+        )
+      );
+    };
+
+    const changeExtraQty = (id, delta) => {
+      setExtraOptions((prev) =>
+        prev.map((opt) =>
+          opt.id === id
+            ? { ...opt, qty: Math.max(0, opt.qty + delta) }
+            : opt
+        )
+      );
+    };
+
 
 
     return (
@@ -204,29 +243,151 @@ export default function Pd() {
             구매하기
         </button>
       </div>
-      <BottomSheet
-        isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-      >
-        <h3 className="pd-sheet-title">옵션 선택</h3>
+      <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)}>
+      <h3 className="pd-sheet-section-label">저염·고단백 옵션 추천</h3>
 
+      {/* 추천 옵션 카드 리스트 */}
+        <div className="pd-sheet-recommend">
+          <div className="pd-chip-scroll">
+            {recommendedOptions.map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                className={
+                  "pd-chip-card" +
+                  (selectedRecommendId === opt.id ? " active" : "")
+                }
+                onClick={() => setSelectedRecommendId(opt.id)}
+              >
+                <span className="pd-chip-label">{opt.label}</span>
+
+                <div className="pd-chip-tags">
+                  {opt.tags.map((tag) => (
+                    <span key={tag} className="pd-chip-tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+      {/* 소스/맵기 섹션 */}
         <div className="pd-sheet-section">
-          <p className="pd-sheet-label">기본 옵션</p>
+          <p className="pd-sheet-section-label">소스/맵기</p>
+
           <div className="pd-sheet-row">
-            <span>옵션[000g]</span>
+          <div className="pd-sheet-row-left">
+            <span className="pd-sheet-option-name">옵션[000g]</span>
+          </div>
+
+          <div className="pd-sheet-row-right">
+            <span className="pd-sheet-option-price">가격 원</span>
+
             <div className="pd-sheet-counter">
               <button>-</button>
-              <span>1</span>
+              <span>0</span>
               <button>+</button>
             </div>
           </div>
         </div>
 
+        <div className="pd-sheet-row">
+          <div className="pd-sheet-row-left">
+            <span className="pd-sheet-option-name">옵션[000g]</span>
+          </div>
+
+          <div className="pd-sheet-row-right">
+            <span className="pd-sheet-option-price">가격 원</span>
+
+            <div className="pd-sheet-counter">
+              <button>-</button>
+              <span>0</span>
+              <button>+</button>
+            </div>
+          </div>
+        </div>
+        </div>
+
+          {/* 기본 옵션 섹션 */}
+          <div className="pd-sheet-section">
+            <p className="pd-sheet-section-label">기본 옵션</p>
+
+            {baseOptions.map((opt) => (
+              <div key={opt.id} className="pd-sheet-row">
+                {/* 왼쪽: 옵션 이름만 */}
+                <div className="pd-sheet-row-left">
+                  <span className="pd-sheet-option-name">{opt.name}</span>
+                </div>
+
+                {/* 오른쪽: 가격 + 수량박스 */}
+                <div className="pd-sheet-row-right">
+                  <span className="pd-sheet-option-price">가격 원</span>
+
+                  <div className="pd-sheet-counter">
+                    <button
+                      onClick={() => changeBaseQty(opt.id, -1)}
+                      disabled={opt.qty === 0}
+                    >
+                      −
+                    </button>
+                    <span>{opt.qty}</span>
+                    <button onClick={() => changeBaseQty(opt.id, 1)}>+</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        {/* 추가 옵션 섹션 */}
+        <div className="pd-sheet-section">
+          <p className="pd-sheet-section-label">추가 옵션</p>
+
+          {extraOptions.map((opt) => (
+            <div key={opt.id} className="pd-sheet-row">
+              <div className="pd-sheet-row-left">
+                <span className="pd-sheet-option-name">{opt.name}</span>
+              </div>
+
+              <div className="pd-sheet-row-right">
+                <span className="pd-sheet-option-price">가격 원</span>
+
+                <div className="pd-sheet-counter">
+                  <button
+                    onClick={() => changeExtraQty(opt.id, -1)}
+                    disabled={opt.qty === 0}
+                  >
+                    −
+                  </button>
+                  <span>{opt.qty}</span>
+                  <button onClick={() => changeExtraQty(opt.id, 1)}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div className="pd-sheet-actions">
-        <button className="pd-sheet-cart-btn" onClick={() => setIsCartModalOpen(true)}>
+          <button
+            className="pd-sheet-cart-btn"
+            onClick={() => {
+              setIsSheetOpen(false);
+              setIsCartModalOpen(true);
+            }}
+          >
             장바구니
-        </button>
-          <button className="pd-sheet-buy-btn">바로구매</button>
+          </button>
+          <button
+            className="pd-sheet-buy-btn"
+            onClick={() => {
+              setIsSheetOpen(false);
+              // 바로구매 나중에 연결
+              navigate("/order");
+            }}
+          >
+            바로구매
+          </button>
         </div>
       </BottomSheet>
       <CartModal
