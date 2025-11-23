@@ -50,6 +50,15 @@
     color: #999999;
     cursor: pointer;
   }
+
+  .toggle-icon {
+    width: 20px;
+    transition: transform 0.25s ease;
+  }
+  
+  .toggle-icon.closed {
+    transform: rotate(180deg);
+  }
   
   /* ===== 배송지 섹션 ===== */
   
