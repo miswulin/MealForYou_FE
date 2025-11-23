@@ -144,7 +144,6 @@
   .pd-title-text {
     font-size: 18px;
     font-weight: 700;
-    
     margin: 0 0 8px;
   }
   
@@ -305,6 +304,184 @@
     background: #fff;
     border-top: 1px solid #e5e5ea;
     box-shadow: 0 -6px 16px rgba(0,0,0,0.06);
+  }
+
+  .pd-sheet-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .pd-sheet-recommend {
+    margin: 0 -16px 10px;      
+    padding: 8px 16px 10px;
+  }
+
+  .pd-chip-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .pd-chip-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pd-chip-card {
+    width: 105px;
+    height: 60px;
+    padding: 10px 12px 8px;
+    border-radius: 14px;
+    border: 0.8px solid #e5e5ea;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  
+  .pd-chip-card.active {
+    box-shadow: 0 0 0 1px rgba(79, 108, 255, 0.12);
+    background-color: #F4F5F6;
+  }
+  
+  .pd-chip-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333333;
+  }
+
+  .pd-chip-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .pd-chip-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background-color: #f3f4fb;
+    color: #555555;
+  }
+  
+  .pd-sheet-section {
+    padding: 10px 0 4px;
+  }
+  
+  .pd-sheet-section:first-of-type {
+    border-top: none;
+  }
+  
+  .pd-sheet-section-label {
+    margin: 0 -16px 8px;   
+    padding: 8px 16px;
+    padding-left: 15px;
+    background-color: #f7f7f9;
+    font-size: 13px;
+    font-weight: 700;
+    color: #333333;
+    text-align: left;
+  }
+  
+  /* 옵션 한 줄 */
+  .pd-sheet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+
+  .pd-sheet-row:last-of-type {
+    border-bottom: none;
+  }
+  
+  .pd-sheet-row-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .pd-sheet-row-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;     
+  }
+
+  .pd-sheet-option-price {
+    font-size: 13px;
+    color: black;   
+    font-weight: 500;  
+    white-space: nowrap; /* 길어져도 줄바꿈 방지 */
+  }
+  
+  
+  .pd-sheet-option-name {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .pd-sheet-option-meta {
+    font-size: 12px;
+    color: #999999;
+  }
+  
+  /*  카운터 */
+  .pd-sheet-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 85px;
+    height: 32px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    border: 1px solid #f0f0f0;
+    background-color: #fff;
+    font-size: 15px;
+  }
+  
+  .pd-sheet-counter button {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 300;
+    color: #555;
+  }
+  
+  .pd-sheet-counter span {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  
+  /* 하단 버튼 영역 */
+  .pd-sheet-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  .pd-sheet-cart-btn,
+  .pd-sheet-buy-btn {
+    flex: 1;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+  }
+  
+  .pd-sheet-cart-btn {
+    background-color: #ffffff;
+    border: 1px solid #e5e5ea;
+    color: #333;
+  }
+  
+  .pd-sheet-buy-btn {
+    background-color: #ff6b2b;
+    color: #fff;
   }
 
   .pd-like-btn {
