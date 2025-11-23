@@ -27,7 +27,7 @@ function App() {
         <Route path="/editpassword" element={<EditPassword />} />
         <Route path="/editaddress" element={<EditAddress />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/" element={<Pd />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/product-detail" element={<Pd />} />
