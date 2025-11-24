@@ -8,8 +8,14 @@ import {
   Link,
   Paper,
   AppBar,
-  Toolbar
+  Toolbar,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
+import EnvelopeIcon from '../../assets/envelope.svg';
+import LockIcon from '../../assets/lock.svg';
+import EyeIcon from '../../assets/eye.svg';
+import EyeOffIcon from '../../assets/eye-hide-line.svg';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import logo from '../../assets/images/logo.png';
@@ -23,8 +29,8 @@ const GlobalStyleReset = styled('div')({
     padding: 0,
     fontFamily: '"Noto Sans KR", sans-serif',
   },
-  'a': {
-    textDecoration: 'none',
+  // 일반 링크 스타일 (MUI 링크 제외)
+  'a:not([class*="Mui"])': {
     color: 'inherit',
   },
   'button': {
@@ -34,14 +40,14 @@ const GlobalStyleReset = styled('div')({
 
 // 스타일드 컴포넌트 정의
 const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4, 3, 3, 3),
+  padding: theme.spacing(3, 3, 3, 3), // 상단 패딩을 0으로 설정
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   width: '100%',
   maxWidth: 400,
   margin: '0 auto',
-  marginTop: theme.spacing(2),
+  marginTop: 0, // 상단 마진 제거
   borderRadius: 16, // 더 둥글게 조정
   boxShadow: 'none',
   backgroundColor: 'white',
@@ -54,7 +60,7 @@ const Logo = styled('img')({
 });
 
 const LoginButton = styled(Button)({
-  marginTop: 24,
+  //marginTop: 16,  24px → 16px
   width: '100%',
   padding: '12px 0',
   borderRadius: 25, // 더 둥글게 조정 (20 → 25)
@@ -72,6 +78,16 @@ const LoginPage = () => {
     email: '',
     password: ''
   });
+  const [focusedField, setFocusedField] = useState({
+    email: false,
+    password: false
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  
+  // 비밀번호 표시/숨김 토글 핸들러
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
@@ -127,62 +143,138 @@ const LoginPage = () => {
           </Typography>
           
           {/* 회원가입 링크 */}
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ mb: 3, color: '#6D7882' }}>
             신규 사용자이신가요?{' '}
-            <Link href="/signup" onClick={handleSignupClick} sx={{ fontWeight: 'bold', color: '#00BFFF', textDecoration: 'none' }}>
+            <Link href="/signup" onClick={handleSignupClick} sx={{ color: '#2098F3', textDecoration: 'underline !important' }}>
               회원가입하기
             </Link>
           </Typography>
           
           {/* 로그인 폼 */}
           <StyledPaper>
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            <Box 
+              component="form" 
+              onSubmit={handleSubmit} 
+              className="login-form"
+              sx={{ 
+                width: '100%',
+                '&.login-form': {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0px' 
+                }
+              }}
+            >
               {/* 이메일 입력 필드 */}
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="이메일을 입력해주세요"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={formData.email}
-                onChange={handleChange}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderRadius: 5, // 둥근 정도 조정 (6 → 8)
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="email"
+                  label=""
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  value={formData.email}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField(prev => ({...prev, email: true}))}
+                  onBlur={() => setFocusedField(prev => ({...prev, email: false}))}
+                  placeholder="이메일을 입력해주세요"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ marginLeft: '8px' }}>
+                        {!formData.email && (
+                          <img src={EnvelopeIcon} alt="이메일" style={{ width: 20, height: 20, marginRight: '12px' }} />
+                        )}
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderRadius: 5,
+                      },
+                      //paddingLeft: '8px',
                     },
-                  },
-                  mb: 1
-                }}
-              />
+                    '& .MuiFormControl-marginNormal': {
+                      marginTop: '0 !important',
+                      marginBottom: '0 !important'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      fontFamily: '"Noto Sans KR", sans-serif',
+                      color: 'text.disabled',
+                      opacity: 1
+                    }
+                  }}
+                />
+              </Box>
               
               {/* 비밀번호 입력 필드 */}
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="비밀번호를 입력해주세요"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={formData.password}
-                onChange={handleChange}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderRadius: 5, // 더 둥글게 조정
+              <Box sx={{ mb: 2 }}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  name="password"
+                  label=""
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField(prev => ({...prev, password: true}))}
+                  onBlur={() => setFocusedField(prev => ({...prev, password: false}))}
+                  placeholder="비밀번호를 입력해주세요"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ marginLeft: '8px' }}>
+                        {!formData.password && (
+                          <img src={LockIcon} alt="비밀번호" style={{ width: 20, height: 20, marginRight: '12px' }} />
+                        )}
+                      </InputAdornment>
+                    ),
+                    endAdornment: formData.password && (
+                      <InputAdornment position="end" sx={{ marginRight: '16px' }}>
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          edge="end"
+                          sx={{
+                            padding: '4px',
+                            '&:hover': {
+                              backgroundColor: 'transparent'
+                            }
+                          }}
+                        >
+                          {showPassword ? (
+                            <img src={EyeOffIcon} alt="비밀번호 숨기기" style={{ width: 20, height: 20 }} />
+                          ) : (
+                            <img src={EyeIcon} alt="비밀번호 표시" style={{ width: 20, height: 20 }} />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderRadius: 5,
+                      },
+                      //paddingLeft: '8px',
                     },
-                  },
-                  // borderRadius: 5, 더 둥글게 조정
-                  mb: 1
-                }}
-              />
+                    '& .MuiFormControl-marginNormal': {
+                      marginTop: '0 !important',
+                      marginBottom: '0 !important'
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      fontFamily: '"Noto Sans KR", sans-serif',
+                      color: 'text.disabled',
+                      opacity: 1
+                    }
+                  }}
+                />
+              </Box>
 
               {/* 로그인 버튼 */}
               <LoginButton
@@ -194,15 +286,15 @@ const LoginPage = () => {
               </LoginButton>
 
               {/* 하단 링크 */}
-              <Box sx={{ mt: 3, textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ display: 'inline', color: '#666', mr: 2 }}>
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Typography variant="body2" sx={{ display: 'inline', color: '#6D7882', mr: 2, verticalAlign: 'middle', fontFamily: '"Noto Sans KR", sans-serif' }}>
                   비밀번호를 잊으셨나요?
                 </Typography>
                 <Link 
                   component="button" 
                   variant="body2" 
                   onClick={() => navigate('/find-password')}
-                  sx={{ color: '#666', textDecoration: 'none' }}
+                  sx={{ color: '#6D7882', textDecoration: 'underline', verticalAlign: 'middle', fontFamily: '"Noto Sans KR", sans-serif' }}
                 >
                   비밀번호 찾기
                 </Link>

@@ -5,14 +5,16 @@ import ArrowLeft from '@mui/icons-material/ArrowBackIosNew';
 import lockIcon from '../../assets/lock.svg';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
+import correctIcon from '../../assets/correct.svg';
+import wrongIcon from '../../assets/wrong.svg';
 
 const PageContainer = styled('div')({
   width: '100%',
   minHeight: '100vh',
   backgroundColor: '#fff',
-  padding: '0 20px',
+  padding: '0 20px 100px',
   fontFamily: '"Noto Sans KR", sans-serif',
-  paddingBottom: '40px',
+  position: 'relative',
   '& *': {
     boxSizing: 'border-box',
     margin: 0,
@@ -90,11 +92,33 @@ const InputContainer = styled('div')({
   position: 'relative',
   width: '100%',
   marginBottom: '8px',
+  display: 'flex',
+  gap: '12px',
   '&:focus-within': {
     'input': {
       borderColor: '#FF6B00',
       boxShadow: '0 0 0 1px #FF6B00',
     }
+  },
+  '& input': {
+    flex: 1,
+    height: '48px',
+    borderRadius: '24px',
+    border: '1px solid #d1d5db',
+    padding: '0 16px',
+    fontSize: '14px',
+    '&:focus': {
+      borderColor: '#FF6B00',
+      boxShadow: '0 0 0 1px #FF6B00',
+      outline: 'none',
+    },
+    '&:disabled': {
+      //backgroundColor: '#f9fafb', //이메일입력칸
+      borderColor: '#e5e7eb',
+    },
+    '&::placeholder': {
+      color: '#9ca3af',
+    },
   },
 });
 
@@ -123,7 +147,7 @@ const InputField = styled('input')({
     padding: '0 50px 0 50px',
   },
   '&:disabled': {
-    backgroundColor: '#f9fafb',
+    //backgroundColor: '#f9fafb',
     borderColor: '#e5e7eb',
   },
 });
@@ -158,17 +182,17 @@ const VerifyButton = styled('button')({
   top: '4px',
   width: '100px',
   height: '40px',
-  backgroundColor: '#FF6B00',
-  color: 'white',
+  backgroundColor: '#CDD1D5',
+  color: '#FFFFFF',
   border: 'none',
   borderRadius: '20px',
-  //fontSize: '14px',
   fontWeight: '500',
   cursor: 'pointer',
   '&:disabled': {
-    backgroundColor: '#e5e7eb',
-    color: '#9ca3af',
+    backgroundColor: '#CDD1D5',
+    color: '#FFFFFF',
     cursor: 'not-allowed',
+    opacity: 0.7,
   },
 });
 
@@ -185,34 +209,37 @@ const TimerText = styled('span')({
 const SuccessText = styled('p')({
   color: '#10b981',
   //fontSize: '12px',
-  // 여백: '-16px 0 16px',
+  //margin: '-16px 0 16px',
   textAlign: 'left',
 });
 
 const PasswordRuleText = styled('p')({
-  //fontSize: '12px',
+  fontSize: '12px',
   color: '#6b7280',
-  margin: '0px 12px 24px',
+  margin: '8px 0 24px 16px',
   textAlign: 'left',
+  fontWeight: '400',
+  lineHeight: '1.5',
 });
 
 const SubmitButton = styled('button')({
   width: '100%',
   height: '56px',
-  backgroundColor: '#FF6B00',
+  backgroundColor: '#FE4F1A',
   color: 'white',
   border: 'none',
   borderRadius: '28px',
   fontSize: '16px',
   fontWeight: '600',
   cursor: 'pointer',
+  transition: 'background-color 0.2s ease',
   '&:disabled': {
-    backgroundColor: '#e5e7eb',
-    color: '#9ca3af',
+    backgroundColor: '#CDD1D5',
+    color: '#FFFFFF',
     cursor: 'not-allowed',
   },
   '&:not(:disabled):hover': {
-    backgroundColor: '#e65100',
+    backgroundColor: '#E5460A',
   },
 });
 
@@ -226,7 +253,9 @@ function FindPasswordPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordMatchError, setPasswordMatchError] = useState('');
   const timerRef = useRef(null);
 
   const formatTime = (seconds) => {
@@ -238,15 +267,18 @@ function FindPasswordPage() {
   useEffect(() => {
     if (timeLeft === 0) {
       clearInterval(timerRef.current);
-      setIsCodeSent(false);
+      setVerificationSent(false);
     }
   }, [timeLeft]);
 
   const startTimer = () => {
-    setTimeLeft(300); // Reset to 5 minutes
-    setIsCodeSent(true);
+    setVerificationSent(true);
+    setTimeLeft(300);
     
-    if (timerRef.current) clearInterval(timerRef.current);
+    // 기존 타이머가 있으면 정리
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     
     timerRef.current = setInterval(() => {
       setTimeLeft(prevTime => {
@@ -265,6 +297,11 @@ function FindPasswordPage() {
     clearInterval(timerRef.current);
   };
 
+  const handleSendVerification = () => {
+    setVerificationSent(true);
+    startTimer();
+  };
+
   const [isPasswordReset, setIsPasswordReset] = useState(false);
 
   const handleSubmit = (e) => {
@@ -281,15 +318,45 @@ function FindPasswordPage() {
     setNewPassword('');
     setConfirmPassword('');
     
-    // 5초 후 성공 메시지 숨기기
-    setTimeout(() => {
-      setIsPasswordReset(false);
-      // 선택사항: 성공 메시지 표시 후 로그인 페이지로 이동
-      // navigate('/login');
-    }, 5000);
+    // 로그인 페이지로 바로 이동
+    setIsPasswordReset(false);
+    navigate('/login');
   };
 
-  const isFormValid = email && verificationCode && newPassword && confirmPassword && newPassword === confirmPassword;
+  // 비밀번호 유효성 검사
+  const validatePassword = (pass) => {
+    const regex = /^[A-Za-z\d!@#$*]{8,16}$/;
+    if (!regex.test(pass)) {
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자(!@#$*) 포함';
+    }
+    return '';
+  };
+
+  // 비밀번호 일치 여부 확인
+  const checkPasswordMatch = (pass, confirmPass) => {
+    if (pass && confirmPass && pass !== confirmPass) {
+      return '비밀번호가 일치하지 않습니다.';
+    }
+    return '';
+  };
+
+  // 비밀번호 변경 처리
+  const handlePasswordChange = (e) => {
+    const newPass = e.target.value;
+    setNewPassword(newPass);
+    setPasswordError(validatePassword(newPass));
+    setPasswordMatchError(checkPasswordMatch(newPass, confirmPassword));
+  };
+
+  // 비밀번호 확인 변경 처리
+  const handleConfirmPasswordChange = (e) => {
+    const confirmPass = e.target.value;
+    setConfirmPassword(confirmPass);
+    setPasswordMatchError(checkPasswordMatch(newPassword, confirmPass));
+  };
+
+  const isFormValid = email && verificationCode && newPassword && confirmPassword && 
+                     !passwordError && !passwordMatchError && newPassword === confirmPassword;
 
   return (
     <PageContainer>
@@ -301,7 +368,7 @@ function FindPasswordPage() {
       </Header>
 
       <form onSubmit={handleSubmit}>
-        <FormGroup>
+        <FormGroup style={{ textAlign: 'left' }}>
           <label>이메일 인증</label>
           <InputContainer>
             <InputField
@@ -309,43 +376,124 @@ function FindPasswordPage() {
               placeholder="이메일을 입력해주세요."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ paddingRight: '110px' }}
+              disabled={verificationSent}
+              style={{
+                flex: 1,
+                height: '48px',
+                borderRadius: '24px',
+                border: '1px solid #d1d5db',
+                padding: '0 16px',
+                fontSize: '14px',
+                '&:focus': {
+                  borderColor: '#FF6B00',
+                  boxShadow: '0 0 0 1px #FF6B00',
+                },
+                '&:disabled': {
+                  //backgroundColor: '#f9fafb',
+                  borderColor: '#e5e7eb',
+                },
+              }}
             />
-            <VerifyButton 
-              onClick={startTimer}
-              disabled={!email}
+            <button 
+              onClick={handleSendVerification}
+              disabled={!email || verificationSent}
+              style={{
+                padding: '0 16px',
+                height: '48px',
+                borderRadius: '24px',
+                backgroundColor: verificationSent ? '#CDD1D5' : '#CDD1D5',
+                color: '#FFFFFF',
+                cursor: verificationSent ? 'not-allowed' : 'pointer',
+                width: '90px',
+                textAlign: 'center',
+                display: 'inline-flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexShrink: 0,
+                border: 'none',
+                outline: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+              }}
             >
-              인증받기
-            </VerifyButton>
+              {verificationSent ? '재전송' : '인증받기'}
+            </button>
           </InputContainer>
-        </FormGroup>
-
-        <FormGroup>
-          <InputContainer>
+          <div style={{ position: 'relative', marginTop: '16px', marginBottom: '24px' }}>
             <InputField
               type="text"
-              placeholder="인증번호 입력"
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
-              style={{ padding: '0 20px 0 20px' }}
+              placeholder="인증번호 입력"
+              disabled={!verificationSent}
+              style={{
+                width: '100%',
+                height: '48px',
+                borderRadius: '24px',
+                border: '1px solid #d1d5db',
+                padding: '0 100px 0 16px',
+                fontSize: '14px',
+                '&:focus': {
+                  borderColor: '#FF6B00',
+                  boxShadow: '0 0 0 1px #FF6B00',
+                },
+                '&:disabled': {
+                  backgroundColor: '#f9fafb',
+                  borderColor: '#e5e7eb',
+                },
+              }}
             />
-            {isCodeSent && (
-              <TimerText>{formatTime(timeLeft)}</TimerText>
+            {verificationSent && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                marginTop: '4px', 
+                fontSize: '12px', 
+                color: '#10B981',
+                marginLeft: '10px'
+              }}>
+                <img 
+                  src={correctIcon} 
+                  alt="인증완료" 
+                  style={{ 
+                    width: '12px', 
+                    height: '12px', 
+                    marginRight: '4px' 
+                  }} 
+                />
+                인증번호가 전송되었습니다.
+              </div>
             )}
-          </InputContainer>
-          {isCodeSent && !isVerified && (
-            <SuccessText>인증번호가 전송되었습니다.</SuccessText>
-          )}
+            {verificationSent && timeLeft > 0 && (
+              <div style={{
+                position: 'absolute',
+                right: '16px',
+                top: '12px',
+                color: '#EF4444',
+                fontSize: '14px',
+                fontWeight: '500',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                {formatTime(timeLeft)}
+              </div>
+            )}
+          </div>
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup style={{ textAlign: 'left' }}>
           <label>변경할 비밀번호</label>
-          <InputContainer>
+          <InputContainer style={{ marginBottom: '4px' }}>
             <InputField
               type={showPassword ? "text" : "password"}
               placeholder="변경할 비밀번호를 입력해주세요."
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={handlePasswordChange}
+              style={{
+                paddingLeft: '50px',
+                borderColor: passwordError ? '#ef4444' : newPassword && !passwordError ? '#10B981' : '#d1d5db'
+              }}
             />
             <InputIcon src={lockIcon} alt="" />
             <ToggleButton 
@@ -358,20 +506,33 @@ function FindPasswordPage() {
               />
             </ToggleButton>
           </InputContainer>
-          <PasswordRuleText>
-            8~16자 영문, 소문자, 숫자, 특수문자(!@#$%^&*) 조합
-          </PasswordRuleText>
+          <div style={{ marginBottom: '24px', minHeight: '20px' }}>
+            {passwordError ? (
+              <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
+                <img src={wrongIcon} alt="오류" style={{ width: '16px', height: '16px', marginRight: '4px' }} />
+                <span style={{ color: '#ef4444', fontSize: '12px' }}>{passwordError}</span>
+              </div>
+            ) : !newPassword ? (
+              <span style={{ color: '#6b7280', fontSize: '12px', marginLeft: '20px' }}>
+                8~16자의 영문, 소문자, 숫자, 특수문자(!@#$*) 포함
+              </span>
+            ) : null}
+          </div>
         </FormGroup>
 
-        <FormGroup>
+        <FormGroup style={{ textAlign: 'left' }}>
           <label>변경할 비밀번호 확인</label>
-          <InputContainer>
+          <InputContainer style={{ marginBottom: '4px' }}>
             <InputField
               type={showConfirmPassword ? "text" : "password"}
               placeholder="비밀번호를 다시 입력해주세요."
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              style={confirmPassword && newPassword !== confirmPassword ? { borderColor: '#ef4444', padding: '0 50px 0 50px' } : { padding: '0 50px 0 50px' }}
+              onChange={handleConfirmPasswordChange}
+              style={{
+                paddingLeft: '50px',
+                borderColor: passwordMatchError ? '#ef4444' : 
+                            confirmPassword && !passwordMatchError ? '#10B981' : '#d1d5db'
+              }}
             />
             <InputIcon src={lockIcon} alt="" />
             <ToggleButton 
@@ -384,17 +545,38 @@ function FindPasswordPage() {
               />
             </ToggleButton>
           </InputContainer>
-          {confirmPassword && newPassword !== confirmPassword && (
-            <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px', textAlign: 'left' }}>
-              비밀번호가 일치하지 않습니다.
-            </p>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px', minHeight: '20px' }}>
+            {passwordMatchError ? (
+              <div style={{ display: 'flex', alignItems: 'center', minHeight: '20px', marginLeft: '10px' }}>
+                <img src={wrongIcon} alt="오류" style={{ width: '16px', height: '16px', marginRight: '4px' }} />
+                <span style={{ color: '#ef4444', fontSize: '12px' }}>{passwordMatchError}</span>
+              </div>
+            ) : confirmPassword && !passwordMatchError ? (
+              <>
+                <img src={correctIcon} alt="확인" style={{ width: '16px', height: '16px', marginRight: '4px', marginLeft: '10px' }} />
+                <span style={{ color: '#10B981', fontSize: '12px' }}>비밀번호가 일치합니다.</span>
+              </>
+            ) : null}
+          </div>
         </FormGroup>
 
-        <div style={{ marginTop: '40px' }}>
+        <div style={{
+          position: 'fixed',
+          bottom: '0',
+          left: '0',
+          right: '0',
+          padding: '16px 20px 24px',
+          //backgroundColor: '#fff'
+          //boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)'
+        }}>
           <SubmitButton 
             type="submit" 
             disabled={!isFormValid}
+            style={{
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
+            }}
           >
             수정하기
           </SubmitButton>
