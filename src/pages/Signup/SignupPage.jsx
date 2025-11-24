@@ -5,6 +5,8 @@ import logoSmall from '../../assets/images/logo_small.png';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
 import lockIcon from '../../assets/lock.svg';
+import correctIcon from '../../assets/correct.svg';
+import wrongIcon from '../../assets/wrong.svg';
 
 const SignupContainer = styled('div')({
   width: '100%',
@@ -60,7 +62,7 @@ const Subtitle = styled('p')({
   textAlign: 'center',
   marginBottom: '24px',
   '& span': {
-    color: '#2563eb',
+    color: '#2098F3',
     fontWeight: '500',
   },
 });
@@ -96,7 +98,7 @@ const InputGroup = styled('div')({
     padding: '0 16px',
     height: '48px',
     borderRadius: '24px',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#CDD1D5',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
@@ -208,7 +210,7 @@ export default function SignupPage() {
   const handleSendVerification = () => {
     setVerificationSent(true);
     setTimeLeft(300); // 5분으로 초기화
-    // 일반적으로 여기서 인증 코드를 전송하는 API 호출을 수행합니다
+    // 여기서 인증 코드를 전송하는 API 호출을 수행
   };
 
   // 폼 유효성 검사
@@ -257,7 +259,7 @@ export default function SignupPage() {
 
       <Title>회원가입</Title>
       <Subtitle>
-        이미 회원이신가요? <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>로그인하기</span>
+        이미 회원이신가요? <span onClick={() => navigate('/login')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>로그인하기</span>
       </Subtitle>
 
       <FormGroup>
@@ -314,7 +316,7 @@ export default function SignupPage() {
         <label>주소</label>
         <InputGroup>
           <input type="text" placeholder="우편번호" />
-          <button>우편번호 찾기</button>
+          <button style={{ color: '#FFFFFF' }}>우편번호 찾기</button>
         </InputGroup>
         <InputGroup>
           <input type="text" placeholder="주소" />
@@ -340,19 +342,20 @@ export default function SignupPage() {
             onClick={handleSendVerification}
             disabled={!formData.email || verificationSent}
             style={{
-              backgroundColor: verificationSent ? '#e5e7eb' : '#FF6B00',
-              color: verificationSent ? '#9ca3af' : 'white',
-              cursor: verificationSent ? 'not-allowed' : 'pointer'
+              backgroundColor: verificationSent ? '#CDD1D5' : '#CDD1D5',
+              color: '#FFFFFF',
+              cursor: verificationSent ? 'not-allowed' : 'pointer',
+              width: '90px',
+              textAlign: 'center',
+              display: 'inline-flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexShrink: 0
             }}
           >
             {verificationSent ? '재전송' : '인증받기'}
           </button>
         </InputGroup>
-        {verificationSent && (
-          <div style={{ marginTop: '4px', fontSize: '12px', color: '#10B981' }}>
-            인증번호가 전송되었습니다.
-          </div>
-        )}
         <div style={{ position: 'relative', marginTop: '8px' }}>
           <input 
             type="text" 
@@ -368,15 +371,38 @@ export default function SignupPage() {
               fontSize: '14px',
             }}
           />
+          {verificationSent && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              marginTop: '4px', 
+              fontSize: '12px', 
+              color: '#10B981',
+              marginLeft: '10px'
+            }}>
+              <img 
+                src={correctIcon} 
+                alt="인증완료" 
+                style={{ 
+                  width: '12px', 
+                  height: '12px', 
+                  marginRight: '4px' 
+                }} 
+              />
+              인증번호가 전송되었습니다.
+            </div>
+          )}
           {verificationSent && timeLeft > 0 && (
             <div style={{
               position: 'absolute',
               right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
+              top: '12px',
               color: '#EF4444',
               fontSize: '14px',
-              fontWeight: '500'
+              fontWeight: '500',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center'
             }}>
               {formatTime(timeLeft)}
             </div>
@@ -397,47 +423,69 @@ export default function SignupPage() {
               height: '48px',
               borderRadius: '24px',
               border: passwordError ? '1px solid #EF4444' : '1px solid #d1d5db',
-              padding: '0 44px',
+              padding: '0 16px 0 16px',
+              paddingLeft: password ? '16px' : '44px',
               fontSize: '14px',
             }}
           />
           {passwordError && (
             <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
               fontSize: '12px', 
               color: '#EF4444',
               marginTop: '4px',
               marginLeft: '8px'
             }}>
+              <img 
+                src={wrongIcon} 
+                alt="" 
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  marginRight: '4px',
+                  flexShrink: 0
+                }}
+              />
               {passwordError}
             </div>
           )}
-          <img 
-            src={lockIcon} 
-            alt="" 
-            style={{
-              position: 'absolute',
-              left: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              color: '#9ca3af'
-            }}
-          />
-          <img 
-            src={showPassword ? eyeHideIcon : eyeIcon} 
-            alt={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              cursor: 'pointer'
-            }}
-          />
+          {!password && (
+            <img 
+              src={lockIcon} 
+              alt="" 
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '20px',
+                height: '20px',
+                color: '#9ca3af'
+              }}
+            />
+          )}
+          <div style={{
+            position: 'absolute',
+            right: '16px',
+            top: 0,
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <img 
+              src={showPassword ? eyeHideIcon : eyeIcon} 
+              alt={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                width: '20px',
+                height: '20px',
+                cursor: 'pointer',
+                pointerEvents: 'auto'
+              }}
+            />
+          </div>
         </div>
       </FormGroup>
 
@@ -454,81 +502,146 @@ export default function SignupPage() {
               height: '48px',
               borderRadius: '24px',
               border: password && confirmPassword && password !== confirmPassword ? '1px solid #EF4444' : '1px solid #d1d5db',
-              padding: '0 44px',
+              padding: '0 16px 0 16px',
+              paddingLeft: confirmPassword ? '16px' : '44px',
               fontSize: '14px',
             }}
           />
           {password && confirmPassword && password !== confirmPassword && (
             <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
               fontSize: '12px', 
               color: '#EF4444',
               marginTop: '4px',
               marginLeft: '8px'
             }}>
+              <img 
+                src={wrongIcon} 
+                alt="" 
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  marginRight: '4px'
+                }}
+              />
               비밀번호가 일치하지 않습니다.
             </div>
           )}
-          <img 
-            src={lockIcon} 
-            alt="" 
-            style={{
-              position: 'absolute',
-              left: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              color: '#9ca3af'
-            }}
-          />
-          <img 
-            src={showConfirmPassword ? eyeHideIcon : eyeIcon} 
-            alt={showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              width: '20px',
-              height: '20px',
-              cursor: 'pointer'
-            }}
-          />
+          {!confirmPassword && (
+            <img 
+              src={lockIcon} 
+              alt="" 
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '20px',
+                height: '20px',
+                color: '#9ca3af'
+              }}
+            />
+          )}
+          <div style={{
+            position: 'absolute',
+            right: '16px',
+            top: 0,
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <img 
+              src={showConfirmPassword ? eyeHideIcon : eyeIcon} 
+              alt={showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={{
+                width: '20px',
+                height: '20px',
+                cursor: 'pointer',
+                pointerEvents: 'auto'
+              }}
+            />
+          </div>
         </div>
       </FormGroup>
 
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-        margin: '24px 0',
-        //글꼴 크기: '14px'
-      }}>
-        <input 
-          type="checkbox" 
-          id="privacy" 
-          style={{
-            marginRight: '8px',
-            width: '18px',
-            height: '18px',
-            accentColor: '#FF6B00'
-          }} 
-        />
-        <label htmlFor="privacy" style={{ flex: 1 }}>개인정보 수집 동의</label>
-        <span style={{ color: '#666', cursor: 'pointer' }}>자세히 보기</span>
+      <div style={{ margin: '24px 16px', width: 'calc(100% - 32px)' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '12px',
+          fontSize: '14px'
+        }}>
+          <input 
+            type="checkbox" 
+            id="terms" 
+            style={{
+              marginRight: '8px',
+              width: '18px',
+              height: '18px',
+              accentColor: '#464C53'
+            }} 
+          />
+          <label htmlFor="terms" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>서비스 이용약관 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
+          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '12px',
+          fontSize: '14px'
+        }}>
+          <input 
+            type="checkbox" 
+            id="privacy" 
+            style={{
+              marginRight: '8px',
+              width: '18px',
+              height: '18px',
+              accentColor: '#464C53'
+            }} 
+          />
+          <label htmlFor="privacy" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>개인정보 처리방침 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
+          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          fontSize: '14px'
+        }}>
+          <input 
+            type="checkbox" 
+            id="finance" 
+            style={{
+              marginRight: '8px',
+              width: '18px',
+              height: '18px',
+              accentColor: '#464C53'
+            }} 
+          />
+          <label htmlFor="finance" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>전자금융거래 이용약관 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
+          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
+        </div>
       </div>
 
-      <SubmitButton 
-        style={{
-          backgroundColor: isFormValid ? '#FF6B00' : '#e5e7eb',
-          cursor: isFormValid ? 'pointer' : 'not-allowed'
-        }}
-        disabled={!isFormValid}
-        onClick={() => navigate('/login')}
-      >
-        가입하기
-      </SubmitButton>
+      <div style={{ marginBottom: '40px' }}>
+        <SubmitButton 
+          style={{
+            backgroundColor: isFormValid ? '#FE4F1A' : '#CDD1D5',
+            color: '#FFFFFF',
+            cursor: isFormValid ? 'pointer' : 'not-allowed',
+            width: '100%'
+          }}
+          disabled={!isFormValid}
+          onClick={() => navigate('/login')}
+        >
+          가입하기
+        </SubmitButton>
+      </div>
     </SignupContainer>
   );
 }
