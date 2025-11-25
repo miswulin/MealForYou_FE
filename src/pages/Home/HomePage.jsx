@@ -1,208 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styles from './HomePage.module.css';
 import logo from '../../assets/images/logo_small.png';
-import heartIcon from '../../assets/images/heart.png';
-import heartFilledIcon from '../../assets/images/heart-m.png';
+// Header heart icon
+import headerHeartIcon from '../../assets/images/heart.png';
+// Product card heart icons
+import heartIcon from '../../assets/images/heart-m.png';
+import heartFilledIcon from '../../assets/images/heart-menu-Icon.png';
 import cartIcon from '../../assets/images/cart.png';
 import personIcon from '../../assets/images/person.png';
 import searchIcon from '../../assets/images/magnifyingglass.png';
 import bibimbap from '../../assets/images/bibimbap.png';
+import bannerImg from '../../assets/images/banner_img.png';
 
-// 스타일드 컴포넌트
-const Container = styled.div`
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 0 16px;
-`;
-
-const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #f0f0f0;
-`;
-
-const Logo = styled.img`
-  height: 24px;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  gap: 16px;
-`;
-
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-`;
-
-const SearchBar = styled.div`
-  display: flex;
-  align-items: center;
-  background-color: #f5f5f5;
-  border-radius: 20px;
-  padding: 8px 16px;
-  margin: 16px 0;
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 14px;
-  margin-left: 8px;
-`;
-
-const BannerContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  border-radius: 8px;
-  margin: 16px 0;
-`;
-
-const BannerSlide = styled.div`
-  display: flex;
-  width: 500%;
-  height: 100%;
-  transition: transform 0.5s ease-in-out;
-  transform: translateX(${props => -props.currentIndex * 100}%);
-`;
-
-const Banner = styled.div`
-  width: 20%;
-  height: 100%;
-  background-color: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #666;
-`;
-
-const BannerPagination = styled.div`
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-`;
-
-const PageDot = styled.span`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${props => props.active ? '#FF6B6B' : '#fff'};
-  opacity: ${props => props.active ? 1 : 0.5};
-  cursor: pointer;
-`;
-
-const SectionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 32px 0 16px;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 18px;
-  font-weight: bold;
-  margin: 0;
-`;
-
-const ViewMore = styled.span`
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-`;
-
-const ProductList = styled.div`
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding: 8px 0;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const ProductCard = styled.div`
-  min-width: 160px;
-  position: relative;
-  cursor: pointer;
-`;
-
-const ProductImage = styled.div`
-  width: 100%;
-  aspect-ratio: 1;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 8px;
-  position: relative;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const HeartButton = styled.div`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  
-  img {
-    width: 100%;
-    height: 100%;
-  }
-`;
-
-const ProductInfo = styled.div`
-  padding: 0 4px;
-`;
-
-const ProductName = styled.h3`
-  font-size: 14px;
-  margin: 0 0 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const PriceContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const OriginalPrice = styled.span`
-  font-size: 12px;
-  color: #999;
-  text-decoration: line-through;
-`;
-
-const DiscountRate = styled.span`
-  font-size: 12px;
-  color: #FF6B6B;
-  font-weight: bold;
-`;
-
-const SalePrice = styled.span`
-  font-size: 14px;
-  font-weight: bold;
-`;
+// CSS Modules are now in HomePage.module.css
 
 // 샘플 데이터
 const banners = [
@@ -293,148 +104,179 @@ const HomePage = () => {
   };
 
   return (
-    <Container>
-      <Header>
-        <Logo src={logo} alt="MealForYou" />
-        <IconContainer>
-          <Icon src={heartIcon} alt="찜" onClick={() => navigate('/wishlist')} />
-          <Icon src={cartIcon} alt="장바구니" onClick={() => navigate('/cart')} />
-          <Icon src={personIcon} alt="마이페이지" onClick={() => navigate('/mypage')} />
-        </IconContainer>
-      </Header>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <img className={styles.logo} src={logo} alt="MealForYou" />
+        <div className={styles.iconContainer}>
+          <img 
+            className={styles.icon} 
+            src={headerHeartIcon} 
+            alt="찜" 
+            onClick={() => navigate('/wishlist')} 
+          />
+          <img 
+            className={styles.icon} 
+            src={cartIcon} 
+            alt="장바구니" 
+            onClick={() => navigate('/cart')} 
+          />
+          <img 
+            className={styles.icon} 
+            src={personIcon} 
+            alt="마이페이지" 
+            onClick={() => navigate('/mypage')} 
+          />
+        </div>
+      </header>
 
-      <SearchBar>
-        <Icon src={searchIcon} alt="검색" />
-        <SearchInput type="text" placeholder="어떤 메뉴를 찾고 계신가요?" />
-      </SearchBar>
+      <div className={styles.searchBar}>
+        <input type="text" className={styles.searchInput} placeholder="어떤 메뉴를 찾고 계신가요?" />
+        <img className={styles.icon} src={searchIcon} alt="검색" />
+      </div>
 
-      <BannerContainer>
-        <BannerSlide currentIndex={currentBannerIndex}>
+      <div className={styles.bannerContainer}>
+        <div 
+          className={styles.bannerSlide} 
+          style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
+        >
           {banners.map((banner, index) => (
-            <Banner key={banner.id}>
-              {banner.title}
-            </Banner>
+            <div key={banner.id} className={styles.banner}>
+              <img 
+                src={bannerImg} 
+                alt={`배너 ${banner.id}`} 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
           ))}
-        </BannerSlide>
-        <BannerPagination>
+        </div>
+        <div className={styles.bannerPagination}>
           {banners.map((_, index) => (
-            <PageDot 
-              key={index} 
-              active={index === currentBannerIndex} 
+            <span 
+              key={index}
+              className={`${styles.pageDot} ${index === currentBannerIndex ? styles.pageDotActive : ''}`}
               onClick={() => handleBannerDotClick(index)}
             />
           ))}
-        </BannerPagination>
-      </BannerContainer>
+        </div>
+      </div>
 
       <section>
-        <SectionHeader>
-          <SectionTitle>오늘의 인기상품</SectionTitle>
-          <ViewMore>더보기 &gt;</ViewMore>
-        </SectionHeader>
-        <ProductList>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>오늘의 인기상품</h2>
+          <span className={styles.viewMore}>더보기 &gt;</span>
+        </div>
+        <div className={styles.productList}>
           {products.popular.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <ProductCard key={product.id}>
-                <ProductImage>
+              <div key={product.id} className={styles.productCard}>
+                <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
-                  <HeartButton onClick={(e) => {
-                    e.stopPropagation();
-                    toggleLike('popular', product.id);
-                  }}>
+                  <div 
+                    className={styles.heartButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike('popular', product.id);
+                    }}
+                  >
                     <img 
                       src={product.isLiked ? heartFilledIcon : heartIcon} 
                       alt={product.isLiked ? '찜 해제' : '찜하기'} 
                     />
-                  </HeartButton>
-                </ProductImage>
-                <ProductInfo>
-                  <ProductName>{product.name}</ProductName>
-                  <PriceContainer>
-                    <DiscountRate>{product.discountRate}%</DiscountRate>
-                    <SalePrice>{formatPrice(salePrice)}원</SalePrice>
-                  </PriceContainer>
-                  <OriginalPrice>{formatPrice(product.originalPrice)}원</OriginalPrice>
-                </ProductInfo>
-              </ProductCard>
+                  </div>
+                </div>
+                <div className={styles.productInfo}>
+                  <h3 className={styles.productName}>{product.name}</h3>
+                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                  <div className={styles.priceContainer}>
+                    <span className={styles.discountRate}>{product.discountRate}%</span>
+                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </ProductList>
+        </div>
       </section>
 
       <section>
-        <SectionHeader>
-          <SectionTitle>따끈따끈한 신상품</SectionTitle>
-          <ViewMore>더보기 &gt;</ViewMore>
-        </SectionHeader>
-        <ProductList>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
+          <span className={styles.viewMore}>더보기 &gt;</span>
+        </div>
+        <div className={styles.productList}>
           {products.new.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <ProductCard key={product.id}>
-                <ProductImage>
+              <div key={product.id} className={styles.productCard}>
+                <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
-                  <HeartButton onClick={(e) => {
-                    e.stopPropagation();
-                    toggleLike('new', product.id);
-                  }}>
+                  <div 
+                    className={styles.heartButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike('new', product.id);
+                    }}
+                  >
                     <img 
                       src={product.isLiked ? heartFilledIcon : heartIcon} 
                       alt={product.isLiked ? '찜 해제' : '찜하기'} 
                     />
-                  </HeartButton>
-                </ProductImage>
-                <ProductInfo>
-                  <ProductName>{product.name}</ProductName>
-                  <PriceContainer>
-                    <DiscountRate>{product.discountRate}%</DiscountRate>
-                    <SalePrice>{formatPrice(salePrice)}원</SalePrice>
-                  </PriceContainer>
-                  <OriginalPrice>{formatPrice(product.originalPrice)}원</OriginalPrice>
-                </ProductInfo>
-              </ProductCard>
+                  </div>
+                </div>
+                <div className={styles.productInfo}>
+                  <h3 className={styles.productName}>{product.name}</h3>
+                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                  <div className={styles.priceContainer}>
+                    <span className={styles.discountRate}>{product.discountRate}%</span>
+                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </ProductList>
+        </div>
       </section>
 
       <section>
-        <SectionHeader>
-          <SectionTitle>밀포유 전체메뉴</SectionTitle>
-          <ViewMore>더보기 &gt;</ViewMore>
-        </SectionHeader>
-        <ProductList>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>밀포유 전체 메뉴</h2>
+          <span className={styles.viewMore}>전체보기 &gt;</span>
+        </div>
+        <div className={styles.productList}>
           {products.all.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <ProductCard key={product.id}>
-                <ProductImage>
+              <div key={product.id} className={styles.productCard}>
+                <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
-                  <HeartButton onClick={(e) => {
-                    e.stopPropagation();
-                    toggleLike('all', product.id);
-                  }}>
+                  <div 
+                    className={styles.heartButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike('all', product.id);
+                    }}
+                  >
                     <img 
                       src={product.isLiked ? heartFilledIcon : heartIcon} 
                       alt={product.isLiked ? '찜 해제' : '찜하기'} 
                     />
-                  </HeartButton>
-                </ProductImage>
-                <ProductInfo>
-                  <ProductName>{product.name}</ProductName>
-                  <PriceContainer>
-                    <DiscountRate>{product.discountRate}%</DiscountRate>
-                    <SalePrice>{formatPrice(salePrice)}원</SalePrice>
-                  </PriceContainer>
-                  <OriginalPrice>{formatPrice(product.originalPrice)}원</OriginalPrice>
-                </ProductInfo>
-              </ProductCard>
+                  </div>
+                </div>
+                <div className={styles.productInfo}>
+                  <h3 className={styles.productName}>{product.name}</h3>
+                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                  <div className={styles.priceContainer}>
+                    <span className={styles.discountRate}>{product.discountRate}%</span>
+                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </ProductList>
+        </div>
       </section>
-    </Container>
+    </div>
   );
 };
 
