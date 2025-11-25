@@ -1,9 +1,10 @@
 import profileIcon from "../../assets/profile.svg";
 import styles from "../MyPage/EditInfo.module.css";
 import React, { useEffect, useState } from "react";
+import Header from "../../components/Header";
 
 export default function EditInfo() {
-  // 💡 임시 데이터 (mock)
+  // 임시 더미데이터
   const [form, setForm] = useState({
     lastname: "김",
     firstname: "멋사",
@@ -13,13 +14,18 @@ export default function EditInfo() {
     email: "likelion13th@swu.ac.kr",
   });
   const [errors, setErrors] = useState({});
-  // 💡 일단 UI용 handleChange — 동작은 안해도 에러 방지
-  const handleChange = (e) => {
-   };
+  // UI용 handleChange — 동작은 X, 에러 방지
+  const handleChange = (e) => {};
   return (
     <main>
-      {/* 추후 헤더추가 */}
-      <header></header>
+      {/* 헤더 */}
+      <Header
+        title="회원정보 수정"
+        onBack={() => navigate(-1)}
+        showHeart={false}
+        showCart={false}
+        showPerson={false}
+      />
       <section>
         <div className={styles.profile}>
           <img src={profileIcon} alt="Profile Icon" />
@@ -40,21 +46,21 @@ export default function EditInfo() {
           <label className={styles.label}>이름</label>
           {/* 성 */}
           <div className={styles.nameinput}>
-          <input
-            type="text"
-            name="lastname"
-            className={styles.name}
-            value={form.lastname}
-            onChange={handleChange}
-          />
-          {/* 이름 */}
-          <input
-            type="text"
-            name="firstname"
-            className={styles.name}
-            value={form.firstname}
-            onChange={handleChange}
-          />
+            <input
+              type="text"
+              name="lastname"
+              className={styles.name}
+              value={form.lastname}
+              onChange={handleChange}
+            />
+            {/* 이름 */}
+            <input
+              type="text"
+              name="firstname"
+              className={styles.name}
+              value={form.firstname}
+              onChange={handleChange}
+            />
           </div>
           {/* 전화번호 칸 */}
           <label className={styles.label}>전화번호</label>
