@@ -1,26 +1,43 @@
 import profileIcon from "../../assets/profile.svg";
 import arrow from "../../assets/right_arrow.svg";
 import styles from "../MyPage/MyPage.module.css";
+import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
+
 export default function MyPage() {
+  const navigate = useNavigate();
+
   return (
-    <main>
-      {/* 추후 헤더추가 */}
-      <header></header>
+    <main className={styles.page}>
+      {/* 헤더*/}
+      <Header
+        title="마이페이지"
+        onBack={() => navigate(-1)}
+        showHeart={false}
+        showCart={false}
+        showPerson={false}
+      />
       <section>
         <div className={styles.profile}>
           <img src={profileIcon} alt="Profile Icon" />
           <h3>김멋사</h3>
           <p>likelion13th@swu.ac.kr</p>
         </div>
+        {/* 각 페이지로 이동 */}
         <div className={styles.userSettings}>
-          <p>회원정보 수정</p>
-          <p>비밀 번호 변경</p>
-          <p>배송지 관리</p>
+          <p onClick={() => navigate("/editinfo")}>회원정보 수정</p>
+          <p onClick={() => navigate("/editpassword")}>비밀번호 변경</p>
+          <p onClick={() => navigate("/editaddress")}>배송지 관리</p>
         </div>
         <hr className={styles.hr1} />
         <div className={styles.container}>
           <h3>선호 식단 유형 수정</h3>
-          <img src={arrow} alt="arrow Icon" style={{ cursor: "pointer" }} />
+          <img
+            src={arrow}
+            alt="arrow Icon"
+            onClick={() => navigate("/onboarding-test")}
+            style={{ cursor: "pointer" }}
+          />
         </div>
         <hr className={styles.hr1} />
 

@@ -1,13 +1,21 @@
 import styles from "../MyPage/EditAddress.module.css";
 import React, { useEffect, useState } from "react";
+import Header from "../../components/Header";
 
 export default function EditAddress() {
   const [errors, setErrors] = useState({});
-  // 💡 일단 UI용 handleChange — 동작은 안해도 에러 방지
+  // UI용 handleChange — 동작은 X, 에러 방지
   return (
     <main>
-      {/* 추후 헤더추가 */}
-      <header></header>
+      {/* 헤더 */}
+      <Header
+        title="배송지 관리"
+        onBack={() => navigate(-1)}
+        showHeart={false}
+        showCart={false}
+        showPerson={false}
+      />
+
       {/* 현재 주소정보*/}
       <section className={styles.section1}>
         <div className={styles.textwrapper}>

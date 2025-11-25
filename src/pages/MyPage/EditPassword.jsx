@@ -2,16 +2,21 @@ import lock from "../../assets/lock.svg";
 import eye from "../../assets/eye.svg";
 import styles from "../MyPage/EditPassword.module.css";
 import React, { useEffect, useState } from "react";
-
+import Header from "../../components/Header";
 export default function EditPassword() {
   const [errors, setErrors] = useState({});
-  // 💡 일단 UI용 handleChange — 동작은 안해도 에러 방지
-  const handleChange = (e) => {
-    };
+  // UI용 handleChange — 동작은 X, 에러 방지
+  const handleChange = (e) => {};
   return (
     <main>
-      {/* 추후 헤더추가 */}
-      <header></header>
+      {/* 헤더 */}
+      <Header
+        title="비밀번호 변경"
+        onBack={() => navigate(-1)}
+        showHeart={false}
+        showCart={false}
+        showPerson={false}
+      />
       <section>
         <form className={styles.form}>
           {/* onSubmit={handleSubmit} */}
@@ -22,7 +27,7 @@ export default function EditPassword() {
             <input
               type="password"
               name="password"
-              className={styles.password}
+              className={styles.input}
               onChange={handleChange}
               placeholder="현재 비밀번호를 입력해주세요."
             />
@@ -35,7 +40,7 @@ export default function EditPassword() {
             <input
               type="email"
               name="email"
-              className={styles.email}
+              className={styles.input}
               onChange={handleChange}
               placeholder="변경할 비밀번호를 입력해주세요."
             />
@@ -53,7 +58,7 @@ export default function EditPassword() {
             <input
               type="email"
               name="email"
-              className={styles.email}
+              className={styles.input}
               onChange={handleChange}
               placeholder="비밀번호를 다시 입력해주세요."
             />
