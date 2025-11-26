@@ -1,0 +1,246 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fff;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* 헤더 스타일 - 홈페이지와 동일 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+/* 검색 필터 바 */
+.searchFilter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+  padding: 0 4px;
+}
+
+.searchInfo {
+  flex: 1;
+  text-align: left;
+  padding-left: 0px;
+}
+
+.productCount {
+  /*font-size: 14px;*/
+  color: #6D7882;
+  
+}
+
+/* 검색 바 */
+.searchBar {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px 16px;
+  /*margin: 0 20px 16px;*/
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  padding: 0 8px;
+  color: #8a949e;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+/* Dropdown styles */
+.sortContainer {
+  position: relative;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.sortButton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.sortButton::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #666;
+  margin-left: 8px;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  text-align: left;
+  width: 100%;
+  border: none;
+  background: none;
+}
+
+.dropdownItem:hover {
+  background-color: #f8f8f8;
+}
+/*
+.dropdownItem.selected {
+  선택된 항목의 스타일
+  color: #1a73e8;
+  font-weight: 500;
+}*/
+
+.searchBar .icon {
+  order: 2;
+}
+
+.logoContainer {
+  cursor: pointer;
+}
+
+.logo {
+  /*height: 24px;*/
+  width: auto;
+}
+
+.icons {
+  display: flex;
+  gap: 16px;
+}
+
+.icon {
+  /*width: 24px;
+  height: 24px;*/
+  cursor: pointer;
+}
+
+/* 메인 콘텐츠 */
+.mainContent {
+  flex: 1;
+  /*padding: 0 20px;*/
+  display: flex;
+  flex-direction: column;
+}
+
+/* 검색 필터 */
+.searchFilter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 0;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownButton {
+  background-color: #FFFFFF;
+  color: #6D7882;
+  padding: 8px 12px;
+  border: 1px solid #F4F5F6;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /*gap: 8px;*/
+  font-size: 13px;
+  width: 80px;
+}
+
+.dropdownArrow {
+  font-size: 10px;
+  color: #B1B8BE;
+  transition: transform 0.2s;
+}
+
+.dropdownButton:hover .dropdownArrow {
+  color: #6D7882;
+}
+
+.dropdownContent {
+  position: absolute;
+  right: 0;
+  background-color: #FFFFFF;
+  width: 100%;
+  min-width: 80px;
+  border: 1px solid #F4F5F6;
+  border-radius: 4px;
+  z-index: 1;
+  margin-top: 4px;
+  overflow: hidden;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.dropdownItem {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
+/* 검색 결과 없음 섹션 */
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px 0;
+  text-align: center;
+}
+
+
+.noResultsText {
+  font-size: 16px;
+  color: #6D7882;
+  margin-top: 12px;
+}

@@ -31,8 +31,8 @@
   display: flex;
   align-items: center;
   background-color: #f5f5f5;
-  border-radius: 20px;
-  padding: 5px 16px;
+  border-radius: 8px;
+  padding: 16px 16px;
   /*margin: 16px 0;*/
 }
 
@@ -42,16 +42,12 @@
   background: transparent;
   outline: none;
   font-size: 14px;
-  /*padding-right: 8px;*/
+  padding: 0 8px;
   order: 1;
-  padding-left: 4px !important;
-  padding-right: 4px !important;
-
 }
 
 .searchBar .icon {
   order: 2;
-  margin-left: 8px;
 }
 
 .bannerContainer {
@@ -118,8 +114,8 @@
 }
 
 .viewMore {
-  font-size: 14px;
-  color: #666;
+  /*font-size: 14px;*/
+  color: #6D7882;
   cursor: pointer;
 }
 

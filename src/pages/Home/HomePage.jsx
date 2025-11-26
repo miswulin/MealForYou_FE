@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './HomePage.module.css';
-import logo from '../../assets/images/logo_small.png';
+import logo from '../../assets/mealforyou_logo.svg';
 // Header heart icon
-import headerHeartIcon from '../../assets/images/heart.png';
+import headerHeartIcon from '../../assets/heart.svg';
 // Product card heart icons
 import heartIcon from '../../assets/images/heart-m.png';
 import heartFilledIcon from '../../assets/images/heart-menu-Icon.png';
-import cartIcon from '../../assets/images/cart.png';
-import personIcon from '../../assets/images/person.png';
-import searchIcon from '../../assets/images/magnifyingglass.png';
+import cartIcon from '../../assets/bag.svg';
+import personIcon from '../../assets/person.svg';
+import searchIcon from '../../assets/magnifyingglass.svg';
 import bibimbap from '../../assets/images/bibimbap.png';
 import bannerImg from '../../assets/images/banner_img.png';
+import rightArrowIcon from '../../assets/right_arrow.svg';
 
 // CSS Modules are now in HomePage.module.css
 
@@ -50,13 +51,22 @@ const allMenu = [
 
 const HomePage = () => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState({
     popular: popularProducts,
     new: newProducts,
     all: allMenu
   });
+  
   const navigate = useNavigate();
   const bannerInterval = useRef(null);
+  
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm && searchTerm.trim()) {
+      navigate('/search', { state: { searchQuery: searchTerm } });
+    }
+  };
 
   // 배너 자동 슬라이드
   useEffect(() => {
@@ -130,8 +140,21 @@ const HomePage = () => {
       </header>
 
       <div className={styles.searchBar}>
-        <input type="text" className={styles.searchInput} placeholder="어떤 메뉴를 찾고 계신가요?" />
-        <img className={styles.icon} src={searchIcon} alt="검색" />
+        <input 
+          type="text" 
+          className={styles.searchInput} 
+          placeholder="어떤 메뉴를 찾고 계신가요?"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
+        />
+        <img 
+          className={styles.icon} 
+          src={searchIcon} 
+          alt="검색" 
+          onClick={handleSearch}
+          style={{ cursor: 'pointer' }}
+        />
       </div>
 
       <div className={styles.bannerContainer}>
@@ -163,7 +186,9 @@ const HomePage = () => {
       <section>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>오늘의 인기상품</h2>
-          <span className={styles.viewMore}>더보기 &gt;</span>
+          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '오늘의 인기상품' } })}>
+            더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+          </span>
         </div>
         <div className={styles.productList}>
           {products.popular.map(product => {
@@ -202,7 +227,9 @@ const HomePage = () => {
       <section>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
-          <span className={styles.viewMore}>더보기 &gt;</span>
+          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '따끈따끈한 신상품' } })}>
+            더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+          </span>
         </div>
         <div className={styles.productList}>
           {products.new.map(product => {
@@ -241,7 +268,9 @@ const HomePage = () => {
       <section>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>밀포유 전체 메뉴</h2>
-          <span className={styles.viewMore}>전체보기 &gt;</span>
+          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '밀포유 전체 메뉴' } })}>
+            전체보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+          </span>
         </div>
         <div className={styles.productList}>
           {products.all.map(product => {
