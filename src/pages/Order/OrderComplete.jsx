@@ -1,9 +1,13 @@
-// src/pages/order/OrderComplete.jsx
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
+
 import bibimbap from "../../assets/images/bibimbap.png";
+import Box from "../../assets/images/box.png";
+import CheckIcon from "../../assets/images/checkbox.png";
+import ShippingIcon from "../../assets/images/shippingbox.png";
+import TruckIcon from "../../assets/images/truck.png";
 
 import "./OrderComplete.css";
 
@@ -64,11 +68,9 @@ export default function OrderComplete() {
       />
 
       <main className="order-complete-main">
-        {/* 상단 완료 이미지 + 문구 */}
         <section className="oc-hero">
           <div className="oc-hero-img-wrap">
-            {/* 실제 썸네일 들어가면 변경 */}
-            <div className="oc-hero-img-placeholder" />
+            <img src={Box} alt="hero" className="oc-hero-img" />
           </div>
           <p className="oc-hero-title">주문이 완료되었습니다</p>
           <p className="oc-hero-time">{order.paidAt}</p>
@@ -76,16 +78,22 @@ export default function OrderComplete() {
           {/* 진행 상태 3단계 (주문완료 / 배송중 / 배송완료) */}
           <div className="oc-steps">
             <div className="oc-step oc-step-active">
-              <div className="oc-step-icon oc-step-icon-active">🧾</div>
-              <span className="oc-step-label">주문완료</span>
+            <div className="oc-step-icon oc-step-icon-active">
+              <img src={CheckIcon} alt="주문완료" />
+            </div>
+            <span className="oc-step-label">주문완료</span>
             </div>
             <div className="oc-step">
-              <div className="oc-step-icon">📦</div>
-              <span className="oc-step-label">배송중</span>
+            <div className="oc-step-icon">
+              <img src={ShippingIcon} alt="배송중" />
+            </div>
+            <span className="oc-step-label">배송중</span>
             </div>
             <div className="oc-step">
-              <div className="oc-step-icon">🚚</div>
-              <span className="oc-step-label">배송완료</span>
+            <div className="oc-step-icon">
+              <img src={TruckIcon} alt="배송완료" />
+            </div>
+            <span className="oc-step-label">배송완료</span>
             </div>
           </div>
         </section>

@@ -18,8 +18,8 @@ import EyeIcon from '../../assets/eye.svg';
 import EyeOffIcon from '../../assets/eye-hide-line.svg';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import logo from '../../assets/images/logo.png';
-import logoSmall from '../../assets/images/logo_small.png';
+import logo from '../../assets/logo.svg';
+import logoSmall from '../../assets/mealforyou_logo.svg';
 
 // 이 컴포넌트에 영향을 줄 수 있는 전역 스타일 초기화
 const GlobalStyleReset = styled('div')({
