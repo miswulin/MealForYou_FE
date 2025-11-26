@@ -10,10 +10,13 @@ import wrongIcon from '../../assets/wrong.svg';
 
 const SignupContainer = styled('div')({
   width: '100%',
+  maxWidth: '500px',
+  margin: '0 auto',
   minHeight: '100vh',
   backgroundColor: '#fff',
   padding: '0 20px',
   fontFamily: '"Noto Sans KR", sans-serif',
+  textAlign: 'left',
   '& *': {
     boxSizing: 'border-box',
     margin: 0,
@@ -54,6 +57,7 @@ const Title = styled('h2')({
   fontWeight: 'bold',
   textAlign: 'center',
   marginBottom: '8px',
+  width: '100%',
 });
 
 const Subtitle = styled('p')({
@@ -61,6 +65,7 @@ const Subtitle = styled('p')({
   color: '#666',
   textAlign: 'center',
   marginBottom: '24px',
+  width: '100%',
   '& span': {
     color: '#2098F3',
     fontWeight: '500',
@@ -76,6 +81,7 @@ const FormGroup = styled('div')({
     fontWeight: '500',
     marginBottom: '8px',
     color: '#333',
+    paddingLeft: '12px',
   },
 });
 
@@ -258,7 +264,7 @@ export default function SignupPage() {
       </Header>
 
       <Title>회원가입</Title>
-      <Subtitle>
+      <Subtitle style={{ textAlign: 'center' }}>
         이미 회원이신가요? <span onClick={() => navigate('/login')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>로그인하기</span>
       </Subtitle>
 
