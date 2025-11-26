@@ -194,7 +194,12 @@ const HomePage = () => {
           {products.popular.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <div key={product.id} className={styles.productCard}>
+              <div 
+                key={product.id} 
+                className={styles.productCard}
+                onClick={() => navigate('/product-detail', { state: { product } })}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
                   <div 
@@ -235,7 +240,12 @@ const HomePage = () => {
           {products.new.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <div key={product.id} className={styles.productCard}>
+              <div 
+                key={product.id} 
+                className={styles.productCard}
+                onClick={() => navigate('/product-detail', { state: { product } })}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
                   <div 
@@ -276,7 +286,12 @@ const HomePage = () => {
           {products.all.map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
-              <div key={product.id} className={styles.productCard}>
+              <div 
+                key={product.id} 
+                className={styles.productCard}
+                onClick={() => navigate('/product-detail', { state: { product } })}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
                   <div 
