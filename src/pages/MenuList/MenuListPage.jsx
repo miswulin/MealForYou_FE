@@ -8,16 +8,48 @@ import headerHeartIcon from '../../assets/heart.svg';
 import cartIcon from '../../assets/bag.svg';
 import personIcon from '../../assets/person.svg';
 import searchIcon from '../../assets/magnifyingglass.svg';
+import heartIcon from '../../assets/images/heart-m.png';
+import heartFilledIcon from '../../assets/images/heart-menu-Icon.png';
+import bibimbap from '../../assets/images/bibimbap.png';
 
 const MenuListPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('전체');
   const [selectedSort, setSelectedSort] = useState('인기순');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [products, setProducts] = useState({
+    all: [
+      { id: 1, name: '비빔밥', originalPrice: 12000, discountRate: 15, isLiked: false, image: bibimbap },
+      { id: 2, name: '김치찌개', originalPrice: 10000, discountRate: 10, isLiked: false, image: bibimbap },
+      { id: 3, name: '된장찌개', originalPrice: 9000, discountRate: 5, isLiked: false, image: bibimbap },
+      { id: 4, name: '제육볶음', originalPrice: 11000, discountRate: 8, isLiked: false, image: bibimbap },
+      { id: 5, name: '불고기', originalPrice: 13000, discountRate: 12, isLiked: false, image: bibimbap },
+      { id: 6, name: '새로 나온 메뉴 1', originalPrice: 15000, discountRate: 20, isLiked: false, image: bibimbap },
+      { id: 7, name: '새로 나온 메뉴 2', originalPrice: 16000, discountRate: 15, isLiked: false, image: bibimbap },
+      { id: 8, name: '새로 나온 메뉴 3', originalPrice: 14000, discountRate: 10, isLiked: false, image: bibimbap },
+    ]
+  });
 
-  const categories = ['전체', '한식', '중식', '일식', '양식', '분식', '디저트'];
   const sortOptions = ['인기순', '추천순', '최신순', '저가순'];
+
+  const toggleLike = (id) => {
+    setProducts(prev => ({
+      ...prev,
+      all: prev.all.map(product => 
+        product.id === id 
+          ? { ...product, isLiked: !product.isLiked }
+          : product
+      )
+    }));
+  };
+
+  const calculateSalePrice = (originalPrice, discountRate) => {
+    return Math.round(originalPrice * (1 - discountRate / 100));
+  };
+
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -56,20 +88,7 @@ const MenuListPage = () => {
         </div>
       </header>
 
-<main className={styles.mainContent}>
-        {/* 카테고리 필터 */}
-        <div className={styles.categoryFilter}>
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`${styles.categoryButton} ${selectedCategory === category ? styles.active : ''}`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
+      <main className={styles.mainContent}>
         {/* 정렬 및 상품 수 */}
         <div className={styles.filterBar}>
           <span className={styles.productCount}>전체상품 0개</span>
@@ -100,12 +119,47 @@ const MenuListPage = () => {
           </div>
         </div>
 
-        {/* 상품 목록 */}
         <div className={styles.productList}>
-          {/* 상품 아이템들이 여기에 표시됩니다 */}
-          <div className={styles.noResults}>
-            <p className={styles.noResultsText}>상품이 없습니다.</p>
-          </div>
+          {products.all.length > 0 ? (
+            products.all.map(product => {
+              const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
+              return (
+                <div 
+                  key={product.id} 
+                  className={styles.productCard}
+                  onClick={() => navigate('/product-detail', { state: { product } })}
+                >
+                  <div className={styles.productImage}>
+                    <img src={product.image} alt={product.name} />
+                    <div 
+                      className={styles.heartButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(product.id);
+                      }}
+                    >
+                      <img 
+                        src={product.isLiked ? heartFilledIcon : heartIcon} 
+                        alt={product.isLiked ? '찜 해제' : '찜하기'} 
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.productInfo}>
+                    <h3 className={styles.productName}>{product.name}</h3>
+                    <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                    <div className={styles.priceContainer}>
+                      <span className={styles.discountRate}>{product.discountRate}%</span>
+                      <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className={styles.noResults}>
+              <p className={styles.noResultsText}>상품이 없습니다.</p>
+            </div>
+          )}
         </div>
       </main>
     </div>
