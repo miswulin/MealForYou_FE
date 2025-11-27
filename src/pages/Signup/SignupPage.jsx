@@ -1,12 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { authService } from '../../api/auth';
 import logoSmall from '../../assets/images/logo_small.png';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
 import lockIcon from '../../assets/lock.svg';
 import correctIcon from '../../assets/correct.svg';
 import wrongIcon from '../../assets/wrong.svg';
+
+// Daum Postcode Script
+const loadDaumPostcodeScript = () => {
+  return new Promise((resolve) => {
+    if (window.daum && window.daum.Postcode) {
+      return resolve();
+    }
+    const script = document.createElement('script');
+    script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.onload = () => resolve();
+    script.onerror = () => console.error('Failed to load Daum Postcode script');
+    document.head.appendChild(script);
+  });
+};
+
 
 const SignupContainer = styled('div')({
   width: '100%',
@@ -50,7 +66,6 @@ const Header = styled('header')({
     height: '32px',
   },
 });
-
 
 const Title = styled('h2')({
   fontSize: '20px',
@@ -150,6 +165,20 @@ const SubmitButton = styled('button')(({ theme }) => ({
 }));
 
 export default function SignupPage() {
+  // 컴포넌트 마운트 시 Daum Postcode 스크립트 로드
+  useEffect(() => {
+    loadDaumPostcodeScript().catch(error => {
+      console.error('Failed to load Daum Postcode script:', error);
+    });
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      // Daum Postcode 팝업이 열려있을 경우 닫기
+      if (window.daum && window.daum.Postcode && window.daum.Postcode.close) {
+        window.daum.Postcode.close();
+      }
+    };
+  }, []);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -168,6 +197,13 @@ export default function SignupPage() {
     phone2: '',
     phone3: '',
     email: ''
+  });
+
+  const [address, setAddress] = useState({
+    postcode: '',
+    roadAddress: '',
+    detailAddress: '',
+    extraAddress: ''
   });
 
   const timerRef = useRef();
@@ -212,6 +248,56 @@ export default function SignupPage() {
     setPasswordError(checkPasswordMatch(password, newConfirmPassword));
   };
 
+  // 주소 검색 핸들러
+  const handleAddressSearch = () => {
+    loadDaumPostcodeScript().then(() => {
+      new window.daum.Postcode({
+        oncomplete: function(data) {
+          let fullAddress = data.address;
+          let extraAddress = '';
+          
+          if (data.addressType === 'R') {
+            if (data.bname !== '') {
+              extraAddress += data.bname;
+            }
+            if (data.buildingName !== '') {
+              extraAddress += extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+            }
+            fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
+          }
+
+          setAddress(prev => ({
+            ...prev,
+            postcode: data.zonecode,
+            roadAddress: fullAddress,
+            extraAddress: extraAddress
+          }));
+          
+          // 상세주소 입력 필드로 포커스 이동
+          document.getElementById('detailAddress')?.focus();
+        },
+        width: '100%',
+        height: '100%',
+        maxSuggestItems: 7
+      }).open({
+        left: (window.screen.width / 2) - 200,
+        top: (window.screen.height / 2) - 300
+      });
+    }).catch(error => {
+      console.error('Failed to load address search:', error);
+      alert('주소 검색을 불러오는 데 실패했습니다. 새로고침 후 다시 시도해주세요.');
+    });
+  };
+
+  // 주소 입력 변경 핸들러
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddress(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   // 인증 코드 전송 처리
   const handleSendVerification = () => {
     setVerificationSent(true);
@@ -231,7 +317,10 @@ export default function SignupPage() {
       verificationCode &&
       password && 
       confirmPassword &&
-      !passwordError;
+      !passwordError &&
+      address.postcode &&
+      address.roadAddress &&
+      address.detailAddress;
     
     setIsFormValid(!!isAllFieldsFilled);
   }, [formData, verificationCode, password, confirmPassword, passwordError]);
@@ -321,15 +410,53 @@ export default function SignupPage() {
       <FormGroup>
         <label>주소</label>
         <InputGroup>
-          <input type="text" placeholder="우편번호" />
-          <button style={{ color: '#FFFFFF' }}>우편번호 찾기</button>
+          <input 
+            type="text" 
+            placeholder="우편번호" 
+            value={address.postcode}
+            readOnly
+            style={{ backgroundColor: '#FFFFFF' }}
+          />
+          <button 
+            type="button"
+            onClick={handleAddressSearch}
+            style={{ 
+              backgroundColor: '#CDD1D5',
+              color: '#FFFFFF',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              padding: '0 16px',
+              borderRadius: '24px'
+            }}
+          >
+            우편번호 찾기
+          </button>
         </InputGroup>
         <InputGroup>
-          <input type="text" placeholder="주소" />
+          <input 
+            type="text" 
+            placeholder="도로명주소" 
+            value={address.roadAddress}
+            readOnly
+            style={{ backgroundColor: '#FFFFFF' }}
+          />
         </InputGroup>
         <InputGroup>
-          <input type="text" placeholder="상세주소" />
-          <input type="text" placeholder="참고항목" />
+          <input 
+            type="text" 
+            id="detailAddress"
+            name="detailAddress"
+            placeholder="상세주소" 
+            value={address.detailAddress}
+            onChange={handleAddressChange}
+          />
+          <input 
+            type="text" 
+            placeholder="참고항목" 
+            value={address.extraAddress}
+            readOnly
+            style={{ backgroundColor: '#FFFFFF' }}
+          />
         </InputGroup>
       </FormGroup>
 
