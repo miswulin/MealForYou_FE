@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { authService } from '../../api/auth';
-import logoSmall from '../../assets/images/logo_small.png';
+import logoSmall from '../../assets/mealforyou_logo.svg';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
 import lockIcon from '../../assets/lock.svg';
@@ -349,7 +349,12 @@ export default function SignupPage() {
   return (
     <SignupContainer>
       <Header>
-        <img src={logoSmall} alt="밀포유" />
+        <button 
+          onClick={() => navigate('/')} 
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+        >
+          <img src={logoSmall} alt="밀포유" />
+        </button>
       </Header>
 
       <Title>회원가입</Title>

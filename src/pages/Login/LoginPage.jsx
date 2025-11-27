@@ -127,7 +127,20 @@ const LoginPage = () => {
       {/* 상단 바 */}
       <AppBar position="static" elevation={0} sx={{ backgroundColor: 'white', color: 'black', py: 1 }}>
         <Toolbar>
-          <img src={logoSmall} alt="밀포유" style={{ height: 32 }} />
+          <button 
+            onClick={() => navigate('/')} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              padding: 0, 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              height: '32px'
+            }}
+          >
+            <img src={logoSmall} alt="밀포유" style={{ height: '100%' }} />
+          </button>
         </Toolbar>
       </AppBar>
 
