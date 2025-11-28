@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-frontend:
-    runs-on: self-hosted    # 같은 EC2의 runner 사용
+    runs-on: [self-hosted, Linux, X64]    # 같은 EC2의 runner 사용
 
     steps:
       - name: Checkout
