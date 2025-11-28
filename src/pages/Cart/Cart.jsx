@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
+import { cartService } from "../../api/cart";
 
 import "./Cart.css";
 import bibimbap from "../../assets/images/bibimbap.png"; // 임시 썸네일
@@ -10,39 +11,12 @@ import checkIcon from "../../assets/images/check.png"
 export default function Cart() {
   const navigate = useNavigate();
 
-  // 샘플 장바구니 데이터 (나중에 API 연결하면 여기만 교체하면 됨)
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "밀키트 메뉴 이름",
-      price: 10000,
-      qty: 1,
-      checked: true,
-      isOptionsOpen: false,
-      options: [
-        { label: "옵션1(00g)", count: 1 },
-        { label: "옵션2(00g)", count: 1 },
-        { label: "옵션3(00g)", count: 1 },
-        { label: "옵션4(00g)", count: 0 },
-        { label: "옵션5(00g)", count: 0 },
-      ],
-    },
-    {
-      id: 2,
-      name: "밀키트 메뉴 이름",
-      price: 10000,
-      qty: 1,
-      checked: false,
-      isOptionsOpen: false,
-      options: [
-        { label: "옵션1(00g)", count: 1 },
-        { label: "옵션2(00g)", count: 0 },
-        { label: "옵션3(00g)", count: 0 },
-        { label: "옵션4(00g)", count: 0 },
-        { label: "옵션5(00g)", count: 0 },
-      ],
-    },
-  ]);
+  const [items, setItems] = useState([]);
+
+ 
+  const [shippingFee, setShippingFee] = useState(0);
+  const [totalOrderPrice, setTotalOrderPrice] = useState(0);
+
 
   const allChecked =
     items.length > 0 && items.every((item) => item.checked === true);
@@ -56,7 +30,7 @@ export default function Cart() {
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
 
-  // 옵션 요약 텍스트
+  // 옵션 요약
   const getOptionsSummary = (options) => {
     const picked = options.filter((o) => o.count > 0);
     if (picked.length === 0) return "옵션을 선택하세요";
@@ -80,19 +54,77 @@ export default function Cart() {
   };
 
   // 수량 변경 (상단 메인 수량)
-  const handleChangeQty = (id, delta) => {
-    const next = items.map((item) => {
-      if (item.id !== id) return item;
-      const nextQty = Math.max(1, item.qty + delta);
-      return { ...item, qty: nextQty };
-    });
-    setItems(next);
+  const handleChangeQty = async (id, delta) => {
+    const itemToUpdate = items.find(item => item.id === id);
+    if (!itemToUpdate) return;
+    
+    // 클라이언트 측에서 예상되는 다음 수량 계산 (서버에서 최종 검증)
+    const nextQty = Math.max(0, itemToUpdate.qty + delta);
+    if (nextQty === itemToUpdate.qty) return;
+
+    try {
+      await cartService.updateItemQuantity(id, { delta }); 
+
+      const next = items.map((item) =>
+        item.id === id ? { ...item, qty: nextQty } : item
+      ).filter(item => item.qty > 0);
+      
+      setItems(next);
+
+    } catch (error) {
+      console.error(`ID ${id} 수량 변경 실패:`, error);
+      alert('수량 변경에 실패했습니다. 다시 시도해 주세요.');
+    }
   };
 
   // 아이템 삭제
-  const handleRemoveItem = (id) => {
-    const next = items.filter((item) => item.id !== id);
-    setItems(next);
+  const handleRemoveItem = async (id) => {
+    try {
+      if (!window.confirm("선택한 상품을 장바구니에서 삭제하시겠습니까?")) {
+        return;
+      }
+      
+      await cartService.removeItemFromCart(id); 
+
+      const next = items.filter((item) => item.id !== id);
+      setItems(next);
+      
+      fetchCart(); 
+
+    } catch (error) {
+      console.error(`ID ${id} 아이템 삭제 실패:`, error);
+      alert('아이템 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.'); 
+    }
+  };
+
+  // 선택 삭제
+  const handleRemoveSelectedItems = async () => {
+    const selectedItems = items.filter(item => item.checked);
+    const selectedIds = selectedItems.map(item => item.id);
+
+    if (selectedIds.length === 0) {
+      alert("삭제할 상품을 선택해 주세요.");
+      return;
+    }
+    
+    if (!window.confirm(`${selectedIds.length}개의 상품을 장바구니에서 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      await cartService.removeMultipleItemsFromCart(selectedIds);
+
+      const next = items.filter((item) => !item.checked);
+      setItems(next);
+      alert('선택하신 상품들이 삭제되었습니다.');
+
+      fetchCart();
+
+    } catch (error) {
+      console.error("선택 아이템 일괄 삭제 실패:", error);
+      alert('일부 상품 삭제에 실패했습니다. 장바구니를 새로고침합니다.');
+      fetchCart();
+    }
   };
 
   //  옵션 바 클릭 시 열기 / 닫기
@@ -104,18 +136,91 @@ export default function Cart() {
   };
 
   // 옵션별 수량 변경
-  const handleChangeOptionQty = (itemId, optionIndex, delta) => {
-    const next = items.map((item) => {
-      if (item.id !== itemId) return item;
-      const newOptions = item.options.map((opt, idx) => {
-        if (idx !== optionIndex) return opt;
-        const nextCount = Math.max(0, opt.count + delta);
-        return { ...opt, count: nextCount };
+  const handleChangeOptionQty = async (itemId, optionIndex, delta) => {
+    const itemToUpdate = items.find(item => item.id === itemId);
+    if (!itemToUpdate) return;
+    
+    const optionToUpdate = itemToUpdate.options[optionIndex];
+    const nextCount = Math.max(0, optionToUpdate.count + delta);
+    if (nextCount === optionToUpdate.count) return;
+
+    // 중요: 장바구니 조회 시 이 ID를 items 상태에 저장
+    const cartItemIngredientId = optionToUpdate.cartItemIngredientId; 
+
+    if (!cartItemIngredientId) {
+        console.error("Cart Item Ingredient ID를 찾을 수 없습니다.");
+        alert("옵션 정보를 찾을 수 없어 수량 변경에 실패했습니다.");
+        return;
+    }
+    
+    try {
+      await cartService.updateOptionQuantity(cartItemIngredientId, nextCount);
+
+      const next = items.map((item) => {
+        if (item.id !== itemId) return item;
+        const newOptions = item.options.map((opt, idx) => {
+          if (idx !== optionIndex) return opt;
+          return { ...opt, count: nextCount };
+        });
+        return { ...item, options: newOptions };
       });
-      return { ...item, options: newOptions };
-    });
-    setItems(next);
+      setItems(next);
+
+    } catch (error) {
+      console.error(`옵션 변경 실패 (ID: ${cartItemIngredientId}):`, error);
+      alert('옵션 수량 변경에 실패했습니다. 다시 시도해 주세요.');
+    }
   };
+
+    const parsePriceNumber = (priceStr) => {
+      if (!priceStr) return 0;
+      const numeric = priceStr.replace(/[^0-9]/g, "");
+      return Number(numeric) || 0;
+    };
+  
+    const parseQuantityNumber = (qtyStr) => {
+      if (!qtyStr) return 1;
+      const numeric = qtyStr.replace(/[^0-9]/g, "");
+      return Number(numeric) || 1;
+    };
+
+    useEffect(() => {
+      const fetchCart = async () => {
+        try {
+          const data = await cartService.getCart();
+  
+          const mappedItems = (data.cartItems || []).map((item) => {
+            const qtyNum = parseQuantityNumber(item.quantity);
+            const totalPriceNum = parsePriceNumber(item.totalPrice);
+            const unitPrice = qtyNum > 0 ? totalPriceNum / qtyNum : totalPriceNum;
+  
+            return {
+              id: item.cartItemId,
+              name: item.dishName,
+              price: unitPrice,
+              qty: qtyNum,
+              checked: true,
+              isOptionsOpen: false,
+              options: (item.ingredients || []).map((ing) => ({
+                cartItemIngredientId: ing.cartItemIngredientID, 
+                label: ing.name,
+                count: parseQuantityNumber(ing.quantity),
+              })),
+              imageUrl: item.imageUrl,
+            };
+          });
+  
+          setItems(mappedItems);
+          setShippingFee(parsePriceNumber(data.shippingFee));
+          setTotalOrderPrice(parsePriceNumber(data.totalProductPrice)); 
+        } catch (err) {
+          console.error("장바구니 조회 실패:", err);
+        }
+      };
+  
+      fetchCart();
+    }, []);
+  
 
   return (
     <div className="cart-root">
@@ -146,7 +251,8 @@ export default function Cart() {
               전체 선택 ({checkedCount}/{items.length})
             </span>
           </label>
-          <button className="cart-select-remove-btn">선택 삭제</button>
+          <button className="cart-select-remove-btn" onClick={handleRemoveSelectedItems} 
+            disabled={checkedCount === 0}>선택 삭제</button>
         </section>
 
         {/* 장바구니 리스트 */}
@@ -275,11 +381,10 @@ export default function Cart() {
           </div>
           <div className="cart-summary-row">
             <span>배송비</span>
-            <span>0원</span>
+            <span>{formatPrice(shippingFee)}원</span>
           </div>
           <div className="cart-summary-row cart-summary-total">
-            <span>주문 금액</span>
-            <span>{formatPrice(selectedTotalPrice)}원</span>
+          <span>{formatPrice(selectedTotalPrice + shippingFee)}원</span>
           </div>
         </section>
       </main>
@@ -293,7 +398,7 @@ export default function Cart() {
         >
           <span className="cart-order-count">{checkedCount}</span>
           <span className="cart-order-text">
-            {formatPrice(selectedTotalPrice)}원 주문하기
+          {formatPrice(selectedTotalPrice + shippingFee)}원 주문하기
           </span>
         </button>
       </div>
