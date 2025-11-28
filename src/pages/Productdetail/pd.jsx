@@ -1,4 +1,4 @@
-import React, { useState }from "react";
+import React, { useState, useEffect }from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
+import { detailService } from "../../api/detail";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -22,6 +23,33 @@ export default function Pd() {
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
     const navigate = useNavigate();
+    // API로부터 받은 상품 ID를 저장 (예시로 1번 사용)
+    const dishId = 1;
+
+    // 상품 정보를 불러오는 함수
+    const fetchDetail = async () => {
+      try {
+        // 실제로는 URL 파라미터에서 dishId를 가져와야 함 (예: useParams)
+        const data = await detailService.getDishDetail(dishId); 
+        
+        // API 응답을 기반으로 baseOptions, extraOptions 상태 업데이트 로직 구현
+        // setBaseOptions(data.baseOptions.map(mapApiToState));
+        // setExtraOptions(data.extraOptions.map(mapApiToState));
+
+      } catch (error) {
+        console.error("상품 상세 정보 조회 실패:", error);
+        alert("상품 정보를 불러오는 데 실패했습니다.");
+      }
+    };
+
+    useEffect(() => {
+      fetchDetail();
+    }, []);
+
+    const [sauceOptions, setSauceOptions] = useState([
+      { id: 101, name: "옵션1[000g]", qty: 0 },
+      { id: 102, name: "옵션2[000g]", qty: 0 },
+    ]);
 
     const [baseOptions, setBaseOptions] = useState([
       { id: 1, name: "옵션1[000g]", qty: 1 },
@@ -40,6 +68,16 @@ export default function Pd() {
       { id: 3, label: "옵션[000g]", tags: ["고단백"] },
       { id: 4, label: "옵션[000g]", tags: ["저염"] },
     ];
+
+    const changeSauceQty = (id, delta) => {
+      setSauceOptions((prev) =>
+        prev.map((opt) =>
+          opt.id === id
+            ? { ...opt, qty: Math.max(0, opt.qty + delta) }
+            : opt
+        )
+      );
+    };
 
 
     const changeBaseQty = (id, delta) => {
@@ -61,6 +99,56 @@ export default function Pd() {
         )
       );
     };
+
+    // 선택된 모든 옵션을 API 형식에 맞게 변환
+    const getSelectedOptionsForApi = () => {
+      const allOptions = [...baseOptions, ...extraOptions];
+      return allOptions
+          .filter(opt => opt.qty > 0)
+          .map(opt => ({
+              ingredientId: opt.id, //실제 API에서 받은 ID를 사용해야 함
+              quantity: opt.qty
+          }));
+    };
+
+    // 장바구니에 담기 
+    const handleAddToCart = async () => {
+      const optionsToBuy = getSelectedOptionsForApi();
+      if (optionsToBuy.length === 0) {
+          alert("구매할 옵션을 1개 이상 선택해주세요.");
+          return;
+      }
+      
+      try {
+          await detailService.addToCart(dishId, optionsToBuy);
+          
+          setIsSheetOpen(false); 
+          setIsCartModalOpen(true); 
+          
+      } catch (error) {
+          console.error("장바구니 추가 실패:", error);
+          alert("장바구니 담기에 실패했습니다. 다시 시도해 주세요.");
+      }
+  };
+
+    // 바로 구매
+    const handleBuyNow = async () => {
+      const optionsToBuy = getSelectedOptionsForApi();
+      if (optionsToBuy.length === 0) {
+          alert("구매할 옵션을 1개 이상 선택해주세요.");
+          return;
+      }
+
+      try {
+          const cartItemId = await detailService.buyNow(dishId, optionsToBuy);
+          setIsSheetOpen(false);
+          navigate(`/order/${cartItemId}`); 
+
+      } catch (error) {
+          console.error("바로 구매 실패:", error);
+          alert("바로 구매 처리에 실패했습니다. 다시 시도해 주세요.");
+      }
+  };
 
 
 
@@ -274,40 +362,31 @@ export default function Pd() {
         </div>
 
       {/* 소스/맵기 섹션 */}
-        <div className="pd-sheet-section">
+      <div className="pd-sheet-section">
           <p className="pd-sheet-section-label">소스/맵기</p>
 
-          <div className="pd-sheet-row">
-          <div className="pd-sheet-row-left">
-            <span className="pd-sheet-option-name">옵션[000g]</span>
-          </div>
+          {sauceOptions.map((opt) => ( 
+            <div key={opt.id} className="pd-sheet-row">
+              <div className="pd-sheet-row-left">
+                <span className="pd-sheet-option-name">{opt.name}</span>
+              </div>
 
-          <div className="pd-sheet-row-right">
-            <span className="pd-sheet-option-price">가격 원</span>
+              <div className="pd-sheet-row-right">
+                <span className="pd-sheet-option-price">가격 원</span>
 
-            <div className="pd-sheet-counter">
-              <button>-</button>
-              <span>0</span>
-              <button>+</button>
+                <div className="pd-sheet-counter">
+                  <button
+                    onClick={() => changeSauceQty(opt.id, -1)} 
+                    disabled={opt.qty === 0}
+                  >
+                    −
+                  </button>
+                  <span>{opt.qty}</span> 
+                  <button onClick={() => changeSauceQty(opt.id, 1)}>+</button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="pd-sheet-row">
-          <div className="pd-sheet-row-left">
-            <span className="pd-sheet-option-name">옵션[000g]</span>
-          </div>
-
-          <div className="pd-sheet-row-right">
-            <span className="pd-sheet-option-price">가격 원</span>
-
-            <div className="pd-sheet-counter">
-              <button>-</button>
-              <span>0</span>
-              <button>+</button>
-            </div>
-          </div>
-        </div>
+          ))}
         </div>
 
           {/* 기본 옵션 섹션 */}
@@ -371,20 +450,12 @@ export default function Pd() {
         <div className="pd-sheet-actions">
           <button
             className="pd-sheet-cart-btn"
-            onClick={() => {
-              setIsSheetOpen(false);
-              setIsCartModalOpen(true);
-            }}
-          >
+            onClick={handleAddToCart}>
             장바구니
           </button>
           <button
             className="pd-sheet-buy-btn"
-            onClick={() => {
-              setIsSheetOpen(false);
-              // 바로구매 나중에 연결
-              navigate("/order");
-            }}
+            onClick={handleBuyNow}
           >
             바로구매
           </button>
