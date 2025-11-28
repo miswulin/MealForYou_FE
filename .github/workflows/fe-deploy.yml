@@ -2,7 +2,8 @@ name: Deploy Frontend MealForYou
 
 on:
   push:
-    branches: ["main"]
+    branches: [main, dev]
+  workflow_dispatch:
 
 jobs:
   deploy-frontend:
