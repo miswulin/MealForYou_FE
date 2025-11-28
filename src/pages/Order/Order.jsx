@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
+import { orderService } from "../../api/order";
 
 import "./Order.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -62,25 +63,64 @@ export default function Order() {
   const deliveryFee = 0;
   const finalTotal = productsTotal + deliveryFee;
 
-  const handlePay = () => {
-    // 주문번호 간단 생성 (나중에 API 연동하면 서버에서 받은 값으로 대체)
+  const handlePay = async () => {
     const orderNumber = Date.now().toString();
-  
-    // 주문완료 페이지로 이동 + 주문 정보 같이 넘기기
-    navigate("/OrderComplete", {
-      state: {
-        order: {
-          orderNumber,
-          items: selectedItems,
-          deliveryFee,
-          shipping,
-          paidAt: new Date().toLocaleString("ko-KR"),
-          payMethod: selectedMethod,
-          totalPrice: finalTotal,
+
+    if (!shipping.address) {
+      alert("배송지 정보가 유효하지 않습니다.");
+      return;
+    }
+
+    const cartItemIds = selectedItems.map(item => item.id);
+
+    // 결제 타입 매핑 (서버가 요구하는 ENUM 값으로 변환 필요)
+    // 현재는 'card-easy' 등의 프론트엔드 ID를 서버 ENUM 값으로 매핑
+    const getPaymentType = (methodId) => {
+      switch(methodId) {
+          case 'card-easy': return 'QUICK_CARD';
+          case 'account-easy': return 'QUICK_ACCOUNT';
+          case 'normal': return 'NORMALPAY';
+          case 'naverpay': return 'NAVER_PAY';
+          case 'kakaopay': return 'KAKAO_PAY';
+          case 'tosspay': return 'TOSS_PAY';
+          default: return 'QUICK_CARD'; 
+          }
+      };
+    const orderData = {
+        cartItemIds: cartItemIds,
+        paymentType: getPaymentType(selectedMethod),
+        receiverName: shipping.name,
+        receiverPhone: shipping.phone,
+        address: shipping.address,
+    };
+
+    // 2. 주문 생성 (결제) API 호출
+    try {
+      const orderNumberFromApi = await orderService.createOrder(orderData);
+      
+      // 3. 성공 처리: 주문 완료 페이지로 이동
+      navigate("/OrderComplete", {
+        state: {
+          order: {
+            // 서버에서 받은 값 사용 (서버 응답이 주문번호일 경우)
+            // NOTE: 서버 응답이 '0' 등 의미없는 값이면 별도 처리 필요
+            orderNumber: orderNumberFromApi !== '0' ? orderNumberFromApi : Date.now().toString(), 
+            items: selectedItems,
+            deliveryFee,
+            shipping,
+            paidAt: new Date().toLocaleString("ko-KR"),
+            payMethod: selectedMethod,
+            totalPrice: finalTotal,
+          },
         },
-      },
-    });
-  };
+      });
+      
+      } catch (error) {
+          console.error("결제 실패:", error);
+          alert('결제 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      }
+    };
+
 
   const [isShippingOpen, setIsShippingOpen] = useState(true);
   return (
