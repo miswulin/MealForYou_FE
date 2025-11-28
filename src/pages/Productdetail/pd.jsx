@@ -4,13 +4,13 @@ import { Pagination, Mousewheel } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
-import BottomSheet from "./bottomsheet";
+import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
 
 import "swiper/css";
 import "swiper/css/pagination";
 
-import "./Pd.css";
+import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
 import heart from "../../assets/images/heart-m.png";
