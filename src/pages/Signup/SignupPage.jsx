@@ -185,7 +185,10 @@ export default function SignupPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [verificationInput, setVerificationInput] = useState('');
   const [timeLeft, setTimeLeft] = useState(300); // 5분(초 단위)
+  const [verificationExpiry, setVerificationExpiry] = useState(null);
+  const [emailError, setEmailError] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -208,11 +211,23 @@ export default function SignupPage() {
 
   const timerRef = useRef();
 
+  // 이메일 유효성 검사
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!email) return '이메일을 입력해주세요.';
+    if (!regex.test(email)) return '유효한 이메일 주소를 입력해주세요.';
+    return '';
+  };
+
   // 비밀번호 유효성 검사
-  const validatePassword = (pass) => {
-    const regex = /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$*])[A-Za-z\d!@#$*]{8,16}$/;
-    if (!regex.test(pass)) {
+  const validatePassword = (password) => {
+    // 영어 소문자 1개 이상 필수, 숫자와 특수문자(!@#$*)는 선택사항
+    const passwordRegex = /^(?=.*[a-z])[a-z0-9!@#$*]{8,16}$/i;
+    if (!passwordRegex.test(password)) {
       return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
+    }
+    if (!/[!@#$*]/.test(pass)) {
+      return '특수문자(!@#$*)를 최소 하나 포함해주세요.';
     }
     return '';
   };
@@ -299,10 +314,75 @@ export default function SignupPage() {
   };
 
   // 인증 코드 전송 처리
-  const handleSendVerification = () => {
-    setVerificationSent(true);
+  const handleSendVerification = async () => {
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      setEmailError(emailError);
+      return;
+    }
+    
+    setEmailError('');
+    setVerificationSent(false);
+    setIsVerified(false);
+    setVerificationInput('');
     setTimeLeft(300); // 5분으로 초기화
-    // 여기서 인증 코드를 전송하는 API 호출을 수행
+    setVerificationExpiry(Date.now() + 24 * 60 * 60 * 1000); // 24시간 후 만료
+    
+    try {
+      // 이메일 인증 코드 발송 API 호출
+      await authService.sendVerificationCode(formData.email);
+      
+      // 성공적으로 전송된 경우
+      setVerificationSent(true);
+    } catch (error) {
+      console.error('인증코드 발송 실패:', error);
+      setEmailError(error.response?.data?.message || '인증코드 발송에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  // 인증 코드 확인
+  const handleVerifyCode = async (code) => {
+    if (!code || code.length !== 4) {
+      setEmailError('유효한 인증번호를 입력해주세요.');
+      setIsVerified(false);
+      return;
+    }
+    
+    try {
+      // 이메일 인증 코드 검증 API 호출
+      const response = await authService.verifyEmailCode(formData.email, code);
+      
+      // 인증 성공 (백엔드에서 인증 성공 시 200 OK 응답)
+      if (response) {
+        setIsVerified(true);
+        setTimeLeft(0);
+        setEmailError('');
+        
+        // 24시간 후 인증 만료 설정
+        const expiryTime = new Date();
+        expiryTime.setHours(expiryTime.getHours() + 24);
+        setVerificationExpiry(expiryTime.getTime());
+      }
+      
+    } catch (error) {
+      console.error('인증 실패:', error);
+      setEmailError(error.response?.data?.message || '인증에 실패했습니다. 인증번호를 확인해주세요.');
+      setIsVerified(false);
+    }
+  };
+
+  // 인증번호 입력 변경 핸들러
+  const handleVerificationInputChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
+    setVerificationInput(value);
+    
+    // 입력이 완료되면 자동으로 검증 시도
+    if (value.length === 4) {
+      handleVerifyCode(value);
+    } else if (isVerified) {
+      // 입력이 변경되면 인증 상태 초기화
+      setIsVerified(false);
+    }
   };
 
   // 폼 유효성 검사
@@ -314,30 +394,42 @@ export default function SignupPage() {
       formData.phone2 && 
       formData.phone3 &&
       formData.email &&
-      verificationCode &&
+      isVerified && // 이메일 인증 완료 여부 확인
       password && 
       confirmPassword &&
       !passwordError &&
+      !emailError &&
       address.postcode &&
       address.roadAddress &&
       address.detailAddress;
     
     setIsFormValid(!!isAllFieldsFilled);
-  }, [formData, verificationCode, password, confirmPassword, passwordError]);
+  }, [formData, isVerified, password, confirmPassword, passwordError, emailError, address]);
 
   // 타이머 효과
   useEffect(() => {
-    if (verificationSent && timeLeft > 0) {
+    // 인증이 완료되었고, 만료 시간이 지나지 않았는지 확인
+    if (isVerified && verificationExpiry && Date.now() > verificationExpiry) {
+      setIsVerified(false);
+      setVerificationSent(false);
+      setEmailError('인증 유효기간이 만료되었습니다. 다시 인증해주세요.');
+      return;
+    }
+
+    // 인증 대기 중이고, 아직 시간이 남아있는 경우 타이머 감소
+    if (verificationSent && timeLeft > 0 && !isVerified) {
       timerRef.current = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      // 시간 초과 처리
+    } else if (timeLeft === 0 && verificationSent && !isVerified) {
+      // 시간 초과 처리 (인증 실패)
       setVerificationSent(false);
+      setEmailError('인증 시간이 만료되었습니다. 다시 시도해주세요.');
+      setIsVerified(false);
     }
     
     return () => clearTimeout(timerRef.current);
-  }, [verificationSent, timeLeft]);
+  }, [verificationSent, timeLeft, isVerified, verificationExpiry]);
 
   // 시간을 MM:SS 형식으로 포맷팅
   const formatTime = (seconds) => {
@@ -472,80 +564,177 @@ export default function SignupPage() {
             type="email" 
             name="email"
             value={formData.email}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleInputChange(e);
+              setEmailError('');
+              if (verificationSent) {
+                setVerificationSent(false);
+                setIsVerified(false);
+                setVerificationInput('');
+              }
+            }}
             placeholder="이메일을 입력해주세요." 
-            disabled={verificationSent}
+            disabled={isVerified}
+            style={{
+              borderColor: emailError ? '#EF4444' : '#d1d5db',
+              backgroundColor: isVerified ? '#f3f4f6' : '#fff'
+            }}
           />
           <button 
             onClick={handleSendVerification}
-            disabled={!formData.email || verificationSent}
+            disabled={isVerified || !formData.email}
             style={{
-              backgroundColor: verificationSent ? '#CDD1D5' : '#CDD1D5',
+              backgroundColor: isVerified ? '#10B981' : (!formData.email ? '#CDD1D5' : '#2098F3'),
               color: '#FFFFFF',
-              cursor: verificationSent ? 'not-allowed' : 'pointer',
+              cursor: isVerified || !formData.email ? 'not-allowed' : 'pointer',
               width: '90px',
               textAlign: 'center',
               display: 'inline-flex',
               justifyContent: 'center',
               alignItems: 'center',
-              flexShrink: 0
+              flexShrink: 0,
+              transition: 'background-color 0.2s',
+              '&:hover': {
+                backgroundColor: isVerified ? '#10B981' : '#1a7bbd'
+              }
             }}
           >
-            {verificationSent ? '재전송' : '인증받기'}
+            {isVerified ? '인증완료' : (verificationSent ? '재전송' : '인증받기')}
           </button>
         </InputGroup>
-        <div style={{ position: 'relative', marginTop: '8px' }}>
-          <input 
-            type="text" 
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            placeholder="인증번호 입력" 
-            style={{
-              width: '100%',
-              height: '48px',
-              borderRadius: '24px',
-              border: '1px solid #d1d5db',
-              padding: '0 100px 0 16px',
-              fontSize: '14px',
-            }}
-          />
-          {verificationSent && (
+        
+        {emailError && !verificationSent && (
+          <div style={{ 
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '12px', 
+            color: '#EF4444',
+            marginTop: '4px',
+            marginLeft: '12px'
+          }}>
+            <img 
+              src={wrongIcon} 
+              alt="" 
+              style={{
+                width: '14px',
+                height: '14px',
+                marginRight: '4px',
+                flexShrink: 0
+              }}
+            />
+            {emailError}
+          </div>
+        )}
+        
+        {verificationSent && !isVerified && (
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ position: 'relative' }}>
+              <input 
+                type="text" 
+                value={verificationInput}
+                onChange={handleVerificationInputChange}
+                placeholder="인증번호 4자리 입력" 
+                maxLength={4}
+                style={{
+                  width: '100%',
+                  height: '48px',
+                  borderRadius: '24px',
+                  border: emailError ? '1px solid #EF4444' : '1px solid #d1d5db',
+                  padding: '0 100px 0 16px',
+                  fontSize: '14px',
+                  //letterSpacing: '4px',
+                  //textAlign: 'center',
+                  '&:focus': {
+                    borderColor: '#2098F3',
+                    boxShadow: '0 0 0 2px rgba(32, 152, 243, 0.2)'
+                  }
+                }}
+              />
+              {timeLeft > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  right: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: timeLeft < 60 ? '#EF4444' : '#6B7280',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  fontVariantNumeric: 'tabular-nums',
+                  backgroundColor: 'rgba(255,255,255,0.9)',
+                  padding: '2px 8px',
+                  borderRadius: '12px'
+                }}>
+                  {formatTime(timeLeft)}
+                </div>
+              )}
+            </div>
+            
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              marginTop: '4px', 
-              fontSize: '12px', 
-              color: '#10B981',
-              marginLeft: '10px'
+              marginTop: '4px',
+              marginLeft: '12px',
+              fontSize: '12px',
+              color: emailError ? '#EF4444' : '#6B7280'
             }}>
-              <img 
-                src={correctIcon} 
-                alt="인증완료" 
-                style={{ 
-                  width: '12px', 
-                  height: '12px', 
-                  marginRight: '4px' 
-                }} 
-              />
-              인증번호가 전송되었습니다.
+              {emailError ? (
+                <>
+                  <img 
+                    src={wrongIcon} 
+                    alt="오류" 
+                    style={{ 
+                      width: '14px', 
+                      height: '14px', 
+                      marginRight: '4px',
+                      flexShrink: 0
+                    }} 
+                  />
+                  {emailError}
+                </>
+              ) : (
+                <>
+                  <img 
+                    src={correctIcon} 
+                    alt="안내" 
+                    style={{ 
+                      width: '14px', 
+                      height: '14px', 
+                      marginRight: '4px',
+                      flexShrink: 0
+                    }} 
+                  />
+                  {verificationInput.length === 4 
+                    ? '인증번호를 확인 중입니다...'
+                    : `인증번호가 이메일로 전송되었습니다. ${formatTime(timeLeft)} 내에 입력해주세요.`}
+                </>
+              )}
             </div>
-          )}
-          {verificationSent && timeLeft > 0 && (
-            <div style={{
-              position: 'absolute',
-              right: '16px',
-              top: '12px',
-              color: '#EF4444',
-              fontSize: '14px',
-              fontWeight: '500',
-              height: '24px',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              {formatTime(timeLeft)}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+        
+        {isVerified && (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            marginTop: '8px',
+            marginLeft: '12px',
+            fontSize: '14px',
+            color: '#10B981',
+            fontWeight: '500'
+          }}>
+            <img 
+              src={correctIcon} 
+              alt="인증완료" 
+              style={{ 
+                width: '16px', 
+                height: '16px', 
+                marginRight: '6px',
+                flexShrink: 0
+              }} 
+            />
+            이메일 인증이 완료되었습니다. (24시간 동안 유효)
+          </div>
+        )}
       </FormGroup>
 
       <FormGroup>
