@@ -5,7 +5,7 @@ import Header from "../../components/Header";
 
 import bibimbap from "../../assets/images/bibimbap.png";
 import Box from "../../assets/images/box.png";
-import CheckIcon from "../../assets/images/checkbox.png";
+import CheckIcon from "../../assets/images/check.png";
 import ShippingIcon from "../../assets/images/shippingbox.png";
 import TruckIcon from "../../assets/images/truck.png";
 
@@ -15,7 +15,6 @@ export default function OrderComplete() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // Order.jsx 에서 넘겨주면 사용하는 데이터
   // navigate("/order-complete", { state: { order: {...} } })
   const order =
     state?.order || {
