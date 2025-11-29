@@ -82,17 +82,31 @@ function FindPasswordPage() {
     navigate('/login');
   };
 
-  const validatePassword = (pass) => {
-    const regex = /^[A-Za-z\d!@#$*]{8,16}$/;
-    if (!regex.test(pass)) {
-      return '8~16자 이내 영문, 소문자, 숫자, 특수문자(!@#$*) 포함';
+  const validatePassword = (password) => {
+    // 길이 체크
+    if (password.length < 8 || password.length > 16) {
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
     }
-    return '';
+    
+    // 모든 조건을 한 번에 검사
+    const passwordRegex = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$*])[a-z0-9!@#$*]{8,16}$/;
+    
+    if (!passwordRegex.test(password)) {
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
+    }
+    
+    return ''; // 모든 조건 만족
   };
 
   const checkPasswordMatch = (pass, confirmPass) => {
-    if (pass && confirmPass && pass !== confirmPass) {
+    if (!pass || !confirmPass) return '';
+    if (pass !== confirmPass) {
       return '비밀번호가 일치하지 않습니다.';
+    }
+    // 비밀번호 유효성 검사도 함께 수행
+    const passwordError = validatePassword(pass);
+    if (passwordError) {
+      return passwordError;
     }
     return '';
   };
