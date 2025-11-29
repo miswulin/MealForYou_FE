@@ -306,6 +306,14 @@
     box-shadow: 0 -6px 16px rgba(0,0,0,0.06);
   }
 
+  .pd-like-btn{
+    filter: grayscale(100%);
+  }
+
+  .pd-like-btn.active {
+    filter: none;
+  }
+
   .pd-sheet-title {
     font-size: 14px;
     font-weight: 700;
