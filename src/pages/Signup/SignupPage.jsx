@@ -81,25 +81,35 @@ export default function SignupPage() {
 
   // 비밀번호 유효성 검사
   const validatePassword = (password) => {
+    // 길이 체크
     if (password.length < 8 || password.length > 16) {
-      return '비밀번호는 8자 이상 16자 이하여야 합니다.';
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
     }
-    if (!/[a-zA-Z]/.test(password)) {
-      return '영문을 최소 하나 이상 포함해주세요.';
+    
+    // 모든 조건을 한 번에 검사
+    // ^(?=.*[a-z]): 적어도 하나의 소문자 포함
+    // (?=.*[0-9]): 적어도 하나의 숫자 포함
+    // (?=.*[!@#$*]): 적어도 하나의 특수문자(!@#$*) 포함
+    // [a-zA-Z0-9!@#$*]{8,16}$: 허용된 문자들로 8~16자
+    const passwordRegex = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$*])[a-z0-9!@#$*]{8,16}$/;
+    
+    if (!passwordRegex.test(password)) {
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
     }
-    if (!/[0-9]/.test(password)) {
-      return '숫자를 최소 하나 이상 포함해주세요.';
-    }
-    if (!/[!@#$*]/.test(password)) {
-      return '특수문자(!@#$*)를 최소 하나 포함해주세요.';
-    }
-    return '';
+    
+    return ''; // 모든 조건 만족
   };
 
   // 비밀번호 일치 여부 확인
   const checkPasswordMatch = (pass, confirmPass) => {
-    if (pass && confirmPass && pass !== confirmPass) {
+    if (!pass || !confirmPass) return '';
+    if (pass !== confirmPass) {
       return '비밀번호가 일치하지 않습니다.';
+    }
+    // 비밀번호 유효성 검사도 함께 수행
+    const passwordError = validatePassword(pass);
+    if (passwordError) {
+      return passwordError;
     }
     return '';
   };
