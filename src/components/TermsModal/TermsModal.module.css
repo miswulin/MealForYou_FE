@@ -1,0 +1,82 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 5px;
+  line-height: 1;
+}
+
+.modalContent {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.modalFooter {
+  padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: center;
+}
+
+.confirmButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirmButton:hover {
+  background-color: #45a049;
+}
