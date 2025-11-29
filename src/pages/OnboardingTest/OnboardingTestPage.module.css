@@ -1,0 +1,144 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fff;
+  padding: 20px;
+  font-family: "Noto Sans KR", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.header {
+  width: 100%;
+  padding: 16px 0;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  top: 16px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  text-align: center;
+  width: 100%;
+  padding: 24px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  margin: 0 0 40px;
+  line-height: 1.5;
+  padding: 0 20px;
+}
+
+.highlight {
+  color: #FF6B00;
+  font-weight: bold;
+}
+
+.dietGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 400px;
+  margin-bottom: 40px;
+}
+
+.dietButton {
+  padding: 24px 16px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 160px;
+  height: 140px;
+  transition: all 0.2s;
+}
+
+.dietButton:hover {
+  border-color: #FF6B00;
+}
+
+.dietButton.selected {
+  background-color: #FF6B00;
+  color: white;
+  border-color: #FF6B00;
+}
+
+.dietIcon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.skipText {
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+  position: fixed;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+}
+
+.skipText:hover {
+  text-decoration: none;
+}
+
+.skipLink {
+  color: #2098F3;
+}
+
+.completeButton {
+  width: 100%;
+  max-width: calc(100% - 40px);
+  padding: 16px;
+  border-radius: 28px;
+  background-color: #CDD1D5;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.completeButton:disabled {
+  background-color: #CDD1D5;
+  cursor: not-allowed;
+}
+
+.completeButton:not(:disabled) {
+  background-color: #FF6B00;
+}
