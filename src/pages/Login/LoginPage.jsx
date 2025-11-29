@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   TextField, 
@@ -18,6 +18,9 @@ import EyeIcon from '../../assets/eye.svg';
 import EyeOffIcon from '../../assets/eye-hide-line.svg';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { authService } from '../../api/auth';
+import { useLogin, useIsAuthenticated } from '../../store/authStore';
+import { Snackbar, Alert } from '@mui/material';
 import logo from '../../assets/logo.svg';
 import logoSmall from '../../assets/mealforyou_logo.svg';
 
@@ -74,37 +77,121 @@ const LoginButton = styled(Button)({
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const login = useLogin();
+  const isAuthenticated = useIsAuthenticated();
+  
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  
   const [focusedField, setFocusedField] = useState({
     email: false,
     password: false
   });
+  
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 로그인 상태 확인 (마운트 시 한 번만 실행)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // 메시지 표시 함수 (useCallback으로 메모이제이션)
+  const showMessage = useCallback((message, severity = 'info') => {
+    setSnackbar({
+      open: true,
+      message,
+      severity
+    });
+  }, []);
   
   // 비밀번호 표시/숨김 토글 핸들러
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+  const handleClickShowPassword = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
 
   // 입력값 변경 핸들러
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
-  // 로그인 제출 핸들러
-  const handleSubmit = (e) => {
+  // 스낵바 닫기 핸들러 (useCallback으로 메모이제이션)
+  const handleCloseSnackbar = useCallback((event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // 폼 제출 핸들러
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    console.log('로그인 시도:', formData);
-    // 로그인 성공 후 온보딩 테스트 페이지로 이동
-    navigate('/onboarding-test');
-  };
+    
+    // 입력 유효성 검사
+    if (!formData.email || !formData.password) {
+      setSnackbar({
+        open: true,
+        message: '이메일과 비밀번호를 모두 입력해주세요.',
+        severity: 'error'
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      // 로그인 API 호출
+      const userData = await authService.login({
+        email: formData.email,
+        password: formData.password
+      });
+      
+      // 스토어에 로그인 정보 저장
+      login({
+        accessToken: userData.accessToken,
+        refreshToken: userData.refreshToken
+      });
+      
+      // 성공 메시지 표시
+      setSnackbar({
+        open: true,
+        message: '로그인에 성공했습니다!',
+        severity: 'success'
+      });
+      
+      // 1.5초 후에 홈으로 리다이렉트
+      const timer = setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1500);
+      
+      // 컴포넌트 언마운트 시 타이머 정리
+      return () => clearTimeout(timer);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      setSnackbar({
+        open: true,
+        message: error.message || '로그인 중 오류가 발생했습니다.',
+        severity: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formData.email, formData.password, login, navigate]);
 
   // 회원가입 페이지로 이동 핸들러
   const handleSignupClick = (e) => {
@@ -114,6 +201,20 @@ const LoginPage = () => {
 
   return (
     <GlobalStyleReset>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     <Box sx={{ 
       backgroundColor: 'white', 
       minHeight: '100vh',
@@ -290,12 +391,13 @@ const LoginPage = () => {
               </Box>
 
               {/* 로그인 버튼 */}
-              <LoginButton
-                type="submit"
-                variant="contained"
-                size="large"
+              <LoginButton 
+                type="submit" 
+                variant="contained" 
+                fullWidth
+                disabled={!formData.email || !formData.password || isLoading}
               >
-                로그인
+                {isLoading ? '로그인 중...' : '로그인'}
               </LoginButton>
 
               {/* 하단 링크 */}
