@@ -221,12 +221,17 @@ export default function SignupPage() {
 
   // 비밀번호 유효성 검사
   const validatePassword = (password) => {
-    // 영어 소문자 1개 이상 필수, 숫자와 특수문자(!@#$*)는 선택사항
-    const passwordRegex = /^(?=.*[a-z])[a-z0-9!@#$*]{8,16}$/i;
-    if (!passwordRegex.test(password)) {
-      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
+    // 8~64자 사이, 최소 하나의 영문자, 숫자, 특수문자(!@#$*) 포함
+    if (password.length < 8 || password.length > 16) {
+      return '비밀번호는 8자 이상 16자 이하여야 합니다.';
     }
-    if (!/[!@#$*]/.test(pass)) {
+    if (!/[a-zA-Z]/.test(password)) {
+      return '영문을 최소 하나 이상 포함해주세요.';
+    }
+    if (!/[0-9]/.test(password)) {
+      return '숫자를 최소 하나 이상 포함해주세요.';
+    }
+    if (!/[!@#$*]/.test(password)) {
       return '특수문자(!@#$*)를 최소 하나 포함해주세요.';
     }
     return '';
@@ -385,6 +390,39 @@ export default function SignupPage() {
     }
   };
 
+  // 폼 제출 처리
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!isFormValid) return;
+    
+    try {
+      const userData = {
+        email: formData.email,
+        name: `${formData.lastName}${formData.firstName}`,
+        password: password,
+        passwordConfirm: confirmPassword,
+        phoneRaw: `${formData.phone1}${formData.phone2}${formData.phone3}`,
+        address: {
+          zipCode: address.postcode,
+          roadAddress: address.roadAddress,
+          detailAddress: address.detailAddress
+        }
+      };
+      
+      // 회원가입 API 호출
+      await authService.signup(userData);
+      
+      // 회원가입 성공 시 로그인 페이지로 리다이렉트
+      alert('회원가입이 완료되었습니다. 로그인해주세요.');
+      navigate('/login');
+      
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      alert(error.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  };
+
   // 폼 유효성 검사
   useEffect(() => {
     const isAllFieldsFilled = 
@@ -439,7 +477,7 @@ export default function SignupPage() {
   };
 
   return (
-    <SignupContainer>
+    <SignupContainer onSubmit={handleSubmit}>
       <Header>
         <button 
           onClick={() => navigate('/')} 
@@ -964,9 +1002,9 @@ export default function SignupPage() {
             width: '100%'
           }}
           disabled={!isFormValid}
-          onClick={() => navigate('/login')}
+          onClick={handleSubmit}
         >
-          가입하기
+          회원가입
         </SubmitButton>
       </div>
     </SignupContainer>
