@@ -6,7 +6,7 @@ import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
-import { detailService } from "../../api/detail";
+import { dishesService } from "../../api/dishes";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -18,23 +18,52 @@ import heart from "../../assets/images/heart-m.png";
 import shareIcon from "../../assets/images/share.png"
 
 export default function Pd() {
-    const images = [bibimbap, bibimbap2];
+    const [images, setImages] = useState([bibimbap, bibimbap2]);
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    const [dishName, setDishName] = useState("");
+    const [basePrice, setBasePrice] = useState(0);
+    const [userHealthTags, setHealthTags] = useState([]);
+    const [recommendedOptions, setRecommendedOptions] = useState([]);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
-    const navigate = useNavigate();
-    // API로부터 받은 상품 ID를 저장 (예시로 1번 사용)
-    const dishId = 1;
 
-    // 상품 정보를 불러오는 함수
+    const [baseOptions, setBaseOptions] = useState([]);
+    const [extraOptions, setExtraOptions] = useState([]);
+    const [sourceOptions, setSourceOptions] = useState([]);
+
+    const [selectedRecommendId, setSelectedRecommendId] = useState(null);
+    const navigate = useNavigate();
+
     const fetchDetail = async () => {
       try {
-        // 실제로는 URL 파라미터에서 dishId를 가져와야 함 (예: useParams)
-        const data = await detailService.getDishDetail(dishId); 
-        
-        // API 응답을 기반으로 baseOptions, extraOptions 상태 업데이트 로직 구현
-        // setBaseOptions(data.baseOptions.map(mapApiToState));
-        // setExtraOptions(data.extraOptions.map(mapApiToState));
+        const data = await dishesService.getDishDetail(dishId); 
+        console.log("dish detail:", data);
+
+        setBaseOptions(
+          (data.ingredientsByCategory?.BASIC_OPTION || []).map((ing) => ({
+            id: ing.dishIngredientId,
+            name: ing.name,
+            price: ing.price,
+            qty: ing.quantity,
+          }))
+        );
+
+        setExtraOptions(
+          (data.ingredientsByCategory?.ADDITIONAL_OPTION || []).map((ing) => ({
+            id: ing.dishIngredientId,
+            name: ing.name,
+            price: ing.price,
+            qty: ing.quantity,
+          }))
+        );
+
+        // 이미지도 API로 바꾸고 싶으면:
+    // setImages(
+    //   (data.dishImages || []).map((img) =>
+    //     `${import.meta.env.VITE_API_BASE_URL}${img.imgUrl}`
+    //   )
+    // );
 
       } catch (error) {
         console.error("상품 상세 정보 조회 실패:", error);
@@ -42,32 +71,109 @@ export default function Pd() {
       }
     };
 
+    // ingredients 배열을 화면에서 쓰기 편한 형태로 변환
+    const mapIngredients = (arr = []) =>
+      arr.map((ing) => ({
+        id: ing.dishIngredientId,
+        name: ing.name,
+        price: ing.price,
+        qty: ing.quantity ?? 0,
+        category: ing.category,
+      }));
+
+
     useEffect(() => {
       fetchDetail();
     }, []);
 
-    const [sauceOptions, setSauceOptions] = useState([
-      { id: 101, name: "옵션1[000g]", qty: 0 },
-      { id: 102, name: "옵션2[000g]", qty: 0 },
-    ]);
+    const withBaseUrl = (path) => {
+      if (!path) return "";
+      const base = import.meta.env.VITE_API_BASE_URL ?? "";
+      return path.startsWith("http") ? path : `${base}${path}`;
+    };
 
-    const [baseOptions, setBaseOptions] = useState([
-      { id: 1, name: "옵션1[000g]", qty: 1 },
-      { id: 2, name: "옵션2[000g]", qty: 1 },
-    ]);
+    const dishId = 1; // 나중에 const { dishId } = useParams(); 로 교체 가능
+
+    useEffect(() => {
+      const fetchDetail = async () => {
+        try {
+          const data = await dishesService.getDishDetail(dishId);
   
-    const [extraOptions, setExtraOptions] = useState([
-      { id: 3, name: "옵션3[000g]", qty: 0 },
-    ]);
+          // 1) 기본 정보
+          setDishName(data.dishName);
+          setBasePrice(data.basePrice);
+          setUserHealthTags(data.userHealthTags || []);
+          setIsInterested(data.isInterested ?? data.interested ?? false);
+  
+          // 2) 상세 이미지 배열
+          if (data.dishImages && data.dishImages.length > 0) {
+            const base = import.meta.env.VITE_API_BASE_URL || "";
+            setImages(
+              data.dishImages.map((img) =>
+                img.imgUrl.startsWith("http")
+                  ? img.imgUrl
+                  : `${base}${img.imgUrl}`
+              )
+            );
+          }
+          // 이미지 없으면 기존 더미 사용
+          setImages(imgs.length > 0 ? imgs : [bibimbap, bibimbap2]);
+  
+          // 3) 추천 옵션 (저염/고단백 추천 카드)
+          const recOptions = (data.recommendedIngredients || []).map((ri) => ({
+            id: ri.dishIngredientId,
+            label: ri.name,
+            price: ri.price,
+            tags: [ri.productTag], // 필요하면 "HIGH_PROTEIN" -> "고단백"으로 매핑
+          }));
+          
+          setRecommendedOptions(
+            (data.recommendedIngredients || []).map((ing) => ({
+              id: ing.dishIngredientId,
+          label: ing.name,
+          tags: ing.productTag ? [ing.productTag] : [],
+        }))
+      );
 
-    const [selectedRecommendId, setSelectedRecommendId] = useState(null);
+          const tagKo = ri.productTag === "HIGH_PROTEIN" ? "고단백" : ri.productTag;
+            tags: [tagKo];
+  
+          // 4) 카테고리별 옵션 → 기본/추가/소스 옵션 상태에 매핑
+          const categories = data.ingredientsByCategory || {};
+  
+          const basic = (categories.BASIC_OPTION || []).map((ing) => ({
+            id: ing.dishIngredientId,
+            name: ing.name,
+            price: ing.price,
+            qty: ing.quantity, // 기본 수량
+          }));
+          setBaseOptions(basic);
+  
+          const additional = (categories.ADDITIONAL_OPTION || []).map((ing) => ({
+            id: ing.dishIngredientId,
+            name: ing.name,
+            price: ing.price,
+            qty: ing.quantity,
+          }));
+          setExtraOptions(additional);
+  
+          const source = (categories.SOURCE || []).map((ing) => ({
+            id: ing.dishIngredientId,
+            name: ing.name,
+            price: ing.price,
+            qty: ing.quantity,
+          }));
+          setSourceOptions(source);
+        } catch (error) {
+          console.error("상품 상세 정보 조회 실패:", error);
+          alert("상품 정보를 불러오는 데 실패했습니다.");
+        }
+      };
+  
+      fetchDetail();
+    }, [dishId]);
+  
 
-    const recommendedOptions = [
-      { id: 1, label: "옵션[000g]", tags: ["고단백", "저염"] },
-      { id: 2, label: "옵션[000g]", tags: ["저염"] },
-      { id: 3, label: "옵션[000g]", tags: ["고단백"] },
-      { id: 4, label: "옵션[000g]", tags: ["저염"] },
-    ];
 
     const changeSauceQty = (id, delta) => {
       setSauceOptions((prev) =>
@@ -120,7 +226,7 @@ export default function Pd() {
       }
       
       try {
-          await detailService.addToCart(dishId, optionsToBuy);
+          await dishesService.addToCart(dishId, optionsToBuy);
           
           setIsSheetOpen(false); 
           setIsCartModalOpen(true); 
@@ -140,7 +246,7 @@ export default function Pd() {
       }
 
       try {
-          const cartItemId = await detailService.buyNow(dishId, optionsToBuy);
+          const cartItemId = await dishesService.buyNow(dishId, optionsToBuy);
           setIsSheetOpen(false);
           navigate(`/order/${cartItemId}`); 
 
@@ -159,7 +265,7 @@ export default function Pd() {
 
         {/* HEADER */}
         <Header
-        title="[신상품] 밀포유 소고기 비빔밥 키트"
+        title={dishName || "[신상품] 밀포유 소고기 비빔밥 키트"}
         onBack={() => navigate(-1)}
         onHeart={() => console.log("찜")}
         onCart={() => navigate("/cart")}
@@ -201,7 +307,7 @@ export default function Pd() {
         <div className="pd-title-row">
         <div className="pd-title-left">
             <span className="pd-tag">[신상품]</span>
-            <h2 className="pd-title-inline">밀포유 소고기 비빔밥 키트</h2>
+            <h2 className="pd-title-inline">{dishName}</h2>
 
         </div>
           <img src={shareIcon}  alt="공유하기" className="pd-share-icon" />
@@ -214,7 +320,7 @@ export default function Pd() {
 
           <div className="pd-price-row">
             <span className="pd-discount">26%</span>
-            <span className="pd-final-price">21,400원</span>
+            <span className="pd-final-price">{basePrice.toLocaleString("ko-KR")}원</span>
           </div>
 
           <p className="pd-sub-info">
@@ -332,7 +438,7 @@ export default function Pd() {
         </button>
       </div>
       <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)}>
-      <h3 className="pd-sheet-section-label">저염·고단백 옵션 추천</h3>
+      <h3 className="pd-sheet-section-label">{userHealthTags.length > 0 ? `${userHealthTags.join("·")} 옵션 추천` : "추천 옵션"}</h3>
 
       {/* 추천 옵션 카드 리스트 */}
         <div className="pd-sheet-recommend">
@@ -372,7 +478,7 @@ export default function Pd() {
               </div>
 
               <div className="pd-sheet-row-right">
-                <span className="pd-sheet-option-price">가격 원</span>
+                <span className="pd-sheet-option-price">{opt.price.toLocaleString("ko-KR")}</span>
 
                 <div className="pd-sheet-counter">
                   <button
@@ -402,7 +508,7 @@ export default function Pd() {
 
                 {/* 오른쪽: 가격 + 수량박스 */}
                 <div className="pd-sheet-row-right">
-                  <span className="pd-sheet-option-price">가격 원</span>
+                  <span className="pd-sheet-option-price">{opt.price.toLocaleString("ko-KR")}원</span>
 
                   <div className="pd-sheet-counter">
                     <button
@@ -430,7 +536,7 @@ export default function Pd() {
               </div>
 
               <div className="pd-sheet-row-right">
-                <span className="pd-sheet-option-price">가격 원</span>
+                <span className="pd-sheet-option-price">{opt.price.toLocaleString("ko-KR")}</span>
 
                 <div className="pd-sheet-counter">
                   <button
