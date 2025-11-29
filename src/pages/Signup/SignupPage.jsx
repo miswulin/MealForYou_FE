@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../api/auth';
 import styles from './SignupPage.module.css';
+import TermsModal from '../../components/TermsModal/TermsModal';
+import { SERVICE_TERMS, PRIVACY_POLICY, FINANCIAL_TERMS } from '../../constants/terms';
 import logoSmall from '../../assets/mealforyou_logo.svg';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
@@ -53,6 +55,11 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    content: ''
+  });
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -344,6 +351,43 @@ export default function SignupPage() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  // 약관 모달 열기
+  const openTermsModal = (type) => {
+    let title = '';
+    let content = '';
+    
+    switch(type) {
+      case 'service':
+        title = '서비스 이용약관';
+        content = <div dangerouslySetInnerHTML={{ __html: SERVICE_TERMS }} />;
+        break;
+      case 'privacy':
+        title = '개인정보 처리방침';
+        content = <div dangerouslySetInnerHTML={{ __html: PRIVACY_POLICY }} />;
+        break;
+      case 'finance':
+        title = '전자금융거래 이용약관';
+        content = <div dangerouslySetInnerHTML={{ __html: FINANCIAL_TERMS }} />;
+        break;
+      default:
+        return;
+    }
+    
+    setModalState({
+      isOpen: true,
+      title,
+      content
+    });
+  };
+
+  // 약관 모달 닫기
+  const closeTermsModal = () => {
+    setModalState(prev => ({
+      ...prev,
+      isOpen: false
+    }));
+  };
+
   return (
     <div className={styles.container} onSubmit={handleSubmit}>
       <header className={styles.header}>
@@ -599,23 +643,30 @@ export default function SignupPage() {
 
       <div className={styles.checkboxContainer}>
         <div className={styles.checkboxRow}>
-          <input type="checkbox" id="terms" />
+          <input type="checkbox" id="terms" required />
           <label htmlFor="terms">서비스 이용약관 <span className={styles.required}>(필수)</span></label>
-          <span className={styles.detailLink}>자세히 보기</span>
+          <span className={styles.detailLink} onClick={() => openTermsModal('service')}>자세히 보기</span>
         </div>
         
         <div className={styles.checkboxRow}>
-          <input type="checkbox" id="privacy" />
+          <input type="checkbox" id="privacy" required />
           <label htmlFor="privacy">개인정보 처리방침 <span className={styles.required}>(필수)</span></label>
-          <span className={styles.detailLink}>자세히 보기</span>
+          <span className={styles.detailLink} onClick={() => openTermsModal('privacy')}>자세히 보기</span>
         </div>
         
         <div className={styles.checkboxRow}>
-          <input type="checkbox" id="finance" />
+          <input type="checkbox" id="finance" required />
           <label htmlFor="finance">전자금융거래 이용약관 <span className={styles.required}>(필수)</span></label>
-          <span className={styles.detailLink}>자세히 보기</span>
+          <span className={styles.detailLink} onClick={() => openTermsModal('finance')}>자세히 보기</span>
         </div>
       </div>
+      
+      <TermsModal
+        isOpen={modalState.isOpen}
+        onClose={closeTermsModal}
+        title={modalState.title}
+        content={modalState.content}
+      />
 
       <div className={styles.submitButtonWrapper}>
         <button 
