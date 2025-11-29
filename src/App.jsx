@@ -21,8 +21,7 @@ import MenuListPage from './pages/MenuList/MenuListPage';
 
 function App() {
   return (
-  
-      <Routes>
+    <Routes>
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/editinfo" element={<EditInfo />} />
@@ -41,7 +40,6 @@ function App() {
         <Route path="/find-password" element={<FindPasswordPage />} />
         <Route path="/menu-list" element={<MenuListPage />} />
       </Routes>
-   
   );
 }
 
