@@ -24,12 +24,15 @@ const loadDaumPostcodeScript = () => {
 };
 
 export default function SignupPage() {
+  // 컴포넌트 마운트 시 Daum Postcode 스크립트 로드
   useEffect(() => {
     loadDaumPostcodeScript().catch(error => {
       console.error('Failed to load Daum Postcode script:', error);
     });
     
+    // 컴포넌트 언마운트 시 정리
     return () => {
+      // Daum Postcode 팝업이 열려있을 경우 닫기
       if (window.daum && window.daum.Postcode && window.daum.Postcode.close) {
         window.daum.Postcode.close();
       }
@@ -43,7 +46,7 @@ export default function SignupPage() {
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationInput, setVerificationInput] = useState('');
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(300); // 5분(초 단위)
   const [verificationExpiry, setVerificationExpiry] = useState(null);
   const [emailError, setEmailError] = useState('');
   const [password, setPassword] = useState('');
@@ -68,6 +71,7 @@ export default function SignupPage() {
 
   const timerRef = useRef();
 
+  // 이메일 유효성 검사
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!email) return '이메일을 입력해주세요.';
@@ -75,6 +79,7 @@ export default function SignupPage() {
     return '';
   };
 
+  // 비밀번호 유효성 검사
   const validatePassword = (password) => {
     if (password.length < 8 || password.length > 16) {
       return '비밀번호는 8자 이상 16자 이하여야 합니다.';
@@ -91,6 +96,7 @@ export default function SignupPage() {
     return '';
   };
 
+  // 비밀번호 일치 여부 확인
   const checkPasswordMatch = (pass, confirmPass) => {
     if (pass && confirmPass && pass !== confirmPass) {
       return '비밀번호가 일치하지 않습니다.';
@@ -98,6 +104,7 @@ export default function SignupPage() {
     return '';
   };
 
+  // 폼 입력 변경 처리
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -106,18 +113,21 @@ export default function SignupPage() {
     }));
   };
 
+  // 비밀번호 변경 처리
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
     setPasswordError(validatePassword(newPassword) || checkPasswordMatch(newPassword, confirmPassword));
   };
 
+  // 비밀번호 확인 변경 처리
   const handleConfirmPasswordChange = (e) => {
     const newConfirmPassword = e.target.value;
     setConfirmPassword(newConfirmPassword);
     setPasswordError(checkPasswordMatch(password, newConfirmPassword));
   };
 
+  // 주소 검색 핸들러
   const handleAddressSearch = () => {
     loadDaumPostcodeScript().then(() => {
       new window.daum.Postcode({
@@ -142,6 +152,7 @@ export default function SignupPage() {
             extraAddress: extraAddress
           }));
           
+          // 상세주소 입력 필드로 포커스 이동
           document.getElementById('detailAddress')?.focus();
         },
         width: '100%',
@@ -157,6 +168,7 @@ export default function SignupPage() {
     });
   };
 
+  // 주소 입력 변경 핸들러
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddress(prev => ({
@@ -165,6 +177,7 @@ export default function SignupPage() {
     }));
   };
 
+  // 인증 코드 전송 처리
   const handleSendVerification = async () => {
     const emailError = validateEmail(formData.email);
     if (emailError) {
@@ -176,11 +189,13 @@ export default function SignupPage() {
     setVerificationSent(false);
     setIsVerified(false);
     setVerificationInput('');
-    setTimeLeft(300);
-    setVerificationExpiry(Date.now() + 24 * 60 * 60 * 1000);
+    setTimeLeft(300);// 5분으로 초기화
+    setVerificationExpiry(Date.now() + 24 * 60 * 60 * 1000);// 24시간으로 초기화
     
     try {
+      // 이메일 인증 코드 발송 API 호출
       await authService.sendVerificationCode(formData.email);
+      // 성공적으로 전송된 경우
       setVerificationSent(true);
     } catch (error) {
       console.error('인증코드 발송 실패:', error);
@@ -188,6 +203,7 @@ export default function SignupPage() {
     }
   };
 
+  // 인증 코드 확인
   const handleVerifyCode = async (code) => {
     if (!code || code.length !== 4) {
       setEmailError('유효한 인증번호를 입력해주세요.');
@@ -196,13 +212,16 @@ export default function SignupPage() {
     }
     
     try {
+      // 이메일 인증 코드 검증 API 호출
       const response = await authService.verifyEmailCode(formData.email, code);
       
+      // 인증 성공 (백엔드에서 인증 성공 시 200 OK 응답)
       if (response) {
         setIsVerified(true);
         setTimeLeft(0);
         setEmailError('');
         
+        // 24시간 후 인증 만료 설정
         const expiryTime = new Date();
         expiryTime.setHours(expiryTime.getHours() + 24);
         setVerificationExpiry(expiryTime.getTime());
@@ -215,17 +234,21 @@ export default function SignupPage() {
     }
   };
 
+  // 인증번호 입력 변경 핸들러
   const handleVerificationInputChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
     setVerificationInput(value);
     
+    // 입력이 완료되면 자동으로 검증 시도
     if (value.length === 4) {
       handleVerifyCode(value);
     } else if (isVerified) {
+      // 입력이 변경되면 인증 상태 초기화
       setIsVerified(false);
     }
   };
 
+  // 폼 제출 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -245,8 +268,10 @@ export default function SignupPage() {
         }
       };
       
+      // 회원가입 API 호출
       await authService.signup(userData);
       
+      // 회원가입 성공 시 로그인 페이지로 리다이렉트
       alert('회원가입이 완료되었습니다. 로그인해주세요.');
       navigate('/login');
       
@@ -256,6 +281,7 @@ export default function SignupPage() {
     }
   };
 
+  // 폼 유효성 검사
   useEffect(() => {
     const isAllFieldsFilled = 
       formData.firstName && 
@@ -264,7 +290,7 @@ export default function SignupPage() {
       formData.phone2 && 
       formData.phone3 &&
       formData.email &&
-      isVerified &&
+      isVerified && // 이메일 인증 완료 여부 확인
       password && 
       confirmPassword &&
       !passwordError &&
@@ -276,7 +302,9 @@ export default function SignupPage() {
     setIsFormValid(!!isAllFieldsFilled);
   }, [formData, isVerified, password, confirmPassword, passwordError, emailError, address]);
 
+  // 타이머 효과
   useEffect(() => {
+    // 인증이 완료되었고, 만료 시간이 지나지 않았는지 확인
     if (isVerified && verificationExpiry && Date.now() > verificationExpiry) {
       setIsVerified(false);
       setVerificationSent(false);
@@ -284,11 +312,13 @@ export default function SignupPage() {
       return;
     }
 
+    // 인증 대기 중이고, 아직 시간이 남아있는 경우 타이머 감소
     if (verificationSent && timeLeft > 0 && !isVerified) {
       timerRef.current = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
     } else if (timeLeft === 0 && verificationSent && !isVerified) {
+      // 시간 초과 처리 (인증 실패)
       setVerificationSent(false);
       setEmailError('인증 시간이 만료되었습니다. 다시 시도해주세요.');
       setIsVerified(false);
@@ -297,6 +327,7 @@ export default function SignupPage() {
     return () => clearTimeout(timerRef.current);
   }, [verificationSent, timeLeft, isVerified, verificationExpiry]);
 
+  // 시간을 MM:SS 형식으로 포맷팅
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -307,7 +338,7 @@ export default function SignupPage() {
     <div className={styles.container} onSubmit={handleSubmit}>
       <header className={styles.header}>
         <button onClick={() => navigate('/')} className={styles.logoButton}>
-          <img src={logoSmall} alt="밀크유" />
+          <img src={logoSmall} alt="밀포유" />
         </button>
       </header>
 
