@@ -148,7 +148,7 @@
 }
 
 .sectionTitle {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: normal;
   margin: 0;
 }
@@ -215,11 +215,11 @@
   padding: 0 4px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  /*gap: 2px;*/
 }
 
 .productName {
-  font-size: 14px;
+  font-size: 15px;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -232,7 +232,7 @@
 }
 
 .originalPrice {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
   text-decoration: line-through;
   text-align: left;
