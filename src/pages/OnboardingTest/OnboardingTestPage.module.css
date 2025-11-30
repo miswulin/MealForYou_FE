@@ -72,7 +72,7 @@
 .dietButton {
   padding: 20px 12px;
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #E6E8EA;
   background-color: #fff;
   font-size: 16px;
   font-weight: 500;
@@ -90,10 +90,20 @@
   transition: all 0.2s;
   box-sizing: border-box;
   margin: 0 auto;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dietButton:active,
+.dietButton:focus,
+.dietButton:focus-visible {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none;
 }
 
 .dietButton:hover {
-  border-color: #FF6B00;
+  border-color: #E6E8EA;
 }
 
 .dietButton.selected {
