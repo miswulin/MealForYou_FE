@@ -54,7 +54,7 @@
   /* PRODUCT IMAGE */
   .pd-product-img {
     position: relative;
-    width: 370px;
+    width: 375px;
     height: 350px;
     display: flex;
     overflow: hidden;
@@ -68,6 +68,10 @@
   
   .pd-product-img .swiper-slide {
     display: flex;
+  }
+
+  .pd-product-img .swiper-pagination {
+    display: none !important;
   }
   
   .pd-img {
@@ -87,15 +91,28 @@
   
   .pd-img-indicator {
     position: absolute;
-    bottom: 10px;
     left: 50%;
+    bottom: 12px;
     transform: translateX(-50%);
-    padding: 4px 10px;
+    
+    min-width: 32px;
+    height: 22px;
+    padding: 0 10px;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.75);  /* 진한 검정 반투명 */
     color: #ffffff;
     font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
   }
+  
+
+
   
   /* PRODUCT TITLE / PRICE */
   .pd-product-title {
@@ -461,18 +478,24 @@
   
   .pd-sheet-cart-btn,
   .pd-sheet-buy-btn {
-    flex: 1;
-    height: 44px;
     border-radius: 40px;
     font-size: 14px;
     font-weight: 600;
     border: none;
     outline: none;
+    display: flex;
+    height: 48px;
+    min-width: 90px;
+    padding: 0 18px;
+    justify-content: center;
+    align-items: center;
+    gap: var(--gap-2, 4px);
+    flex: 1 0 0;
   }
   
   .pd-sheet-cart-btn {
     background-color: #ffffff;
-    border: 1px solid #e5e5ea;
+    border: 1.6px solid #CDD1D5;
     color: #333;
   }
 
@@ -492,6 +515,7 @@
   .pd-sheet-buy-btn {
     background: var(--button-primary, #FE4F1A);
     color: #fff;
+    font-weight: 700;
   }
 
 
@@ -515,12 +539,13 @@
     flex: 1 0 0;
     height: 40px;
     min-width: 94px;
-    width: 249px;
+    width: 240px;
     border: 0;
-    border-radius: 18px;
+    border-radius: 40px;
     background: #FE4F1A; 
     color: #fff;
     font-size: 15px;
+    font-style: normal;
     font-weight: 700;
     letter-spacing: 0.02em;
     cursor: pointer;
@@ -529,6 +554,10 @@
     justify-content: center;
     align-items: center;
     gap: var(--gap-2, 4px);
+    line-height: 130%;
+    text-align: center;
+    letter-spacing: -1px;
+
   }
 
   

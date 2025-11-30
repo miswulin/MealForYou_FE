@@ -43,7 +43,7 @@
   .header-icon-btn-b {
     width: 15px;
     height: 15px;
-    padding: 0 0 20 0;
+    padding: 0;
     border: none;
     background: transparent;
     flex-direction: column;
