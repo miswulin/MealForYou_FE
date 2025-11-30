@@ -173,13 +173,11 @@ const HomePage = () => {
           ))}
         </div>
         <div className={styles.bannerPagination}>
-          {banners.map((_, index) => (
-            <span 
-              key={index}
-              className={`${styles.pageDot} ${index === currentBannerIndex ? styles.pageDotActive : ''}`}
-              onClick={() => handleBannerDotClick(index)}
-            />
-          ))}
+          <span className={styles.pageNumber}>
+            <span className={styles.currentPage}>{currentBannerIndex + 1}</span>
+            <span className={styles.separator} />
+            <span className={styles.totalPages}>{banners.length}</span>
+          </span>
         </div>
       </div>
 
