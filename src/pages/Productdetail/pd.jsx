@@ -237,7 +237,7 @@ export default function Pd() {
             modules={[Pagination, Mousewheel]}
             spaceBetween={0}
             slidesPerView={1}
-            pagination={{ clickable: true }}
+            
             mousewheel={{ forceToAxis: true }}
             onSlideChange={(swiper) => setCurrentIndex(swiper.activeIndex)}
           >
@@ -252,10 +252,11 @@ export default function Pd() {
             ))}
           </Swiper>
           <div className="pd-img-indicator">
-            <span>
-              {currentIndex + 1} / {images.length}
-            </span>
+            {images.length > 0
+              ? `${currentIndex + 1} / ${images.length}`
+              : "0 / 0"}
           </div>
+        
         </section>
 
         {/* 제목 / 가격 */}
