@@ -1,25 +1,14 @@
-import axios from "axios";
+// src/api/dishes.js (예시 경로)
+import { apiClient } from "./auth";  // 경로는 프로젝트 구조에 맞게 수정!
 
-const DISH_API_URL = "/api/dish";
-const CART_API_URL = "/api/cart";
-
-const authHeader = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user && user.accessToken) {
-    return {
-      Authorization: `Bearer ${user.accessToken}`,
-      "Content-Type": "application/json",
-    };
-  }
-  return { "Content-Type": "application/json" };
-};
+const DISH_API_URL = "/dish";
+const CART_API_URL = "/cart";
 
 export const dishesService = {
+  // 1) 상품 상세 조회 GET /api/dish/{dishId}
   getDishDetail: async (dishId) => {
     try {
-      const res = await axios.get(`${DISH_API_URL}/${dishId}`, {
-        headers: authHeader(),
-      });
+      const res = await apiClient.get(`${DISH_API_URL}/${dishId}`);
       return res.data;
     } catch (error) {
       console.error(`상품 상세 정보 (ID: ${dishId}) 조회 오류:`, error);
@@ -31,23 +20,19 @@ export const dishesService = {
     }
   },
 
+  // 2) 관심 상품 토글 POST /api/dish/{dishId}/interest
   toggleInterest: async (dishId) => {
-    const res = await axios.post(
-      `${DISH_API_URL}/${dishId}/interest`,
-      null,
-      { headers: authHeader() }
-    );
+    const res = await apiClient.post(`${DISH_API_URL}/${dishId}/interest`);
     // 예시 응답: true / false
     return res.data;
   },
 
-
+  // 3) 장바구니 담기 POST /api/cart/add
   addToCart: async (dishId, options) => {
     try {
-      const res = await axios.post(
-        `${CART_API_URL}/add`, 
-        { dishId, options }, 
-        { headers: authHeader() }
+      const res = await apiClient.post(
+        `${CART_API_URL}/add`,
+        { dishId, options }
       );
       return res.data;
     } catch (error) {
@@ -60,12 +45,12 @@ export const dishesService = {
     }
   },
 
+  // 4) 바로구매 POST /api/cart/buy
   buyNow: async (dishId, options) => {
-    const res = await axios.post(
+    const res = await apiClient.post(
       `${CART_API_URL}/buy`,
-      { dishId, options },
-      { headers: authHeader() }
+      { dishId, options }
     );
-    return res.data;
+    return res.data; // cartItemId 같은 값
   },
 };
