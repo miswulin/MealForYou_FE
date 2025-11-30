@@ -293,8 +293,8 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    width: 375px;
-    height: 60px;        
+    width: 343px;
+    height: 48px;        
     bottom: 0;
     z-index: 20;
     display: flex;
@@ -374,14 +374,6 @@
     color: #555555;
   }
   
-  .pd-sheet-section {
-    padding: 10px 0 4px;
-  }
-  
-  .pd-sheet-section:first-of-type {
-    border-top: none;
-  }
-  
   .pd-sheet-section-label {
     margin: 0 -16px 8px;   
     padding: 8px 16px;
@@ -400,10 +392,6 @@
     justify-content: space-between;
     padding: 10px 0;
   }
-
-  .pd-sheet-row:last-of-type {
-    border-bottom: none;
-  }
   
   .pd-sheet-row-left {
     display: flex;
@@ -421,7 +409,7 @@
     font-size: 13px;
     color: black;   
     font-weight: 500;  
-    white-space: nowrap; /* 길어져도 줄바꿈 방지 */
+    white-space: nowrap;
   }
   
   
@@ -475,10 +463,11 @@
   .pd-sheet-buy-btn {
     flex: 1;
     height: 44px;
-    border-radius: 999px;
+    border-radius: 40px;
     font-size: 14px;
     font-weight: 600;
     border: none;
+    outline: none;
   }
   
   .pd-sheet-cart-btn {
@@ -486,11 +475,25 @@
     border: 1px solid #e5e5ea;
     color: #333;
   }
+
+  .pd-sheet-cart-btn:focus,
+  .pd-sheet-cart-btn:focus-visible {
+  outline: none;
+  border-color: #e5e5ea; 
+}
   
+.pd-sheet-cart-btn:hover,
+.pd-sheet-cart-btn:active,
+.pd-sheet-cart-btn:focus,
+.pd-sheet-cart-btn:focus-visible {
+  outline: none; 
+  border-color: #e5e5ea; 
+}
   .pd-sheet-buy-btn {
-    background-color: #ff6b2b;
+    background: var(--button-primary, #FE4F1A);
     color: #fff;
   }
+
 
   .pd-like-btn {
     flex: 0 0 40px;
@@ -512,7 +515,7 @@
     flex: 1 0 0;
     height: 40px;
     min-width: 94px;
-    width: 293px;
+    width: 249px;
     border: 0;
     border-radius: 18px;
     background: #FE4F1A; 

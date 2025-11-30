@@ -4,7 +4,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Mousewheel } from "swiper/modules";
 import { useNavigate /*, useParams */ } from "react-router-dom";
 
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
@@ -219,7 +218,6 @@ export default function Pd() {
 
   return (
     <div className="pd-root">
-      <StatusBar />
 
       <Header
         title={dishName || "[신상품] 밀포유 소고기 비빔밥 키트"}
