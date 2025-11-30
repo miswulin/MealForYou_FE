@@ -1,6 +1,8 @@
 .container {
   width: 100%;
   min-height: 100vh;
+  max-width: 100%;
+  box-sizing: border-box;
   background-color: #fff;
   padding: 20px;
   font-family: "Noto Sans KR", sans-serif;
@@ -8,6 +10,8 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  overflow-x: hidden;
+  padding-bottom: 120px; /* Add space for fixed button */
 }
 
 .header {
@@ -57,17 +61,20 @@
 .dietGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 16px;
+  width: 100%;
   max-width: 400px;
-  margin-bottom: 40px;
+  margin: 0 auto 40px;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
 .dietButton {
-  padding: 24px 16px;
+  padding: 20px 12px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
   background-color: #fff;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: #333;
   text-align: center;
@@ -75,10 +82,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  width: 160px;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 160px;
   height: 140px;
   transition: all 0.2s;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
 .dietButton:hover {
@@ -92,8 +103,8 @@
 }
 
 .dietIcon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
 }
 
@@ -104,9 +115,13 @@
   margin: 20px 0;
   cursor: pointer;
   position: fixed;
-  bottom: 80px;
+  bottom: 70px;
   left: 0;
   right: 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+  max-width: 100%;
+  word-break: keep-all;
 }
 
 .skipText:hover {
@@ -118,8 +133,8 @@
 }
 
 .completeButton {
-  width: 100%;
-  max-width: calc(100% - 40px);
+  width: calc(100% - 40px);
+  max-width: 400px;
   padding: 16px;
   border-radius: 28px;
   background-color: #CDD1D5;
@@ -129,9 +144,11 @@
   border: none;
   cursor: pointer;
   position: fixed;
-  bottom: 24px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
 .completeButton:disabled {
