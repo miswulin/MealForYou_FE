@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import { cartService } from "../../api/cart";
 
@@ -224,8 +223,6 @@ export default function Cart() {
 
   return (
     <div className="cart-root">
-      {/* STATUS BAR */}
-      <StatusBar />
 
       {/* HEADER */}
       <Header
