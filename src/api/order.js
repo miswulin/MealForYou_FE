@@ -1,4 +1,3 @@
-// src/api/order.js (경로는 프로젝트 구조에 맞게 수정)
 import { apiClient } from "./auth";
 
 const ORDER_API_URL = "/orders";
@@ -20,7 +19,6 @@ export const orderService = {
   },
 
   // 2) 주문/결제 페이지 정보 조회
-  // GET /api/orders/sheet?items=1&items=2&...
   getOrderSheet: async (items) => {
     try {
       const response = await apiClient.get(`${ORDER_API_URL}/sheet`, {
@@ -38,7 +36,6 @@ export const orderService = {
   },
 
   // 3) 주문 완료 페이지 조회
-  // GET /api/orders/{orderId}/complete
   getOrderComplete: async (orderId) => {
     try {
       const response = await apiClient.get(
