@@ -47,6 +47,7 @@ const allMenu = [
   { id: 13, name: '전체 메뉴 3', originalPrice: 10000, discountRate: 15, isLiked: false, image: bibimbap },
   { id: 14, name: '전체 메뉴 4', originalPrice: 11000, discountRate: 8, isLiked: false, image: bibimbap },
   { id: 15, name: '전체 메뉴 5', originalPrice: 12000, discountRate: 12, isLiked: false, image: bibimbap },
+  { id: 16, name: '전체 메뉴 6', originalPrice: 13000, discountRate: 7, isLiked: false, image: bibimbap }
 ];
 
 const HomePage = () => {
@@ -280,15 +281,14 @@ const HomePage = () => {
             전체보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
           </span>
         </div>
-        <div className={styles.productList}>
-          {products.all.map(product => {
+        <div className={styles.allMenuGrid}>
+          {products.all.slice(0, 6).map(product => {
             const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
             return (
               <div 
                 key={product.id} 
                 className={styles.productCard}
                 onClick={() => navigate('/product-detail', { state: { product } })}
-                style={{ cursor: 'pointer' }}
               >
                 <div className={styles.productImage}>
                   <img src={product.image} alt={product.name} />
