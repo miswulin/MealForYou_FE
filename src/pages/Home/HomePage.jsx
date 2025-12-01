@@ -247,8 +247,8 @@ const HomePage = () => {
                       <h3 className={styles.productName}>{product.name}</h3>
                       <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}%</span>
-                        <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
                   </div>
@@ -261,8 +261,8 @@ const HomePage = () => {
 
           <section>
             <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
-          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '따끈따끈한 신상품' } })}>
+              <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
+              <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '따끈따끈한 신상품' } })}>
                 더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
               </span>
             </div>
@@ -300,8 +300,8 @@ const HomePage = () => {
                       <h3 className={styles.productName}>{product.name}</h3>
                       <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}%</span>
-                        <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
                   </div>
@@ -352,8 +352,8 @@ const HomePage = () => {
                       <h3 className={styles.productName}>{product.name}</h3>
                       <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}%</span>
-                        <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
                   </div>
