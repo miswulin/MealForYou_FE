@@ -8,8 +8,8 @@ import headerHeartIcon from '../../assets/heart.svg';
 import cartIcon from '../../assets/bag.svg';
 import personIcon from '../../assets/person.svg';
 import searchIcon from '../../assets/magnifyingglass.svg';
-import heartIcon from '../../assets/images/heart-m.png';
-import heartFilledIcon from '../../assets/images/heart-menu-Icon.png';
+import heartIcon from '../../assets/heart-m.svg';
+import heartFilledIcon from '../../assets/heart-menu-Icon.svg';
 import bibimbap from '../../assets/images/bibimbap.png';
 
 const MenuListPage = () => {
