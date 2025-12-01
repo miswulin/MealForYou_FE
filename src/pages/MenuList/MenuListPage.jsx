@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './MenuListPage.module.css';
 
@@ -12,43 +12,88 @@ import heartIcon from '../../assets/heart-m.svg';
 import heartFilledIcon from '../../assets/heart-menu-Icon.svg';
 import bibimbap from '../../assets/images/bibimbap.png';
 
+
 const MenuListPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSort, setSelectedSort] = useState('인기순');
+  const [selectedSort, setSelectedSort] = useState('default');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [products, setProducts] = useState({
-    all: [
-      { id: 1, name: '비빔밥', originalPrice: 12000, discountRate: 15, isLiked: false, image: bibimbap },
-      { id: 2, name: '김치찌개', originalPrice: 10000, discountRate: 10, isLiked: false, image: bibimbap },
-      { id: 3, name: '된장찌개', originalPrice: 9000, discountRate: 5, isLiked: false, image: bibimbap },
-      { id: 4, name: '제육볶음', originalPrice: 11000, discountRate: 8, isLiked: false, image: bibimbap },
-      { id: 5, name: '불고기', originalPrice: 13000, discountRate: 12, isLiked: false, image: bibimbap },
-      { id: 6, name: '새로 나온 메뉴 1', originalPrice: 15000, discountRate: 20, isLiked: false, image: bibimbap },
-      { id: 7, name: '새로 나온 메뉴 2', originalPrice: 16000, discountRate: 15, isLiked: false, image: bibimbap },
-      { id: 8, name: '새로 나온 메뉴 3', originalPrice: 14000, discountRate: 10, isLiked: false, image: bibimbap },
-    ]
-  });
+  const [menuItems, setMenuItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const sortOptions = ['인기순', '추천순', '최신순', '저가순'];
+  const sortOptions = [
+    { value: 'default', label: '기본순' },
+    { value: 'popular', label: '인기순' },
+    { value: 'recommend', label: '추천순' },
+    { value: 'new', label: '최신순' },
+    { value: 'low_price', label: '저가순' },
+  ];
 
-  const toggleLike = (id) => {
-    setProducts(prev => ({
-      ...prev,
-      all: prev.all.map(product => 
-        product.id === id 
-          ? { ...product, isLiked: !product.isLiked }
-          : product
-      )
-    }));
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/dishes?sort=${selectedSort}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('API Response:', data);
+        setMenuItems(Array.isArray(data) ? data : []);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching menu items:', err);
+        setError('메뉴를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+        setMenuItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMenuItems();
+  }, [selectedSort]);
+
+  const handleSortChange = (sortValue) => {
+    setSelectedSort(sortValue);
+    setIsDropdownOpen(false);
+  };
+
+  const toggleLike = async (id) => {
+    try {
+      // TODO: Implement like API call when available
+      setMenuItems(prevItems => 
+        prevItems.map(item => 
+          item.id === id 
+            ? { ...item, interested: !item.interested } 
+            : item
+        )
+      );
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
   };
 
   const calculateSalePrice = (originalPrice, discountRate) => {
+    if (!discountRate) return originalPrice;
     return Math.round(originalPrice * (1 - discountRate / 100));
   };
 
   const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : '0';
+  };
+
+  const getSortLabel = (value) => {
+    const option = sortOptions.find(opt => opt.value === value);
+    return option ? option.label : '기본순';
   };
 
   const handleSearch = (e) => {
@@ -91,27 +136,25 @@ const MenuListPage = () => {
       <main className={styles.mainContent}>
         {/* 정렬 및 상품 수 */}
         <div className={styles.filterBar}>
-          <span className={styles.productCount}>전체상품 0개</span>
+          <span className={styles.productCount}>전체상품 {menuItems.length}개</span>
           <div className={styles.dropdown}>
             <button 
               className={styles.dropdownButton}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
             >
-              {selectedSort}
+              {getSortLabel(selectedSort)}
               <span className={styles.dropdownArrow}>▼</span>
             </button>
             {isDropdownOpen && (
               <div className={styles.dropdownContent}>
                 {sortOptions.map((option) => (
                   <div 
-                    key={option}
-                    className={styles.dropdownItem}
-                    onClick={() => {
-                      setSelectedSort(option);
-                      setIsDropdownOpen(false);
-                    }}
+                    key={option.value}
+                    className={`${styles.dropdownItem} ${selectedSort === option.value ? styles.selected : ''}`}
+                    onClick={() => handleSortChange(option.value)}
                   >
-                    {option}
+                    {option.label}
                   </div>
                 ))}
               </div>
@@ -119,48 +162,59 @@ const MenuListPage = () => {
           </div>
         </div>
 
-        <div className={styles.productList}>
-          {products.all.length > 0 ? (
-            products.all.map(product => {
-              const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
-              return (
-                <div 
-                  key={product.id} 
-                  className={styles.productCard}
-                  onClick={() => navigate('/product-detail', { state: { product } })}
-                >
-                  <div className={styles.productImage}>
-                    <img src={product.image} alt={product.name} />
-                    <div 
+        {/* 로딩 및 에러 상태 */}
+        {isLoading && <div className={styles.loading}>로딩 중...</div>}
+        {error && <div className={styles.error}>{error}</div>}
+
+        {/* 상품 목록 */}
+        {!isLoading && !error && (
+          <div className={styles.productList}>
+            {menuItems.length > 0 ? (
+              menuItems.map((item) => (
+                <div key={item.id} className={styles.productCard}>
+                  <div className={styles.imageContainer}>
+                    <img 
+                      src={item.imageUrl || bibimbap} 
+                      alt={item.name} 
+                      className={styles.productImage} 
+                      onClick={() => navigate(`/product-detail/${item.id}`)}
+                    />
+                    <button 
                       className={styles.heartButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLike(product.id);
-                      }}
+                      onClick={() => toggleLike(item.id)}
                     >
                       <img 
-                        src={product.isLiked ? heartFilledIcon : heartIcon} 
-                        alt={product.isLiked ? '찜 해제' : '찜하기'} 
+                        src={item.interested ? heartFilledIcon : heartIcon} 
+                        alt={item.interested ? '찜 해제' : '찜하기'} 
+                        className={styles.heartIcon}
                       />
-                    </div>
+                    </button>
                   </div>
                   <div className={styles.productInfo}>
-                    <h3 className={styles.productName}>{product.name}</h3>
-                    <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                    <h3 className={styles.productName}>{item.name}</h3>
                     <div className={styles.priceContainer}>
-                      <span className={styles.discountRate}>{product.discountRate}%</span>
-                      <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
+                      {item.discountRate > 0 && (
+                        <>
+                          <span className={styles.originalPrice}>
+                            {formatPrice(item.basePrice)}원
+                          </span>
+                          <span className={styles.discountRate}>
+                            {item.discountRate}%
+                          </span>
+                        </>
+                      )}
+                      <span className={styles.salePrice}>
+                        {formatPrice(item.discountRate > 0 ? calculateSalePrice(item.basePrice, item.discountRate) : item.basePrice)}<span className={styles.priceUnit}>원</span>
+                      </span>
                     </div>
                   </div>
                 </div>
-              );
-            })
-          ) : (
-            <div className={styles.noResults}>
-              <p className={styles.noResultsText}>상품이 없습니다.</p>
-            </div>
-          )}
-        </div>
+              ))
+            ) : (
+              <div className={styles.noItems}>표시할 메뉴가 없습니다.</div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
