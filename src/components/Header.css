@@ -12,13 +12,13 @@
   /* 가운데 제목 */
   .header-title {
     flex: 1;
-    margin: 0 8px;
     font-size: 17px;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+    letter-spacing: -1px;
   }
   
   /* 아이콘 공통 */
@@ -43,11 +43,11 @@
   .header-icon-btn-b {
     width: 15px;
     height: 15px;
-    padding: 0 0 20 0;
+    padding: 0;
     border: none;
     background: transparent;
     flex-direction: column;
-    justify-content: center;
+    margin-bottom: 6px;
     display: grid;
     place-items: center;
     cursor: pointer;

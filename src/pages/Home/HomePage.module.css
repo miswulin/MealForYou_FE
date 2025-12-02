@@ -52,10 +52,12 @@
 
 .bannerContainer {
   position: relative;
-  width: 100%;
+  width: 100vw;
+  left: 50%;
+  transform: translateX(-50%);
   /*height: 200px;*/
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   margin: 16px 0;
 }
 
@@ -82,22 +84,60 @@
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 4px 8px;
+  border-radius: 12px;
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
-.pageDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #fff;
-  opacity: 0.5;
-  cursor: pointer;
+.pageNumber {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
-.pageDotActive {
-  background-color: #FF6B6B;
-  opacity: 1;
+.separator {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background-color: #F4F5F6;
+  opacity: 0.6;
+  margin: 0 3px;
+  align-self: center;
+}
+
+.currentPage,
+.totalPages {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  text-align: center;
+  position: relative;
+  top: -1px;
+}
+
+.currentPage {
+  color: #E6E8EA;
+}
+
+.totalPages {
+  min-width: 12px;
+  text-align: center;
+  color: #CDD1D5;
 }
 
 .sectionHeader {
@@ -108,7 +148,7 @@
 }
 
 .sectionTitle {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: normal;
   margin: 0;
 }
@@ -129,6 +169,22 @@
 
 .productList::-webkit-scrollbar {
   display: none;
+}
+
+/* New grid layout for all menu */
+.allMenuGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 8px 0;
+  width: 100%;
+}
+
+/* Make product cards in allMenuGrid full width */
+.allMenuGrid .productCard {
+  min-width: auto;
+  width: 100%;
+  margin-bottom: 8px;
 }
 
 .productCard {
@@ -155,27 +211,31 @@
 
 .heartButton {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 24px;
-  height: 24px;
+  top: 9px;
+  right: 9px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
 }
 
 .heartButton img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
 }
 
 .productInfo {
   padding: 0 4px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  /*gap: 2px;*/
 }
 
 .productName {
-  font-size: 14px;
+  font-size: 15px;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -188,7 +248,7 @@
 }
 
 .originalPrice {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
   text-decoration: line-through;
   text-align: left;
@@ -211,4 +271,9 @@
 .salePrice {
   font-size: 16px;
   font-weight: bold;
+}
+
+.priceUnit, .percentUnit {
+  font-size: 13px;
+  margin-left: 1px;
 }

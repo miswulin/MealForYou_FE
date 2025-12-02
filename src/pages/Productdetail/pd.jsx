@@ -1,34 +1,88 @@
 // src/pages/Pd/Pd.jsx (예시 경로에 맞춰 수정)
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Mousewheel } from "swiper/modules";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate /*, useParams */ } from "react-router-dom";
 
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
 import { dishesService } from "../../api/dishes";
 
-import "swiper/css";
-import "swiper/css/pagination";
-
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
-import heart from "../../assets/images/heart-m.png";
-import shareIcon from "../../assets/images/share.png";
+import heart from "../../assets/heart-m.svg";
+import shareIcon from "../../assets/share.svg";
 
 export default function Pd() {
   const navigate = useNavigate();
 
-  // TODO: 나중에는 URL 파라미터로 교체
-  // const { dishId } = useParams();
   const dishId = 1;
 
   // 상단 이미지
   const [images, setImages] = useState([bibimbap, bibimbap2]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slideInterval = useRef(null);
+  const touchStart = useRef(0);
+  const touchEnd = useRef(0);
+  const swipeThreshold = 50;
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    slideInterval.current = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % images.length);
+    }, 2000); 
+
+    return () => {
+      if (slideInterval.current) {
+        clearInterval(slideInterval.current);
+      }
+    };
+  }, [images]);
+
+  const resetAutoSlide = () => {
+    if (slideInterval.current) {
+      clearInterval(slideInterval.current);
+    }
+
+    if (images.length > 1) {
+      slideInterval.current = setInterval(() => {
+        setCurrentIndex(prev => (prev + 1) % images.length);
+      }, 3000);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    touchEnd.current = 0;
+    touchStart.current = e.touches[0].clientX;
+    if (slideInterval.current) {
+      clearInterval(slideInterval.current);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    touchEnd.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchEnd.current || Math.abs(touchStart.current - touchEnd.current) < swipeThreshold) {
+      resetAutoSlide();
+      return;
+    }
+
+    let newIndex = currentIndex;
+
+    if (touchStart.current > touchEnd.current) {
+      newIndex = Math.min(images.length - 1, currentIndex + 1);
+    }
+    if (touchStart.current < touchEnd.current) {
+      newIndex = Math.max(0, currentIndex - 1);
+    }
+    
+    setCurrentIndex(newIndex);
+    resetAutoSlide();
+  };
 
   // 상품 기본 정보
   const [dishName, setDishName] = useState("");
@@ -41,9 +95,9 @@ export default function Pd() {
   const [selectedRecommendId, setSelectedRecommendId] = useState(null);
 
   // 바텀 시트 옵션들
-  const [sauceOptions, setSauceOptions] = useState([]);   // SOURCE
-  const [baseOptions, setBaseOptions] = useState([]);     // BASIC_OPTION
-  const [extraOptions, setExtraOptions] = useState([]);   // ADDITIONAL_OPTION
+  const [sauceOptions, setSauceOptions] = useState([]);  
+  const [baseOptions, setBaseOptions] = useState([]);     
+  const [extraOptions, setExtraOptions] = useState([]);   
 
   // 모달 & 바텀시트
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -136,7 +190,7 @@ export default function Pd() {
   // 찜 토글 (관심 상품 등록/해제)
   const handleToggleInterest = async () => {
     try {
-      const result = await dishesService.toggleInterest(dishId); // true/false 라고 가정
+      const result = await dishesService.toggleInterest(dishId); 
       setIsInterested(result);
     } catch (error) {
       console.error("관심 상품 설정 실패:", error);
@@ -169,7 +223,7 @@ export default function Pd() {
     );
   };
 
-  // 선택한 옵션 → API 요청 형식으로 변환
+  // 선택한 옵션 
   const getSelectedOptionsForApi = () => {
     const allOptions = [...baseOptions, ...extraOptions, ...sauceOptions];
 
@@ -219,45 +273,49 @@ export default function Pd() {
 
   return (
     <div className="pd-root">
-      <StatusBar />
 
       <Header
-        title={dishName || "[신상품] 밀포유 소고기 비빔밥 키트"}
+        title={dishName}
         onBack={() => navigate(-1)}
-        onHeart={handleToggleInterest}
+        onHeart={() => navigate("/wishlist")}
         isHeartActive={isInterested}
         onCart={() => navigate("/cart")}
-        onPerson={() => navigate("/login")}
+        onPerson={() => navigate("/mypage")}
       />
 
       {/* ----- 메인 영역 ----- */}
       <main className="pd-main">
         {/* 이미지 슬라이더 */}
         <section className="pd-product-img">
-          <Swiper
-            className="pd-swiper"
-            modules={[Pagination, Mousewheel]}
-            spaceBetween={0}
-            slidesPerView={1}
-            pagination={{ clickable: true }}
-            mousewheel={{ forceToAxis: true }}
-            onSlideChange={(swiper) => setCurrentIndex(swiper.activeIndex)}
-          >
-            {images.map((src, i) => (
-              <SwiperSlide key={i}>
-                <img
-                  src={src}
-                  alt={`상품 이미지 ${i + 1}`}
-                  className="pd-img"
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-          <div className="pd-img-indicator">
-            <span>
-              {currentIndex + 1} / {images.length}
-            </span>
+          <div className="pd-image-slide-wrapper"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}>
+          <div
+              className="pd-image-slide-track"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`, // 이미지 이동
+              }}
+            >
+              {images.map((src, i) => (
+                <div key={i} className="pd-image-slide-item">
+                  <img
+                    src={src}
+                    alt={`상품 이미지 ${i + 1}`}
+                    className="pd-img"
+                  />
+                  </div>
+              ))}
+            </div>
           </div>
+
+          <div className="pd-img-indicator">
+            {images.length > 0
+              ? `${currentIndex + 1} / ${images.length}` // 번호 슬라이드 표시
+              : "0 / 0"}
+          </div>
+
+        
         </section>
 
         {/* 제목 / 가격 */}
@@ -278,7 +336,7 @@ export default function Pd() {
 
           <div className="pd-price-row">
             {/* 할인율도 API에 있으면 계산해서 넣기 */}
-            {/* <span className="pd-discount">26%</span> */}
+            <span className="pd-discount">26%</span>
             <span className="pd-final-price">
               {basePrice.toLocaleString("ko-KR")}원
             </span>
@@ -288,7 +346,7 @@ export default function Pd() {
         </section>
 
         {/* 아래 상세 설명 부분은 기존 더미 그대로 둬도 됨 */}
-        {/* ... (생략: pd-details, pd-story, pd-frame) ... */}
+        {/* ... (pd-details, pd-story, pd-frame) ... */}
       </main>
 
       {/* 하단 버튼 */}

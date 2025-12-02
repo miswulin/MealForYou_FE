@@ -21,25 +21,17 @@
   width: 100%;
 }
 
-/* 검색 필터 바 */
-.searchFilter {
+/* 필터 바 */
+.filterBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 12px 0;
-  padding: 0 4px;
-}
-
-.searchInfo {
-  flex: 1;
-  text-align: left;
-  padding-left: 0px;
+  margin: 8px 0;
+  padding: 8px 0;
 }
 
 .productCount {
-  /*font-size: 14px;*/
   color: #6D7882;
-  
 }
 
 /* 검색 바 */
@@ -66,41 +58,39 @@
   color: #999;
 }
 
-/* Dropdown styles */
-.sortContainer {
+/* 드롭다운 */
+.dropdown {
   position: relative;
-  margin-bottom: 16px;
-  width: 100%;
+  display: inline-block;
 }
 
-.sortButton {
+.dropdownButton {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: none;
-  border: none;
+  justify-content: space-between;
+  background-color: #FFFFFF;
+  color: #6D7882;
   padding: 8px 12px;
-  font-size: 13px;
-  color: #666;
+  border: 1px solid #F4F5F6;
+  border-radius: 8px;
   cursor: pointer;
-  min-width: 80px;
-  white-space: nowrap;
+  font-size: 13px;
+  width: 80px;
 }
 
-.sortButton::after {
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid #666;
-  margin-left: 8px;
+.dropdownArrow {
+  font-size: 10px;
+  color: #B1B8BE;
+  transition: transform 0.2s;
 }
 
-.dropdownMenu {
+.dropdownButton:hover .dropdownArrow {
+  transform: translateY(1px);
+}
+
+.dropdownContent {
   position: absolute;
   top: 100%;
-  left: 0;
   right: 0;
   background: white;
   border: 1px solid #eee;
@@ -125,12 +115,11 @@
 .dropdownItem:hover {
   background-color: #f8f8f8;
 }
-/*
+
 .dropdownItem.selected {
-  선택된 항목의 스타일
-  color: #1a73e8;
-  font-weight: 500;
-}*/
+  font-weight: bold;
+  color: #ff6b6b;
+}
 
 .searchBar .icon {
   order: 2;
@@ -164,11 +153,32 @@
   flex-direction: column;
 }
 
+/* 검색 필터 바 */
+.searchFilter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 12px 0;
+  /*padding: 0 4px;*/
+}
+
 /* 검색 필터 */
 .searchFilter {
   display: flex;
   justify-content: flex-end;
   padding: 12px 0;
+}
+
+.searchInfo {
+  flex: 1;
+  text-align: left;
+}
+
+.productCount {
+  color: #6D7882;
+  margin: 0;
+  padding: 0;
 }
 
 .dropdown {
@@ -238,9 +248,196 @@
   text-align: center;
 }
 
-
 .noResultsText {
   font-size: 16px;
   color: #6D7882;
   margin-top: 12px;
 }
+
+/* 상품 목록 */
+.productList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 8px 0;
+  margin-bottom: 20px;
+  min-height: 300px; /* Ensure minimum height for empty state */
+}
+
+.productCard {
+  position: relative;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heartButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.heartButton img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.productInfo {
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.noResultsContainer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 250px; /* 패딩을 추가하여 콘텐츠를 아래로 이동  */
+  height: 300px; /* 제품 목록의 최소 높이와 일치 */
+  text-align: center;
+}
+
+.magnifyingGlassIcon {
+  margin-bottom: 16px;
+}
+
+.noResultsText {
+  color: #8a949e;
+  font-size: 16px;
+  margin: 0;
+}
+
+.productName {
+  font-size: 15px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  width: 100%;
+  display: block;
+  font-weight: normal;
+  line-height: 1.3;
+  color: #333;
+}
+
+.originalPrice {
+  font-size: 13px;
+  color: #999;
+  text-decoration: line-through;
+  text-align: left;
+  margin: 2px 0;
+}
+
+.priceContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.discountRate {
+  color: #ff6b6b;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.salePrice {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.priceUnit {
+  font-size: 13px;
+}
+
+/* 검색 결과 없음 */
+.noItems {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  padding: 0;
+}
+
+.heartIcon {
+  width: 14px;
+  height: 14px;
+}
+
+/* 로딩 상태 */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 20px;
+  flex: 1;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 에러 메시지 */
+.error {
+  text-align: center;
+  padding: 32px 20px;
+  color: #ff4d4f;
+  background-color: #fff2f0;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.magnifyingGlassIcon {
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

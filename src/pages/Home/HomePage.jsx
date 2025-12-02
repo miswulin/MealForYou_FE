@@ -5,8 +5,8 @@ import logo from '../../assets/mealforyou_logo.svg';
 // Header heart icon
 import headerHeartIcon from '../../assets/heart.svg';
 // Product card heart icons
-import heartIcon from '../../assets/images/heart-m.png';
-import heartFilledIcon from '../../assets/images/heart-menu-Icon.png';
+import heartIcon from '../../assets/heart-m.svg';
+import heartFilledIcon from '../../assets/heart-menu-Icon.svg';
 import cartIcon from '../../assets/bag.svg';
 import personIcon from '../../assets/person.svg';
 import searchIcon from '../../assets/magnifyingglass.svg';
@@ -16,7 +16,7 @@ import rightArrowIcon from '../../assets/right_arrow.svg';
 
 // CSS Modules are now in HomePage.module.css
 
-// 샘플 데이터
+// 배너 데이터
 const banners = [
   { id: 1, title: '배너 1' },
   { id: 2, title: '배너 2' },
@@ -25,42 +25,61 @@ const banners = [
   { id: 5, title: '배너 5' },
 ];
 
-const popularProducts = [
-  { id: 1, name: '비빔밥', originalPrice: 12000, discountRate: 15, isLiked: false, image: bibimbap },
-  { id: 2, name: '김치찌개', originalPrice: 10000, discountRate: 10, isLiked: false, image: bibimbap },
-  { id: 3, name: '된장찌개', originalPrice: 9000, discountRate: 5, isLiked: false, image: bibimbap },
-  { id: 4, name: '제육볶음', originalPrice: 11000, discountRate: 8, isLiked: false, image: bibimbap },
-  { id: 5, name: '불고기', originalPrice: 13000, discountRate: 12, isLiked: false, image: bibimbap },
-];
-
-const newProducts = [
-  { id: 6, name: '새로 나온 메뉴 1', originalPrice: 15000, discountRate: 20, isLiked: false, image: bibimbap },
-  { id: 7, name: '새로 나온 메뉴 2', originalPrice: 16000, discountRate: 15, isLiked: false, image: bibimbap },
-  { id: 8, name: '새로 나온 메뉴 3', originalPrice: 14000, discountRate: 10, isLiked: false, image: bibimbap },
-  { id: 9, name: '새로 나온 메뉴 4', originalPrice: 17000, discountRate: 12, isLiked: false, image: bibimbap },
-  { id: 10, name: '새로 나온 메뉴 5', originalPrice: 18000, discountRate: 8, isLiked: false, image: bibimbap },
-];
-
-const allMenu = [
-  { id: 11, name: '전체 메뉴 1', originalPrice: 8000, discountRate: 5, isLiked: false, image: bibimbap },
-  { id: 12, name: '전체 메뉴 2', originalPrice: 9000, discountRate: 10, isLiked: false, image: bibimbap },
-  { id: 13, name: '전체 메뉴 3', originalPrice: 10000, discountRate: 15, isLiked: false, image: bibimbap },
-  { id: 14, name: '전체 메뉴 4', originalPrice: 11000, discountRate: 8, isLiked: false, image: bibimbap },
-  { id: 15, name: '전체 메뉴 5', originalPrice: 12000, discountRate: 12, isLiked: false, image: bibimbap },
-];
+// API에서 받아온 데이터를 컴포넌트에서 사용하는 형식으로 변환
+const transformDishData = (dishes) => {
+  if (!dishes) return [];
+  return dishes.map(dish => ({
+    id: dish.id,
+    name: dish.name,
+    originalPrice: dish.basePrice,
+    discountRate: 0, // 할인율은 API 응답에 없으므로 기본값 0으로 설정
+    isLiked: dish.interested || false,
+    image: bibimbap, // 기본 이미지 사용
+    imageUrl: dish.imageUrl // API에서 받은 이미지 URL
+  }));
+};
 
 const HomePage = () => {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState({
-    popular: popularProducts,
-    new: newProducts,
-    all: allMenu
+    popular: [],
+    new: [],
+    all: []
   });
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const navigate = useNavigate();
   const bannerInterval = useRef(null);
-  
+
+  // API에서 데이터 가져오기
+  useEffect(() => {
+    const fetchDishes = async () => {
+      try {
+        const response = await fetch('/api/dishes/main');
+        if (!response.ok) {
+          throw new Error('API 요청에 실패했습니다.');
+        }
+        const data = await response.json();
+
+        setProducts({
+          popular: transformDishData(data.popularDishes || []),
+          new: transformDishData(data.newDishes || []),
+          all: transformDishData(data.recommendedDishes || []) // 추천 상품을 all 메뉴로 사용
+        });
+        setError(null);
+      } catch (err) {
+        console.error('메뉴를 불러오는 중 오류가 발생했습니다:', err);
+        setError('메뉴를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDishes();
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTerm && searchTerm.trim()) {
@@ -95,8 +114,8 @@ const HomePage = () => {
   const toggleLike = (category, id) => {
     setProducts(prev => ({
       ...prev,
-      [category]: prev[category].map(product => 
-        product.id === id 
+      [category]: prev[category].map(product =>
+        product.id === id
           ? { ...product, isLiked: !product.isLiked }
           : product
       )
@@ -118,208 +137,234 @@ const HomePage = () => {
       <header className={styles.header}>
         <img className={styles.logo} src={logo} alt="MealForYou" />
         <div className={styles.iconContainer}>
-          <img 
-            className={styles.icon} 
-            src={headerHeartIcon} 
-            alt="찜" 
-            onClick={() => navigate('/wishlist')} 
+          <img
+            className={styles.icon}
+            src={headerHeartIcon}
+            alt="찜"
+            onClick={() => navigate('/wishlist')}
           />
-          <img 
-            className={styles.icon} 
-            src={cartIcon} 
-            alt="장바구니" 
-            onClick={() => navigate('/cart')} 
+          <img
+            className={styles.icon}
+            src={cartIcon}
+            alt="장바구니"
+            onClick={() => navigate('/cart')}
           />
-          <img 
-            className={styles.icon} 
-            src={personIcon} 
-            alt="마이페이지" 
-            onClick={() => navigate('/mypage')} 
+          <img
+            className={styles.icon}
+            src={personIcon}
+            alt="마이페이지"
+            onClick={() => navigate('/mypage')}
           />
         </div>
       </header>
 
       <div className={styles.searchBar}>
-        <input 
-          type="text" 
-          className={styles.searchInput} 
+        <input
+          type="text"
+          className={styles.searchInput}
           placeholder="어떤 메뉴를 찾고 계신가요?"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
         />
-        <img 
-          className={styles.icon} 
-          src={searchIcon} 
-          alt="검색" 
+        <img
+          className={styles.icon}
+          src={searchIcon}
+          alt="검색"
           onClick={handleSearch}
           style={{ cursor: 'pointer' }}
         />
       </div>
 
       <div className={styles.bannerContainer}>
-        <div 
-          className={styles.bannerSlide} 
+        <div
+          className={styles.bannerSlide}
           style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
         >
           {banners.map((banner, index) => (
             <div key={banner.id} className={styles.banner}>
-              <img 
-                src={bannerImg} 
-                alt={`배너 ${banner.id}`} 
+              <img
+                src={bannerImg}
+                alt={`배너 ${banner.id}`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
           ))}
         </div>
         <div className={styles.bannerPagination}>
-          {banners.map((_, index) => (
-            <span 
-              key={index}
-              className={`${styles.pageDot} ${index === currentBannerIndex ? styles.pageDotActive : ''}`}
-              onClick={() => handleBannerDotClick(index)}
-            />
-          ))}
+          <span className={styles.pageNumber}>
+            <span className={styles.currentPage}>{currentBannerIndex + 1}</span>
+            <span className={styles.separator} />
+            <span className={styles.totalPages}>{banners.length}</span>
+          </span>
         </div>
       </div>
 
-      <section>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>오늘의 인기상품</h2>
-          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '오늘의 인기상품' } })}>
-            더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
-          </span>
-        </div>
-        <div className={styles.productList}>
-          {products.popular.map(product => {
-            const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
-            return (
-              <div 
-                key={product.id} 
-                className={styles.productCard}
-                onClick={() => navigate('/product-detail', { state: { product } })}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.productImage}>
-                  <img src={product.image} alt={product.name} />
-                  <div 
-                    className={styles.heartButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike('popular', product.id);
-                    }}
+      {isLoading ? (
+        <div className={styles.loading}>로딩 중...</div>
+      ) : error ? (
+        <div className={styles.error}>{error}</div>
+      ) : (
+        <>
+          <section>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>오늘의 인기상품</h2>
+              <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '오늘의 인기상품' } })}>
+                더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+              </span>
+            </div>
+            <div className={styles.productList}>
+              {products.popular && products.popular.length > 0 ? products.popular.map(product => {
+                const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
+                return (
+                  <div
+                    key={product.id}
+                    className={styles.productCard}
+                    onClick={() => navigate('/product-detail', { state: { product } })}
+                    style={{ cursor: 'pointer' }}
                   >
-                    <img 
-                      src={product.isLiked ? heartFilledIcon : heartIcon} 
-                      alt={product.isLiked ? '찜 해제' : '찜하기'} 
-                    />
+                    <div className={styles.productImage}>
+                      <img src={product.imageUrl || product.image} alt={product.name} className={styles.productImage}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = product.image;
+                        }}
+                      />
+                      <div
+                        className={styles.heartButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike('popular', product.id);
+                        }}
+                      >
+                        <img
+                          src={product.isLiked ? heartFilledIcon : heartIcon}
+                          alt={product.isLiked ? '찜 해제' : '찜하기'}
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.productInfo}>
+                      <h3 className={styles.productName}>{product.name}</h3>
+                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                      <div className={styles.priceContainer}>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.productInfo}>
-                  <h3 className={styles.productName}>{product.name}</h3>
-                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
-                  <div className={styles.priceContainer}>
-                    <span className={styles.discountRate}>{product.discountRate}%</span>
-                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                );
+              }) : (
+                <div className={styles.noData}>인기 상품이 없습니다.</div>
+              )}
+            </div>
+          </section>
 
-      <section>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
-          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '따끈따끈한 신상품' } })}>
-            더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
-          </span>
-        </div>
-        <div className={styles.productList}>
-          {products.new.map(product => {
-            const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
-            return (
-              <div 
-                key={product.id} 
-                className={styles.productCard}
-                onClick={() => navigate('/product-detail', { state: { product } })}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.productImage}>
-                  <img src={product.image} alt={product.name} />
-                  <div 
-                    className={styles.heartButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike('new', product.id);
-                    }}
+          <section>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>따끈따끈한 신상품</h2>
+              <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '따끈따끈한 신상품' } })}>
+                더보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+              </span>
+            </div>
+            <div className={styles.productList}>
+              {products.new && products.new.length > 0 ? products.new.map(product => {
+                const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
+                return (
+                  <div
+                    key={product.id}
+                    className={styles.productCard}
+                    onClick={() => navigate('/product-detail', { state: { product } })}
+                    style={{ cursor: 'pointer' }}
                   >
-                    <img 
-                      src={product.isLiked ? heartFilledIcon : heartIcon} 
-                      alt={product.isLiked ? '찜 해제' : '찜하기'} 
-                    />
+                    <div className={styles.productImage}>
+                      <img src={product.imageUrl || product.image} alt={product.name} className={styles.productImage}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = product.image;
+                        }}
+                      />
+                      <div
+                        className={styles.heartButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike('new', product.id);
+                        }}
+                      >
+                        <img
+                          src={product.isLiked ? heartFilledIcon : heartIcon}
+                          alt={product.isLiked ? '찜 해제' : '찜하기'}
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.productInfo}>
+                      <h3 className={styles.productName}>{product.name}</h3>
+                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                      <div className={styles.priceContainer}>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.productInfo}>
-                  <h3 className={styles.productName}>{product.name}</h3>
-                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
-                  <div className={styles.priceContainer}>
-                    <span className={styles.discountRate}>{product.discountRate}%</span>
-                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                );
+              }) : (
+                <div className={styles.noData}>신상품이 없습니다.</div>
+              )}
+            </div>
+          </section>
 
-      <section>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>밀포유 전체 메뉴</h2>
-          <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '밀포유 전체 메뉴' } })}>
-            전체보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
-          </span>
-        </div>
-        <div className={styles.productList}>
-          {products.all.map(product => {
-            const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
-            return (
-              <div 
-                key={product.id} 
-                className={styles.productCard}
-                onClick={() => navigate('/product-detail', { state: { product } })}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className={styles.productImage}>
-                  <img src={product.image} alt={product.name} />
-                  <div 
-                    className={styles.heartButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike('all', product.id);
-                    }}
+          <section>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>밀포유 전체 메뉴</h2>
+              <span className={styles.viewMore} onClick={() => navigate('/menu-list', { state: { title: '밀포유 전체 메뉴' } })}>
+                전체보기 <img src={rightArrowIcon} alt="" className={styles.arrowIcon} />
+              </span>
+            </div>
+            <div className={styles.allMenuGrid}>
+              {products.all && products.all.length > 0 ? products.all.slice(0, 6).map(product => {
+                const salePrice = calculateSalePrice(product.originalPrice, product.discountRate);
+                return (
+                  <div
+                    key={product.id}
+                    className={styles.productCard}
+                    onClick={() => navigate('/product-detail', { state: { product } })}
                   >
-                    <img 
-                      src={product.isLiked ? heartFilledIcon : heartIcon} 
-                      alt={product.isLiked ? '찜 해제' : '찜하기'} 
-                    />
+                    <div className={styles.productImage}>
+                      <img src={product.imageUrl || product.image} alt={product.name} className={styles.productImage}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = product.image;
+                        }}
+                      />
+                      <div
+                        className={styles.heartButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike('all', product.id);
+                        }}
+                      >
+                        <img
+                          src={product.isLiked ? heartFilledIcon : heartIcon}
+                          alt={product.isLiked ? '찜 해제' : '찜하기'}
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.productInfo}>
+                      <h3 className={styles.productName}>{product.name}</h3>
+                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
+                      <div className={styles.priceContainer}>
+                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
+                        <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className={styles.productInfo}>
-                  <h3 className={styles.productName}>{product.name}</h3>
-                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
-                  <div className={styles.priceContainer}>
-                    <span className={styles.discountRate}>{product.discountRate}%</span>
-                    <span className={styles.salePrice}>{formatPrice(salePrice)}원</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+                );
+              }) : (
+                <div className={styles.noData}>전체 메뉴가 없습니다.</div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 };
