@@ -25,8 +25,8 @@
 }
 
 .checkAll input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
 .deleteBtn {
@@ -90,19 +90,20 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
-  border: 2px solid #ffffff;
-  background-color: rgba(255, 255, 255, 0.7);
+  border: 2px solid #b1b8be;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .cardCheckOn {
-  background-color: #FE4F1A;
-  border-color: #FE4F1A;
+  background-color: #fe4f1a;
+  border-color: #fe4f1a;
 }
 
 .checkIcon {
@@ -141,7 +142,7 @@
 }
 
 .discountRate {
-  color: #D13F35; /* 빨간색 */
+  color: #d13f35; /* 빨간색 */
   font-weight: 600;
 }
 
