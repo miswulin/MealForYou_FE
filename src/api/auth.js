@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Axios 인스턴스 생성
-export const apiClient = axios.create({
+const apiClient = axios.create({
   baseURL: '/api',
   withCredentials: true,
   headers: {
@@ -196,6 +196,7 @@ export const authService = {
     }
   }
 };
+
 
 export { apiClient };
 
