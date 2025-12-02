@@ -51,4 +51,19 @@ export const orderService = {
       );
     }
   },
+
+  // 4) 주문 내역 조회
+  getOrderHistory: async () => {
+    try {
+      const response = await apiClient.get(`${ORDER_API_URL}/history`);
+      return response.data;
+    } catch (error) {
+      console.error("주문 내역 조회 오류:", error);
+      throw (
+        error.response?.data || {
+          message: "주문 내역 조회 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
 };
