@@ -11,6 +11,7 @@ import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
 import heart from "../../assets/heart-m.svg";
+import heartFilled from "../../assets/heart-menu-Icon.svg";
 import shareIcon from "../../assets/share.svg";
 
 export default function Pd() {
@@ -351,9 +352,13 @@ export default function Pd() {
 
       {/* 하단 버튼 */}
       <div className="pd-bottom-sheet">
-        <button className={`pd-like-btn ${isInterested ? 'active' : ''}`} aria-label="찜하기" onClick={handleToggleInterest}>
-          <img src={heart} alt="" />
-        </button>
+      <button
+    className={`pd-like-btn ${isInterested ? "active" : ""}`}
+    aria-label="찜하기"
+    onClick={handleToggleInterest}
+  >
+    <img src={isInterested ? heartFilled : heart} alt="찜하기" />
+  </button>
         <button className="pd-buy-btn" onClick={() => setIsSheetOpen(true)}>
           구매하기
         </button>

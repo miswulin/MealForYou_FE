@@ -325,13 +325,50 @@
     box-shadow: 0 -6px 16px rgba(0,0,0,0.06);
   }
 
-  .pd-like-btn{
-    filter: grayscale(100%);
+  .pd-like-btn {
+    flex: 0 0 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
-  .pd-like-btn.active {
-    filter: none;
+  .pd-like-btn img {
+    display: block;
+    width: 36px;
+    height: 36px;
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    background: transparent;
   }
+
+  .pd-like-btn,
+.pd-like-btn:focus,
+.pd-like-btn:focus-visible,
+.pd-like-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+.pd-like-btn::-moz-focus-inner {
+  border: 0;
+}
+
+
+.pd-like-btn {
+  -webkit-tap-highlight-color: transparent;
+}
 
   .pd-sheet-title {
     font-size: 14px;
