@@ -4,7 +4,7 @@ import { apiClient } from "./auth";
 const ME_API_URL = "/members/me";
 
 export const memberInfo = {
-  // 1) 내 프로필 조회 GET
+  // 1) 내 프로필 조회 
   getMyInfo: async () => {
     try {
       const res = await apiClient.get(`${ME_API_URL}`);
@@ -19,7 +19,7 @@ export const memberInfo = {
     }
   },
 
-  // 2) 내 프로필 수정 PATCH
+  // 2) 내 프로필 수정 
   updateMyInfo: async (payload) => {
     try {
       const res = await apiClient.patch(`${ME_API_URL}/info`, payload);
@@ -29,6 +29,21 @@ export const memberInfo = {
       throw (
         error.response?.data || {
           message: "회원 정보를 수정하는 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
+
+  // 3) 주소(배송지) 수정
+  updateMyAddress: async (payload) => {
+    try {
+      const res = await apiClient.patch(`${ME_API_URL}/address`, payload);
+      return res.data;
+    } catch (error) {
+      console.error("주소 수정 오류:", error);
+      throw (
+        error.response?.data || {
+          message: "주소를 수정하는 중 오류가 발생했습니다.",
         }
       );
     }

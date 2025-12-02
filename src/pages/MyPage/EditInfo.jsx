@@ -176,9 +176,9 @@ export default function EditInfo() {
       <Header
         title="회원정보 수정"
         onBack={() => navigate(-1)}
-        showHeart={true}
-        showCart={true}
-        showPerson={true}
+        showHeart={false}
+        showCart={false}
+        showPerson={false}
       />
       <section>
         <div className={styles.profile}>

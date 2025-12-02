@@ -90,7 +90,9 @@ input {
   color: #fff;
   margin-top: 118px;
   border: none;
+  cursor: not-allowed;
 }
-.editbtn:active {
+.editbtn:not(:disabled) {
   background-color: #fe4f1a;
+  cursor: pointer;
 }

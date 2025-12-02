@@ -119,6 +119,7 @@ export default function Wishlist() {
                 type="checkbox"
                 checked={isAllSelected}
                 onChange={toggleSelectAll}
+                className={styles.checkAllBtn}
               />
               <span className={styles.checkboxText}>
                 전체 선택 ({selectedCount}/{totalCount})
@@ -181,7 +182,6 @@ export default function Wishlist() {
                     {item.discountRate > 0 ? (
                       <>
                         {/* 원가(취소선) */}
-                        <p className={styles.originalLabel}>원가</p>
                         <p className={styles.originalPrice}>
                           {item.originalPrice.toLocaleString()}원
                         </p>
