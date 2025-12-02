@@ -12,13 +12,14 @@
   /* 가운데 제목 */
   .header-title {
     flex: 1;
-    margin: 0 8px;
+    
     font-size: 17px;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+    letter-spacing: -1px;
   }
   
   /* 아이콘 공통 */

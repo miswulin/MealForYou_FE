@@ -1,11 +1,10 @@
-// src/api/dishes.js (예시 경로)
-import { apiClient } from "./auth";  // 경로는 프로젝트 구조에 맞게 수정!
+import { apiClient } from "./auth"; 
 
-const DISH_API_URL = "/dish";
+const DISH_API_URL = "/dishes";
 const CART_API_URL = "/cart";
 
 export const dishesService = {
-  // 1) 상품 상세 조회 GET /api/dish/{dishId}
+  // 1) 상품 상세 조회 GET 
   getDishDetail: async (dishId) => {
     try {
       const res = await apiClient.get(`${DISH_API_URL}/${dishId}`);
@@ -20,14 +19,14 @@ export const dishesService = {
     }
   },
 
-  // 2) 관심 상품 토글 POST /api/dish/{dishId}/interest
+  // 2) 관심 상품 토글 POST 
   toggleInterest: async (dishId) => {
     const res = await apiClient.post(`${DISH_API_URL}/${dishId}/interest`);
     // 예시 응답: true / false
     return res.data;
   },
 
-  // 3) 장바구니 담기 POST /api/cart/add
+  // 3) 장바구니 담기 POST 
   addToCart: async (dishId, options) => {
     try {
       const res = await apiClient.post(
@@ -45,7 +44,7 @@ export const dishesService = {
     }
   },
 
-  // 4) 바로구매 POST /api/cart/buy
+  // 4) 바로구매 POST
   buyNow: async (dishId, options) => {
     const res = await apiClient.post(
       `${CART_API_URL}/buy`,
