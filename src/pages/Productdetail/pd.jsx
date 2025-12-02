@@ -1,16 +1,11 @@
 // src/pages/Pd/Pd.jsx (예시 경로에 맞춰 수정)
-import React, { useState, useEffect } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Mousewheel } from "swiper/modules";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate /*, useParams */ } from "react-router-dom";
 
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
 import { dishesService } from "../../api/dishes";
-
-import "swiper/css";
-import "swiper/css/pagination";
 
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -26,6 +21,68 @@ export default function Pd() {
   // 상단 이미지
   const [images, setImages] = useState([bibimbap, bibimbap2]);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slideInterval = useRef(null);
+  const touchStart = useRef(0);
+  const touchEnd = useRef(0);
+  const swipeThreshold = 50;
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    slideInterval.current = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % images.length);
+    }, 2000); 
+
+    return () => {
+      if (slideInterval.current) {
+        clearInterval(slideInterval.current);
+      }
+    };
+  }, [images]);
+
+  const resetAutoSlide = () => {
+    if (slideInterval.current) {
+      clearInterval(slideInterval.current);
+    }
+    // 사용자가 수동으로 넘긴 후, 다시 3초 후 자동 슬라이드 시작
+    if (images.length > 1) {
+      slideInterval.current = setInterval(() => {
+        setCurrentIndex(prev => (prev + 1) % images.length);
+      }, 3000);
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    touchEnd.current = 0;
+    touchStart.current = e.touches[0].clientX;
+    if (slideInterval.current) {
+      clearInterval(slideInterval.current);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    touchEnd.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchEnd.current || Math.abs(touchStart.current - touchEnd.current) < swipeThreshold) {
+      resetAutoSlide();
+      return;
+    }
+
+    let newIndex = currentIndex;
+
+    if (touchStart.current > touchEnd.current) {
+      newIndex = Math.min(images.length - 1, currentIndex + 1);
+    }
+    if (touchStart.current < touchEnd.current) {
+      newIndex = Math.max(0, currentIndex - 1);
+    }
+    
+    setCurrentIndex(newIndex);
+    resetAutoSlide();
+  };
 
   // 상품 기본 정보
   const [dishName, setDishName] = useState("");
@@ -230,30 +287,34 @@ export default function Pd() {
       <main className="pd-main">
         {/* 이미지 슬라이더 */}
         <section className="pd-product-img">
-          <Swiper
-            className="pd-swiper"
-            modules={[Pagination, Mousewheel]}
-            spaceBetween={0}
-            slidesPerView={1}
-            
-            mousewheel={{ forceToAxis: true }}
-            onSlideChange={(swiper) => setCurrentIndex(swiper.activeIndex)}
-          >
-            {images.map((src, i) => (
-              <SwiperSlide key={i}>
-                <img
-                  src={src}
-                  alt={`상품 이미지 ${i + 1}`}
-                  className="pd-img"
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="pd-image-slide-wrapper"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}>
+          <div
+              className="pd-image-slide-track"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`, // 이미지 이동
+              }}
+            >
+              {images.map((src, i) => (
+                <div key={i} className="pd-image-slide-item">
+                  <img
+                    src={src}
+                    alt={`상품 이미지 ${i + 1}`}
+                    className="pd-img"
+                  />
+                  </div>
+              ))}
+            </div>
+          </div>
+
           <div className="pd-img-indicator">
             {images.length > 0
-              ? `${currentIndex + 1} / ${images.length}`
+              ? `${currentIndex + 1} / ${images.length}` // 번호 슬라이드 표시
               : "0 / 0"}
           </div>
+
         
         </section>
 
