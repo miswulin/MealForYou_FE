@@ -500,18 +500,14 @@
     color: #333;
   }
 
-  .pd-sheet-cart-btn:focus,
-  .pd-sheet-cart-btn:focus-visible {
-  outline: none;
-  border-color: #e5e5ea; 
-}
+
   
 .pd-sheet-cart-btn:hover,
 .pd-sheet-cart-btn:active,
 .pd-sheet-cart-btn:focus,
 .pd-sheet-cart-btn:focus-visible {
   outline: none; 
-  border-color: #e5e5ea; 
+  border-color: #CDD1D5; 
 }
   .pd-sheet-buy-btn {
     background: var(--button-primary, #FE4F1A);
