@@ -12,7 +12,6 @@
   /* 가운데 제목 */
   .header-title {
     flex: 1;
-    
     font-size: 17px;
     font-weight: 700;
     white-space: nowrap;
@@ -48,7 +47,7 @@
     border: none;
     background: transparent;
     flex-direction: column;
-    justify-content: center;
+    margin-bottom: 6px;
     display: grid;
     place-items: center;
     cursor: pointer;

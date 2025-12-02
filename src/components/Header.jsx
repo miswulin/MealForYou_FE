@@ -2,10 +2,10 @@ import React from "react";
 import "./Header.css";
 
 // 기본 PNG 아이콘 (필요시 props.icons로 덮어쓰기 가능)
-import backPng   from "../assets/images/back.png";
-import heartPng  from "../assets/images/heart.png";
-import cartPng   from "../assets/images/cart.png";
-import personPng from "../assets/images/person.png";
+import backPng   from "../assets/back.svg";
+import heartPng  from "../assets/heart.svg";
+import cartPng   from "../assets/bag.svg";
+import personPng from "../assets/person.svg";
 
 export default function Header({
   title = "",
@@ -50,7 +50,6 @@ export default function Header({
         {showCart && (
           <button className="header-icon-btn header-cart-btn" aria-label="장바구니" onClick={onCart}>
             <img src={_icons.cart} alt="" className="header-icon-img" />
-            {/* 뱃지 */}
             {cartCount > 0 && <span className="header-badge">{cartCount}</span>}
           </button>
         )}
