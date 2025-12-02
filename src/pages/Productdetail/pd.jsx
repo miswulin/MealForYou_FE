@@ -21,8 +21,6 @@ import shareIcon from "../../assets/images/share.png";
 export default function Pd() {
   const navigate = useNavigate();
 
-  // TODO: 나중에는 URL 파라미터로 교체
-  // const { dishId } = useParams();
   const dishId = 1;
 
   // 상단 이미지
@@ -40,9 +38,9 @@ export default function Pd() {
   const [selectedRecommendId, setSelectedRecommendId] = useState(null);
 
   // 바텀 시트 옵션들
-  const [sauceOptions, setSauceOptions] = useState([]);   // SOURCE
-  const [baseOptions, setBaseOptions] = useState([]);     // BASIC_OPTION
-  const [extraOptions, setExtraOptions] = useState([]);   // ADDITIONAL_OPTION
+  const [sauceOptions, setSauceOptions] = useState([]);  
+  const [baseOptions, setBaseOptions] = useState([]);     
+  const [extraOptions, setExtraOptions] = useState([]);   
 
   // 모달 & 바텀시트
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -135,7 +133,7 @@ export default function Pd() {
   // 찜 토글 (관심 상품 등록/해제)
   const handleToggleInterest = async () => {
     try {
-      const result = await dishesService.toggleInterest(dishId); // true/false 라고 가정
+      const result = await dishesService.toggleInterest(dishId); 
       setIsInterested(result);
     } catch (error) {
       console.error("관심 상품 설정 실패:", error);
@@ -168,7 +166,7 @@ export default function Pd() {
     );
   };
 
-  // 선택한 옵션 → API 요청 형식으로 변환
+  // 선택한 옵션 
   const getSelectedOptionsForApi = () => {
     const allOptions = [...baseOptions, ...extraOptions, ...sauceOptions];
 
@@ -220,7 +218,7 @@ export default function Pd() {
     <div className="pd-root">
 
       <Header
-        title={dishName || "[신상품] 밀포유 소고기 비빔밥 키트"}
+        title={dishName}
         onBack={() => navigate(-1)}
         onHeart={handleToggleInterest}
         isHeartActive={isInterested}
@@ -277,7 +275,7 @@ export default function Pd() {
 
           <div className="pd-price-row">
             {/* 할인율도 API에 있으면 계산해서 넣기 */}
-            {/* <span className="pd-discount">26%</span> */}
+            <span className="pd-discount">26%</span>
             <span className="pd-final-price">
               {basePrice.toLocaleString("ko-KR")}원
             </span>
@@ -287,7 +285,7 @@ export default function Pd() {
         </section>
 
         {/* 아래 상세 설명 부분은 기존 더미 그대로 둬도 됨 */}
-        {/* ... (생략: pd-details, pd-story, pd-frame) ... */}
+        {/* ... (pd-details, pd-story, pd-frame) ... */}
       </main>
 
       {/* 하단 버튼 */}
