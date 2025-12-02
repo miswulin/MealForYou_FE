@@ -34,7 +34,8 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/product-detail" element={<Pd />} />
       <Route path="/cart" element={<Cart />} />
-      <Route path="/order" element={<Order />} />
+\
+      <Route path="/order/:cartItemId" element={<Order />} />
       <Route path="/ordercomplete" element={<OrderComplete />} />
       <Route path="/onboarding-test" element={<OnboardingTestPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />

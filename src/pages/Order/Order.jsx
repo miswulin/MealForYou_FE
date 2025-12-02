@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import { orderService } from "../../api/order";
@@ -21,6 +21,32 @@ const PAYMENT_METHODS = [
 export default function Order() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const { cartItemId } = useParams();
+
+  useEffect(() => {
+    // 이미 Cart에서 state가 넘어왔다면, 그대로 사용
+    if (state?.selectedItems) {
+      setSelectedItems(state.selectedItems);
+      setShipping(state.shipping);
+      return;
+    }
+
+    // state가 없을 경우 → 바로구매로 들어온 경우
+    const fetchOrderSheet = async () => {
+      try {
+        const data = await orderService.getOrderSheet(cartItemId);
+
+        setSelectedItems(data.items);
+        setShipping(data.shipping);
+
+      } catch (error) {
+        console.error("주문서 조회 실패:", error);
+        alert("주문 정보를 불러오지 못했습니다.");
+      }
+    };
+
+    if (cartItemId) fetchOrderSheet();
+  }, [cartItemId, state]);
 
   // Cart에서 넘어온 선택 상품 (없으면 샘플 데이터)
   const selectedItems =

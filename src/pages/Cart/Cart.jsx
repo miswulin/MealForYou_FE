@@ -7,12 +7,33 @@ import "./Cart.css";
 import bibimbap from "../../assets/images/bibimbap.png"; // 임시 썸네일
 import checkIcon from "../../assets/images/check.png"
 
+const parsePriceNumber = (priceStr) => {
+  if (!priceStr) return 0;
+  
+  // priceStr이 문자열이 아닐 경우, Number()로 변환 시도
+  if (typeof priceStr !== 'string') {
+    return Number(priceStr) || 0;
+  }
+  
+  const numeric = priceStr.replace(/[^0-9]/g, "");
+  return Number(numeric) || 0;
+};
+
+const parseQuantityNumber = (qtyStr) => {
+  if (!qtyStr) return 1;
+
+  if (typeof qtyStr !== 'string') {
+      return Number(qtyStr) || 1; 
+  }
+  
+  const numeric = qtyStr.replace(/[^0-9]/g, "");
+  return Number(numeric) || 1;
+};
+
 export default function Cart() {
   const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
-
- 
   const [shippingFee, setShippingFee] = useState(0);
   const [totalOrderPrice, setTotalOrderPrice] = useState(0);
 
@@ -28,6 +49,44 @@ export default function Cart() {
   }, [items]);
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
+
+  const fetchCart = useCallback(async () => {
+    try {
+      const data = await cartService.getCart();
+
+      const mappedItems = (data.cartItems || []).map((item) => {
+        const qtyNum = parseQuantityNumber(item.quantity);
+        const totalPriceNum = parsePriceNumber(item.totalPrice);
+        const unitPrice = qtyNum > 0 ? totalPriceNum / qtyNum : totalPriceNum;
+
+        return {
+          id: item.cartItemId,
+          name: item.dishName,
+          price: unitPrice,
+          qty: qtyNum,
+          checked: true,
+          isOptionsOpen: false,
+          options: (item.ingredients || []).map((ing) => ({
+            cartItemIngredientId: ing.cartItemIngredientID,
+            label: ing.name,
+            count: parseQuantityNumber(ing.quantity),
+          })),
+          imageUrl: item.imageUrl,
+        };
+      });
+
+      setItems(mappedItems);
+      setShippingFee(parsePriceNumber(data.shippingFee));
+      setTotalOrderPrice(parsePriceNumber(data.totalProductPrice));
+    } catch (err) {
+      console.error("장바구니 조회 실패:", err);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   // 옵션 요약
   const getOptionsSummary = (options) => {
@@ -56,7 +115,6 @@ export default function Cart() {
   const handleChangeQty = async (id, delta) => {
     const itemToUpdate = items.find(item => item.id === id);
     if (!itemToUpdate) return;
-    
     // 클라이언트 측에서 예상되는 다음 수량 계산 (서버에서 최종 검증)
     const nextQty = Math.max(0, itemToUpdate.qty + delta);
     if (nextQty === itemToUpdate.qty) return;
@@ -88,7 +146,7 @@ export default function Cart() {
       const next = items.filter((item) => item.id !== id);
       setItems(next);
       
-      fetchCart(); 
+      await fetchCart(); 
 
     } catch (error) {
       console.error(`ID ${id} 아이템 삭제 실패:`, error);
@@ -117,7 +175,7 @@ export default function Cart() {
       setItems(next);
       alert('선택하신 상품들이 삭제되었습니다.');
 
-      fetchCart();
+      await fetchCart();
 
     } catch (error) {
       console.error("선택 아이템 일괄 삭제 실패:", error);
@@ -170,55 +228,6 @@ export default function Cart() {
       alert('옵션 수량 변경에 실패했습니다. 다시 시도해 주세요.');
     }
   };
-
-    const parsePriceNumber = (priceStr) => {
-      if (!priceStr) return 0;
-      const numeric = priceStr.replace(/[^0-9]/g, "");
-      return Number(numeric) || 0;
-    };
-  
-    const parseQuantityNumber = (qtyStr) => {
-      if (!qtyStr) return 1;
-      const numeric = qtyStr.replace(/[^0-9]/g, "");
-      return Number(numeric) || 1;
-    };
-
-    useEffect(() => {
-      const fetchCart = async () => {
-        try {
-          const data = await cartService.getCart();
-  
-          const mappedItems = (data.cartItems || []).map((item) => {
-            const qtyNum = parseQuantityNumber(item.quantity);
-            const totalPriceNum = parsePriceNumber(item.totalPrice);
-            const unitPrice = qtyNum > 0 ? totalPriceNum / qtyNum : totalPriceNum;
-  
-            return {
-              id: item.cartItemId,
-              name: item.dishName,
-              price: unitPrice,
-              qty: qtyNum,
-              checked: true,
-              isOptionsOpen: false,
-              options: (item.ingredients || []).map((ing) => ({
-                cartItemIngredientId: ing.cartItemIngredientID, 
-                label: ing.name,
-                count: parseQuantityNumber(ing.quantity),
-              })),
-              imageUrl: item.imageUrl,
-            };
-          });
-  
-          setItems(mappedItems);
-          setShippingFee(parsePriceNumber(data.shippingFee));
-          setTotalOrderPrice(parsePriceNumber(data.totalProductPrice)); 
-        } catch (err) {
-          console.error("장바구니 조회 실패:", err);
-        }
-      };
-  
-      fetchCart();
-    }, []);
   
 
   return (

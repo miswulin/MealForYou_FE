@@ -47,7 +47,7 @@
     border: none;
     background: transparent;
     flex-direction: column;
-    margin-bottom: 6px;
+    margin-bottom: 9px;
     display: grid;
     place-items: center;
     cursor: pointer;
