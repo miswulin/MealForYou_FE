@@ -45,7 +45,7 @@ export default function Pd() {
     if (slideInterval.current) {
       clearInterval(slideInterval.current);
     }
-    // 사용자가 수동으로 넘긴 후, 다시 3초 후 자동 슬라이드 시작
+
     if (images.length > 1) {
       slideInterval.current = setInterval(() => {
         setCurrentIndex(prev => (prev + 1) % images.length);
@@ -280,7 +280,7 @@ export default function Pd() {
         onHeart={() => navigate("/wishlist")}
         isHeartActive={isInterested}
         onCart={() => navigate("/cart")}
-        onPerson={() => navigate("/login")}
+        onPerson={() => navigate("/mypage")}
       />
 
       {/* ----- 메인 영역 ----- */}
