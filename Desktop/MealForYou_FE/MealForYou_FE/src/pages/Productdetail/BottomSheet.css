@@ -1,0 +1,180 @@
+/* ====== 오버레이(검은 배경) ====== */
+.bs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+  z-index: 2000;
+}
+
+.bs-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bs-container {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 100%);
+  width: 375px;
+  max-width: 100vw;
+  background-color: #ffffff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16);
+  transition: transform 0.28s ease-out;
+  z-index: 2100;
+  font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+}
+
+.bs-container.open {
+  transform: translate(-50%, 0);
+}
+
+/* 위쪽 손잡이 바 */
+.bs-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background-color: #e0e0e0;
+  margin: 10px auto 6px;
+}
+
+/* 시트 안 실제 내용 영역 */
+.bs-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 16px 16px 24px;
+}
+
+.pd-sheet-title {
+  margin: 8px 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pd-sheet-section {
+  padding: 12px 0 4px;
+}
+
+.pd-sheet-section:first-of-type {
+  border-top: none;
+}
+
+.pd-sheet-section-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* 옵션 한 줄 */
+.pd-sheet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.pd-sheet-option-name {
+  font-size: 14px;
+}
+
+.pd-sheet-price-unit {
+  font-size: 12px;
+  color: #999999;
+  margin-bottom: 2px;
+}
+
+.pd-sheet-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* 수량 카운터 */
+.pd-sheet-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pd-sheet-counter button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e5e5ea;
+  background-color: #ffffff;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pd-sheet-counter span {
+  min-width: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* ====== 장바구니 / 바로구매 버튼 영역 ====== */
+.pd-sheet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pd-sheet-cart-btn,
+.pd-sheet-buy-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 40px;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  min-width: 90px;
+  padding: 0 18px;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap-2, 4px);
+  flex: 1 0 0;
+}
+
+/* 장바구니 */
+.pd-sheet-cart-btn {
+  display: flex;
+  height: 40px;
+  min-width: 90px;
+  padding: 0 18px;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap-2, 4px);
+  flex: 1 0 0;
+  background-color: #ffffff;
+  color: #333333;
+  outline: none;
+  border-radius: 40px;
+  border: 1.6px solid var(--button-disabled, #CDD1D5);
+  background: var(--button-white, #FFF);
+}
+
+/* 바로구매 */
+.pd-sheet-buy-btn {
+  display: flex;
+  height: 40px;
+  min-width: 94px;
+  padding: 0 18px;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap-2, 4px);
+  flex: 1 0 0;
+  border: none;
+  background-color: #ff6b2b;
+  color: #ffffff;
+}
+
+.pd-sheet-cart-btn:focus,
+  .pd-sheet-cart-btn:focus-visible {
+  outline: none;
+  border-color: #e5e5ea; 
+}

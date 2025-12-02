@@ -1,0 +1,77 @@
+p,
+h3 {
+  margin: 0;
+  padding: 0;
+  letter-spacing: -1px;
+}
+.profile h3 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+.profile img {
+  width: 78px;
+  height: 78px;
+}
+.hr1 {
+  height: 6px;
+  flex: 1 0 0;
+  border: none;
+  margin: 34px 0px;
+}
+/* 입력폼 */
+form {
+  display: flex;
+  flex-direction: column;
+  margin: 0px 16px;
+}
+input {
+  width: 100%;
+  padding: 13px 24px;
+  color: #8a949e;
+  font-size: 15px;
+  margin-bottom: 16px;
+  border-radius: 40px;
+  border: 2px solid #e6e8ea;
+  box-sizing: border-box;
+}
+.label {
+  text-align: start;
+  padding-left: 12px;
+  margin: 0;
+}
+.nameinput {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+.phoneinput {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  margin-bottom: 20px;
+}
+.email {
+  background-color: #e6e8ea;
+}
+/* 수정하기 버튼 */
+.editbtn {
+  display: flex;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 60px;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  height: 56px;
+  line-height: 1;
+  color: #fff;
+  margin-top: 90px;
+}
+/* disabled일 때만 금지 커서 */
+.editbtn:disabled {
+  cursor: not-allowed;
+  background-color: #cdd1d5;
+}
+.editbtn:not(:disabled) {
+  background-color: #fe4f1a !important;
+}
