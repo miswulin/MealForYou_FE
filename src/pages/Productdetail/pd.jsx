@@ -337,7 +337,7 @@ export default function Pd() {
 
           <div className="pd-price-row">
             {/* 할인율도 API에 있으면 계산해서 넣기 */}
-            <span className="pd-discount">26%</span>
+            
             <span className="pd-final-price">
               {basePrice.toLocaleString("ko-KR")}원
             </span>

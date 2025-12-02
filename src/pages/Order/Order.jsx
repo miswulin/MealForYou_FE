@@ -1,6 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 import { orderService } from "../../api/order";
 
@@ -19,37 +18,43 @@ const PAYMENT_METHODS = [
 ];
 
 export default function Order() {
+  const location = useLocation();
+
+
+
+  const parsePriceNumber = (priceStr) => {
+    if (!priceStr) return 0;
+    if (typeof priceStr === "number") {
+      return priceStr;
+    }
+    const numeric = String(priceStr).replace(/[^0-9]/g, "");
+    return Number(numeric) || 0;
+  };
+  
+  const parseQuantityNumber = (qtyStr) => {
+    if (!qtyStr) return 1;
+    if (typeof qtyStr === "number") return qtyStr;
+    const numeric = String(qtyStr).replace(/[^0-9]/g, "");
+    return Number(numeric) || 1;
+  };
+
   const navigate = useNavigate();
   const { state } = useLocation();
   const { cartItemId } = useParams();
 
-  useEffect(() => {
-    // 이미 Cart에서 state가 넘어왔다면, 그대로 사용
-    if (state?.selectedItems) {
-      setSelectedItems(state.selectedItems);
-      setShipping(state.shipping);
-      return;
-    }
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [isItemsOpen, setIsItemsOpen] = useState(true);
+  const [isShippingOpen, setIsShippingOpen] = useState(true);
+  const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0].id);
 
-    // state가 없을 경우 → 바로구매로 들어온 경우
-    const fetchOrderSheet = async () => {
-      try {
-        const data = await orderService.getOrderSheet(cartItemId);
+  const [shipping, setShipping] = useState({
+    name: "김수니", // 기본값 (백에서 내려주면 덮어씀)
+    phone: "010-0000-0000",
+    address: "(01797) 서울 노원구 화랑로 621, 50주년기념관 306호",
+  });
 
-        setSelectedItems(data.items);
-        setShipping(data.shipping);
-
-      } catch (error) {
-        console.error("주문서 조회 실패:", error);
-        alert("주문 정보를 불러오지 못했습니다.");
-      }
-    };
-
-    if (cartItemId) fetchOrderSheet();
-  }, [cartItemId, state]);
-
-  // Cart에서 넘어온 선택 상품 (없으면 샘플 데이터)
-  const selectedItems =
+  const initialSelectedItems =
     state?.selectedItems && state.selectedItems.length > 0
       ? state.selectedItems
       : [
@@ -69,15 +74,69 @@ export default function Order() {
           },
         ];
 
-  const [isItemsOpen, setIsItemsOpen] = useState(true);
-  const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0].id);
 
-  // 배송지 정보 (나중에 API 연결하면 여기만 교체)
-  const shipping = {
-    name: "김수니",
-    phone: "010-0000-0000",
-    address: "(01797) 서울 노원구 화랑로 621, 50주년기념관 306호",
-  };
+        useEffect(() => {
+          // ① Cart → Order 플로우
+          if (state?.selectedItems && state.selectedItems.length > 0) {
+            setSelectedItems(state.selectedItems);
+      
+            if (state.shipping) {
+              setShipping(state.shipping);
+            }
+            if (state.deliveryFee != null) {
+              setDeliveryFee(state.deliveryFee);
+            }
+            return; // 여기서 끝
+          }
+      
+          // ② 바로구매 플로우 (/order/:cartItemId)
+          if (!cartItemId) return;
+      
+          const fetchOrderSheet = async () => {
+            
+            try {
+              const itemIdsToFetch = [cartItemId];
+              // 백엔드 요구사항: /orders/sheet?items={cartItemId}
+              const data = await orderService.getOrderSheet(itemIdsToFetch);
+              console.log("order sheet:", data);
+      
+              // cartItems → 화면용 selectedItems 로 변환
+              const mappedItems = (data.orderItems || []).map((item) => {
+                const qtyNum = parseQuantityNumber(item.quantity);      // "2개" → 2
+                const totalPriceNum = parsePriceNumber(item.totalPrice); // "20,000원" → 20000
+                const unitPrice =
+                  qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : totalPriceNum;
+      
+                return {
+                  id: item.cartItemId,
+                  name: item.dishName,
+                  price: unitPrice,
+                  qty: qtyNum,
+                  // ✅ 여기로 옵션 설명 넣어줌 → 주문 상품 리스트에서 그대로 사용
+                  optionsSummary: item.optionDescription,
+                };
+              });
+      
+              setSelectedItems(mappedItems);
+              setDeliveryFee(parsePriceNumber(data.shippingFee));
+      
+              // 백엔드에서 배송지 내려주면 여기에 매핑
+              if (data.receiverName || data.receiverPhone || data.address) {
+                setShipping((prev) => ({
+                  name: data.receiverName ?? prev.name,
+                  phone: data.receiverPhone ?? prev.phone,
+                  address: data.address ?? prev.address,
+                }));
+              }
+            } catch (error) {
+              console.error("주문서 조회 실패:", error);
+              alert(error.message || "주문 정보를 불러오지 못했습니다.");
+            }
+          };
+      
+          fetchOrderSheet();
+        }, [cartItemId, state]);
+
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
 
@@ -86,7 +145,6 @@ export default function Order() {
     [selectedItems]
   );
 
-  const deliveryFee = 0;
   const finalTotal = productsTotal + deliveryFee;
 
   const handlePay = async () => {
@@ -99,8 +157,6 @@ export default function Order() {
 
     const cartItemIds = selectedItems.map(item => item.id);
 
-    // 결제 타입 매핑 (서버가 요구하는 ENUM 값으로 변환 필요)
-    // 현재는 'card-easy' 등의 프론트엔드 ID를 서버 ENUM 값으로 매핑
     const getPaymentType = (methodId) => {
       switch(methodId) {
           case 'card-easy': return 'QUICK_CARD';
@@ -125,7 +181,7 @@ export default function Order() {
       const orderNumberFromApi = await orderService.createOrder(orderData);
       
       // 3. 성공 처리: 주문 완료 페이지로 이동
-      navigate("/OrderComplete", {
+      navigate("/ordercomplete", {
         state: {
           order: {
             // 서버에서 받은 값 사용 (서버 응답이 주문번호일 경우)
@@ -148,10 +204,8 @@ export default function Order() {
     };
 
 
-  const [isShippingOpen, setIsShippingOpen] = useState(true);
   return (
     <div className="order-root">
-      <StatusBar />
       <Header
         title="주문 / 결제"
         onBack={() => navigate(-1)}

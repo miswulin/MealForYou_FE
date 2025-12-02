@@ -19,10 +19,10 @@ export const orderService = {
   },
 
   // 2) 주문/결제 페이지 정보 조회
-  getOrderSheet: async (items) => {
+  getOrderSheet: async (cartItemIds) => {
     try {
       const response = await apiClient.get(`${ORDER_API_URL}/sheet`, {
-        params: { items },
+        params: { items: cartItemIds },
       });
       return response.data;
     } catch (error) {

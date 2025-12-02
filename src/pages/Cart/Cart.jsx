@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import { cartService } from "../../api/cart";
@@ -67,7 +67,7 @@ export default function Cart() {
           checked: true,
           isOptionsOpen: false,
           options: (item.ingredients || []).map((ing) => ({
-            cartItemIngredientId: ing.cartItemIngredientID,
+            cartItemIngredientId: ing.cartItemIngredientId,
             label: ing.name,
             count: parseQuantityNumber(ing.quantity),
           })),
