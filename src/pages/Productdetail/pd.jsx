@@ -277,7 +277,7 @@ export default function Pd() {
       <Header
         title={dishName}
         onBack={() => navigate(-1)}
-        onHeart={handleToggleInterest}
+        onHeart={() => navigate("/wishlist")}
         isHeartActive={isInterested}
         onCart={() => navigate("/cart")}
         onPerson={() => navigate("/login")}
