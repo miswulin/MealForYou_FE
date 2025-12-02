@@ -10,8 +10,8 @@ import { dishesService } from "../../api/dishes";
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
 import bibimbap2 from "../../assets/images/bibimbap2.png";
-import heart from "../../assets/images/heart-m.png";
-import shareIcon from "../../assets/images/share.png";
+import heart from "../../assets/heart-m.svg";
+import shareIcon from "../../assets/share.svg";
 
 export default function Pd() {
   const navigate = useNavigate();
