@@ -4,10 +4,36 @@ import styles from "../MyPage/MyPage.module.css";
 import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { memberInfo } from "../../api/member";
 
 export default function MyPage() {
-
   const navigate = useNavigate();
+
+  // 프로필 정보 상태
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+  });
+
+  // 회원 정보 조회
+  useEffect(() => {
+    const fetchMyInfo = async () => {
+      try {
+        const data = await memberInfo.getMyInfo();
+        // 응답: { email, name, phone, address, healthTags }
+        setProfile({
+          name: data.name,
+          email: data.email,
+        });
+      } catch (error) {
+        console.error("마이페이지 회원 정보 조회 실패:", error);
+        // 실패했을 때는 일단 기본값 그대로 두거나, 필요하면 fallback 세팅
+      }
+    };
+
+    fetchMyInfo();
+  }, []);
+
   //모달창
   const [showLogout, setShowLogout] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -54,11 +80,11 @@ export default function MyPage() {
         showCart={false}
         showPerson={false}
       />
-      <section>
+      <section className={styles.section}>
         <div className={styles.profile}>
           <img src={profileIcon} alt="Profile Icon" />
-          <h3>김멋사</h3>
-          <p className={styles.email}>likelion13th@swu.ac.kr</p>
+          <h3>{profile.name}</h3>
+          <p className={styles.email}>{profile.email}</p>
         </div>
         {/* 각 페이지로 이동 */}
         <div className={styles.userSettings}>
@@ -80,13 +106,31 @@ export default function MyPage() {
 
         <div className={styles.container}>
           <h3>주문내역</h3>
-          <img src={arrow} alt="arrow Icon" style={{ cursor: "pointer" }} />
+          <img
+            src={arrow}
+            alt="arrow Icon"
+            onClick={() => navigate("/order-history")}
+            style={{ cursor: "pointer" }}
+          />
         </div>
-        <hr className={styles.hr} />
+        <hr className={styles.hr2} />
         <div className={styles.wrapper}>
           <div className={styles.textWrapper}>
             <h5 className={styles.orderDate}>25.00.00</h5>
             <h5 className={styles.orderStatus}>주문완료</h5>
+          </div>
+          <div className={styles.item}>
+            <div className={styles.imgBox} />
+            <div className={styles.textBox}>
+              <div>
+                <p>밀키트 메뉴 이름</p>
+                <p className={styles.quantity}>1개</p>
+              </div>
+              <p className={styles.option}>
+                옵션1(100g) 1개, 옵션2(00g)1개, 옵션3(00g)1개,
+              </p>
+              <p className={styles.price}>00,000원</p>
+            </div>
           </div>
           <div className={styles.item}>
             <div className={styles.imgBox} />

@@ -56,7 +56,6 @@ input {
 /* 수정하기 버튼 */
 .editbtn {
   display: flex;
-  background-color: #cdd1d5;
   font-size: 17px;
   font-weight: 700;
   border-radius: 60px;
@@ -68,6 +67,11 @@ input {
   color: #fff;
   margin-top: 90px;
 }
-.editbtn:active {
-  background-color: #fe4f1a;
+/* disabled일 때만 금지 커서 */
+.editbtn:disabled {
+  cursor: not-allowed;
+  background-color: #cdd1d5;
+}
+.editbtn:not(:disabled) {
+  background-color: #fe4f1a !important;
 }
