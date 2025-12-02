@@ -60,25 +60,13 @@
     overflow: hidden;
     background-color: #f3f3f3;
   }
-
-  .pd-product-img .swiper {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .pd-product-img .swiper-slide {
-    display: flex;
-  }
-
-  .pd-product-img .swiper-pagination {
-    display: none !important;
-  }
   
   .pd-img {
     width: 100%;
-    height: 100%;
+    height: 350px;
     object-fit: cover;
   }
+  
   .pd-img-placeholder {
     width: 100%;
     height: 100%;
@@ -109,6 +97,19 @@
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.03em;
+  }
+
+  .pd-image-slide-wrapper {
+    overflow: hidden;
+    width: 100%;
+  }
+  .pd-image-slide-track {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+  }
+  .pd-image-slide-item {
+    flex-shrink: 0;
+    width: 100%;
   }
   
 
