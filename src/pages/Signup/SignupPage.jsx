@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
 import { authService } from '../../api/auth';
+import styles from './SignupPage.module.css';
+import TermsModal from '../../components/TermsModal/TermsModal';
+import { SERVICE_TERMS, PRIVACY_POLICY, FINANCIAL_TERMS } from '../../constants/terms';
 import logoSmall from '../../assets/mealforyou_logo.svg';
 import eyeIcon from '../../assets/eye.svg';
 import eyeHideIcon from '../../assets/eye-hide-line.svg';
@@ -23,147 +25,6 @@ const loadDaumPostcodeScript = () => {
   });
 };
 
-
-const SignupContainer = styled('div')({
-  width: '100%',
-  maxWidth: '500px',
-  margin: '0 auto',
-  minHeight: '100vh',
-  backgroundColor: '#fff',
-  padding: '0 20px',
-  fontFamily: '"Noto Sans KR", sans-serif',
-  textAlign: 'left',
-  '& *': {
-    boxSizing: 'border-box',
-    margin: 0,
-    //padding: 0,
-  },
-  'a': {
-    textDecoration: 'none',
-    color: 'inherit',
-  },
-  'input, button': {
-    fontFamily: '"Noto Sans KR", sans-serif',
-    border: 'none',
-    outline: 'none',
-    '&:focus': {
-      outline: 'none',
-    },
-  },
-});
-
-const Header = styled('header')({
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '20px 0',
-  position: 'sticky',
-  top: 0,
-  backgroundColor: '#fff',
-  zIndex: 1000,
-  '& img': {
-    height: '32px',
-  },
-});
-
-const Title = styled('h2')({
-  fontSize: '20px',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  marginBottom: '8px',
-  width: '100%',
-});
-
-const Subtitle = styled('p')({
-  fontSize: '14px',
-  color: '#666',
-  textAlign: 'center',
-  marginBottom: '24px',
-  width: '100%',
-  '& span': {
-    color: '#2098F3',
-    fontWeight: '500',
-  },
-});
-
-const FormGroup = styled('div')({
-  width: '100%',
-  marginBottom: '16px',
-  '& label': {
-    display: 'block',
-    fontSize: '15px',
-    fontWeight: '500',
-    marginBottom: '8px',
-    color: '#333',
-    paddingLeft: '12px',
-  },
-});
-
-const InputGroup = styled('div')({
-  display: 'flex',
-  gap: '12px',
-  marginBottom: '16px',
-  '& input': {
-    flex: 1,
-    height: '48px',
-    borderRadius: '24px',
-    border: '1px solid #d1d5db',
-    padding: '0 16px',
-    fontSize: '14px',
-    '&::placeholder': {
-      color: '#9ca3af',
-    },
-  },
-  '& button': {
-    padding: '0 16px',
-    height: '48px',
-    borderRadius: '24px',
-    backgroundColor: '#CDD1D5',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-  },
-});
-
-const CheckboxContainer = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  fontSize: '14px',
-  margin: '24px 0',
-  '& input': {
-    marginRight: '8px',
-  },
-  '& span': {
-    marginLeft: 'auto',
-    color: '#666',
-  },
-});
-
-const SubmitButton = styled('button')(({ theme }) => ({
-  width: '100%',
-  height: '56px',
-  borderRadius: '28px',
-  backgroundColor: '#FF6B00',
-  color: 'white',
-  fontSize: '17px',
-  fontWeight: '600',
-  cursor: 'pointer',
-  transition: 'all 0.2s',
-  '&:hover': {
-    backgroundColor: '#e65100',
-  },
-  '&:disabled': {
-    backgroundColor: '#e5e7eb',
-    cursor: 'not-allowed',
-    transform: 'none !important',
-  },
-  '&:active:not(:disabled)': {
-    transform: 'scale(0.98)',
-  }
-}));
-
 export default function SignupPage() {
   // 컴포넌트 마운트 시 Daum Postcode 스크립트 로드
   useEffect(() => {
@@ -179,6 +40,7 @@ export default function SignupPage() {
       }
     };
   }, []);
+
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -193,6 +55,11 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    content: ''
+  });
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -221,26 +88,35 @@ export default function SignupPage() {
 
   // 비밀번호 유효성 검사
   const validatePassword = (password) => {
-    // 8~64자 사이, 최소 하나의 영문자, 숫자, 특수문자(!@#$*) 포함
+    // 길이 체크
     if (password.length < 8 || password.length > 16) {
-      return '비밀번호는 8자 이상 16자 이하여야 합니다.';
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
     }
-    if (!/[a-zA-Z]/.test(password)) {
-      return '영문을 최소 하나 이상 포함해주세요.';
+    
+    // 모든 조건을 한 번에 검사
+    // ^(?=.*[a-z]): 적어도 하나의 소문자 포함
+    // (?=.*[0-9]): 적어도 하나의 숫자 포함
+    // (?=.*[!@#$*]): 적어도 하나의 특수문자(!@#$*) 포함
+    // [a-zA-Z0-9!@#$*]{8,16}$: 허용된 문자들로 8~16자
+    const passwordRegex = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$*])[a-z0-9!@#$*]{8,16}$/;
+    
+    if (!passwordRegex.test(password)) {
+      return '8~16자 이내 영문, 소문자, 숫자, 특수문자 !@#$* 포함';
     }
-    if (!/[0-9]/.test(password)) {
-      return '숫자를 최소 하나 이상 포함해주세요.';
-    }
-    if (!/[!@#$*]/.test(password)) {
-      return '특수문자(!@#$*)를 최소 하나 포함해주세요.';
-    }
-    return '';
+    
+    return ''; // 모든 조건 만족
   };
 
   // 비밀번호 일치 여부 확인
   const checkPasswordMatch = (pass, confirmPass) => {
-    if (pass && confirmPass && pass !== confirmPass) {
+    if (!pass || !confirmPass) return '';
+    if (pass !== confirmPass) {
       return '비밀번호가 일치하지 않습니다.';
+    }
+    // 비밀번호 유효성 검사도 함께 수행
+    const passwordError = validatePassword(pass);
+    if (passwordError) {
+      return passwordError;
     }
     return '';
   };
@@ -330,13 +206,12 @@ export default function SignupPage() {
     setVerificationSent(false);
     setIsVerified(false);
     setVerificationInput('');
-    setTimeLeft(300); // 5분으로 초기화
-    setVerificationExpiry(Date.now() + 24 * 60 * 60 * 1000); // 24시간 후 만료
+    setTimeLeft(300);// 5분으로 초기화
+    setVerificationExpiry(Date.now() + 24 * 60 * 60 * 1000);// 24시간으로 초기화
     
     try {
       // 이메일 인증 코드 발송 API 호출
       await authService.sendVerificationCode(formData.email);
-      
       // 성공적으로 전송된 경우
       setVerificationSent(true);
     } catch (error) {
@@ -476,25 +351,59 @@ export default function SignupPage() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  // 약관 모달 열기
+  const openTermsModal = (type) => {
+    let title = '';
+    let content = '';
+    
+    switch(type) {
+      case 'service':
+        title = '서비스 이용약관';
+        content = <div dangerouslySetInnerHTML={{ __html: SERVICE_TERMS }} />;
+        break;
+      case 'privacy':
+        title = '개인정보 처리방침';
+        content = <div dangerouslySetInnerHTML={{ __html: PRIVACY_POLICY }} />;
+        break;
+      case 'finance':
+        title = '전자금융거래 이용약관';
+        content = <div dangerouslySetInnerHTML={{ __html: FINANCIAL_TERMS }} />;
+        break;
+      default:
+        return;
+    }
+    
+    setModalState({
+      isOpen: true,
+      title,
+      content
+    });
+  };
+
+  // 약관 모달 닫기
+  const closeTermsModal = () => {
+    setModalState(prev => ({
+      ...prev,
+      isOpen: false
+    }));
+  };
+
   return (
-    <SignupContainer onSubmit={handleSubmit}>
-      <Header>
-        <button 
-          onClick={() => navigate('/')} 
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-        >
+    <div className={styles.container} onSubmit={handleSubmit}>
+      <header className={styles.header}>
+        <button onClick={() => navigate('/')} className={styles.logoButton}>
           <img src={logoSmall} alt="밀포유" />
         </button>
-      </Header>
+      </header>
 
-      <Title>회원가입</Title>
-      <Subtitle style={{ textAlign: 'center' }}>
-        이미 회원이신가요? <span onClick={() => navigate('/login')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>로그인하기</span>
-      </Subtitle>
+      <h2 className={styles.title}>회원가입</h2>
+      <p className={styles.subtitle}>
+        이미 회원이신가요? <span onClick={() => navigate('/login')} className={styles.loginLink}>로그인하기</span>
+      </p>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>이름</label>
-        <InputGroup>
+        <div className={styles.inputGroup}>
           <input 
             type="text" 
             name="lastName"
@@ -509,12 +418,12 @@ export default function SignupPage() {
             onChange={handleInputChange}
             placeholder="이름" 
           />
-        </InputGroup>
-      </FormGroup>
+        </div>
+      </div>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>전화번호</label>
-        <InputGroup>
+        <div className={styles.inputGroup}>
           <input 
             type="text" 
             name="phone1"
@@ -539,44 +448,37 @@ export default function SignupPage() {
             placeholder="0000" 
             maxLength={4} 
           />
-        </InputGroup>
-      </FormGroup>
+        </div>
+      </div>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>주소</label>
-        <InputGroup>
+        <div className={styles.inputGroup}>
           <input 
             type="text" 
             placeholder="우편번호" 
             value={address.postcode}
             readOnly
-            style={{ backgroundColor: '#FFFFFF' }}
+            className={styles.readonlyInput}
           />
           <button 
             type="button"
             onClick={handleAddressSearch}
-            style={{ 
-              backgroundColor: '#CDD1D5',
-              color: '#FFFFFF',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              padding: '0 16px',
-              borderRadius: '24px'
-            }}
+            className={styles.addressButton}
           >
             우편번호 찾기
           </button>
-        </InputGroup>
-        <InputGroup>
+        </div>
+        <div className={styles.inputGroup}>
           <input 
             type="text" 
             placeholder="도로명주소" 
             value={address.roadAddress}
             readOnly
-            style={{ backgroundColor: '#FFFFFF' }}
+            className={styles.readonlyInput}
           />
-        </InputGroup>
-        <InputGroup>
+        </div>
+        <div className={styles.inputGroup}>
           <input 
             type="text" 
             id="detailAddress"
@@ -590,14 +492,14 @@ export default function SignupPage() {
             placeholder="참고항목" 
             value={address.extraAddress}
             readOnly
-            style={{ backgroundColor: '#FFFFFF' }}
+            className={styles.readonlyInput}
           />
-        </InputGroup>
-      </FormGroup>
+        </div>
+      </div>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>이메일 인증</label>
-        <InputGroup>
+        <div className={styles.inputGroup}>
           <input 
             type="email" 
             name="email"
@@ -613,134 +515,55 @@ export default function SignupPage() {
             }}
             placeholder="이메일을 입력해주세요." 
             disabled={isVerified}
-            style={{
-              borderColor: emailError ? '#EF4444' : '#d1d5db',
-              backgroundColor: isVerified ? '#f3f4f6' : '#fff'
-            }}
+            className={`${emailError ? styles.emailInputError : ''} ${isVerified ? styles.emailInputDisabled : ''}`}
           />
           <button 
             onClick={handleSendVerification}
             disabled={isVerified || !formData.email}
-            style={{
-              backgroundColor: isVerified ? '#10B981' : (!formData.email ? '#CDD1D5' : '#2098F3'),
-              color: '#FFFFFF',
-              cursor: isVerified || !formData.email ? 'not-allowed' : 'pointer',
-              width: '90px',
-              textAlign: 'center',
-              display: 'inline-flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexShrink: 0,
-              transition: 'background-color 0.2s',
-              '&:hover': {
-                backgroundColor: isVerified ? '#10B981' : '#1a7bbd'
-              }
-            }}
+            className={`${styles.verificationButton} ${
+              isVerified ? styles.verified : 
+              (!formData.email ? '' : styles.active)
+            }`}
+            type="button"
           >
             {isVerified ? '인증완료' : (verificationSent ? '재전송' : '인증받기')}
           </button>
-        </InputGroup>
+        </div>
         
         {emailError && !verificationSent && (
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: '12px', 
-            color: '#EF4444',
-            marginTop: '4px',
-            marginLeft: '12px'
-          }}>
-            <img 
-              src={wrongIcon} 
-              alt="" 
-              style={{
-                width: '14px',
-                height: '14px',
-                marginRight: '4px',
-                flexShrink: 0
-              }}
-            />
+          <div className={styles.emailError}>
+            <img src={wrongIcon} alt="" className={styles.messageIcon} />
             {emailError}
           </div>
         )}
         
         {verificationSent && !isVerified && (
-          <div style={{ marginTop: '8px' }}>
-            <div style={{ position: 'relative' }}>
+          <div className={styles.verificationWrapper}>
+            <div className={styles.verificationInputWrapper}>
               <input 
                 type="text" 
                 value={verificationInput}
                 onChange={handleVerificationInputChange}
                 placeholder="인증번호 4자리 입력" 
                 maxLength={4}
-                style={{
-                  width: '100%',
-                  height: '48px',
-                  borderRadius: '24px',
-                  border: emailError ? '1px solid #EF4444' : '1px solid #d1d5db',
-                  padding: '0 100px 0 16px',
-                  fontSize: '14px',
-                  //letterSpacing: '4px',
-                  //textAlign: 'center',
-                  '&:focus': {
-                    borderColor: '#2098F3',
-                    boxShadow: '0 0 0 2px rgba(32, 152, 243, 0.2)'
-                  }
-                }}
+                className={`${styles.verificationInput} ${emailError ? styles.error : ''}`}
               />
               {timeLeft > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  right: '16px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: timeLeft < 60 ? '#EF4444' : '#6B7280',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  fontVariantNumeric: 'tabular-nums',
-                  backgroundColor: 'rgba(255,255,255,0.9)',
-                  padding: '2px 8px',
-                  borderRadius: '12px'
-                }}>
+                <div className={`${styles.timer} ${timeLeft < 60 ? styles.warning : ''}`}>
                   {formatTime(timeLeft)}
                 </div>
               )}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              marginTop: '4px',
-              marginLeft: '12px',
-              fontSize: '12px',
-              color: emailError ? '#EF4444' : '#6B7280'
-            }}>
+            <div className={`${styles.verificationMessage} ${emailError ? styles.error : ''}`}>
               {emailError ? (
                 <>
-                  <img 
-                    src={wrongIcon} 
-                    alt="오류" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px', 
-                      marginRight: '4px',
-                      flexShrink: 0
-                    }} 
-                  />
+                  <img src={wrongIcon} alt="오류" className={styles.messageIcon} />
                   {emailError}
                 </>
               ) : (
                 <>
-                  <img 
-                    src={correctIcon} 
-                    alt="안내" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px', 
-                      marginRight: '4px',
-                      flexShrink: 0
-                    }} 
-                  />
+                  <img src={correctIcon} alt="안내" className={styles.messageIcon} />
                   {verificationInput.length === 4 
                     ? '인증번호를 확인 중입니다...'
                     : `인증번호가 이메일로 전송되었습니다. ${formatTime(timeLeft)} 내에 입력해주세요.`}
@@ -751,262 +574,110 @@ export default function SignupPage() {
         )}
         
         {isVerified && (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            marginTop: '8px',
-            marginLeft: '12px',
-            fontSize: '14px',
-            color: '#10B981',
-            fontWeight: '500'
-          }}>
-            <img 
-              src={correctIcon} 
-              alt="인증완료" 
-              style={{ 
-                width: '16px', 
-                height: '16px', 
-                marginRight: '6px',
-                flexShrink: 0
-              }} 
-            />
+          <div className={styles.verificationSuccess}>
+            <img src={correctIcon} alt="인증완료" className={styles.successIcon} />
             이메일 인증이 완료되었습니다. (24시간 동안 유효)
           </div>
         )}
-      </FormGroup>
+      </div>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>비밀번호</label>
-        <div style={{ position: 'relative' }}>
+        <div className={styles.passwordWrapper}>
           <input 
             type={showPassword ? 'text' : 'password'} 
             value={password}
             onChange={handlePasswordChange}
             placeholder="비밀번호를 입력해주세요." 
-            style={{
-              width: '100%',
-              height: '48px',
-              borderRadius: '24px',
-              border: passwordError ? '1px solid #EF4444' : '1px solid #d1d5db',
-              padding: '0 16px 0 16px',
-              paddingLeft: password ? '16px' : '44px',
-              fontSize: '14px',
-            }}
+            className={`${styles.passwordInput} ${passwordError ? styles.error : ''} ${!password ? styles.withIcon : ''}`}
           />
           {passwordError && (
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              fontSize: '12px', 
-              color: '#EF4444',
-              marginTop: '4px',
-              marginLeft: '8px'
-            }}>
-              <img 
-                src={wrongIcon} 
-                alt="" 
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  marginRight: '4px',
-                  flexShrink: 0
-                }}
-              />
+            <div className={styles.passwordError}>
+              <img src={wrongIcon} alt="" className={styles.errorIcon} />
               {passwordError}
             </div>
           )}
           {!password && (
-            <img 
-              src={lockIcon} 
-              alt="" 
-              style={{
-                position: 'absolute',
-                left: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '20px',
-                height: '20px',
-                color: '#9ca3af'
-              }}
-            />
+            <img src={lockIcon} alt="" className={styles.lockIcon} />
           )}
-          <div style={{
-            position: 'absolute',
-            right: '16px',
-            top: 0,
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <div className={styles.eyeIconWrapper}>
             <img 
               src={showPassword ? eyeHideIcon : eyeIcon} 
               alt={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
               onClick={() => setShowPassword(!showPassword)}
-              style={{
-                width: '20px',
-                height: '20px',
-                cursor: 'pointer',
-                pointerEvents: 'auto'
-              }}
+              className={styles.eyeIcon}
             />
           </div>
         </div>
-      </FormGroup>
+      </div>
 
-      <FormGroup>
+      <div className={styles.formGroup}>
         <label>비밀번호 확인</label>
-        <div style={{ position: 'relative' }}>
+        <div className={styles.passwordWrapper}>
           <input 
             type={showConfirmPassword ? 'text' : 'password'} 
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             placeholder="비밀번호를 다시 입력해주세요." 
-            style={{
-              width: '100%',
-              height: '48px',
-              borderRadius: '24px',
-              border: password && confirmPassword && password !== confirmPassword ? '1px solid #EF4444' : '1px solid #d1d5db',
-              padding: '0 16px 0 16px',
-              paddingLeft: confirmPassword ? '16px' : '44px',
-              fontSize: '14px',
-            }}
+            className={`${styles.passwordInput} ${password && confirmPassword && password !== confirmPassword ? styles.error : ''} ${!confirmPassword ? styles.withIcon : ''}`}
           />
           {password && confirmPassword && password !== confirmPassword && (
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              fontSize: '12px', 
-              color: '#EF4444',
-              marginTop: '4px',
-              marginLeft: '8px'
-            }}>
-              <img 
-                src={wrongIcon} 
-                alt="" 
-                style={{
-                  width: '14px',
-                  height: '14px',
-                  marginRight: '4px'
-                }}
-              />
+            <div className={styles.passwordError}>
+              <img src={wrongIcon} alt="" className={styles.errorIcon} />
               비밀번호가 일치하지 않습니다.
             </div>
           )}
           {!confirmPassword && (
-            <img 
-              src={lockIcon} 
-              alt="" 
-              style={{
-                position: 'absolute',
-                left: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '20px',
-                height: '20px',
-                color: '#9ca3af'
-              }}
-            />
+            <img src={lockIcon} alt="" className={styles.lockIcon} />
           )}
-          <div style={{
-            position: 'absolute',
-            right: '16px',
-            top: 0,
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <div className={styles.eyeIconWrapper}>
             <img 
               src={showConfirmPassword ? eyeHideIcon : eyeIcon} 
               alt={showConfirmPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={{
-                width: '20px',
-                height: '20px',
-                cursor: 'pointer',
-                pointerEvents: 'auto'
-              }}
+              className={styles.eyeIcon}
             />
           </div>
         </div>
-      </FormGroup>
-
-      <div style={{ margin: '24px 16px', width: 'calc(100% - 32px)' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: '12px',
-          fontSize: '14px'
-        }}>
-          <input 
-            type="checkbox" 
-            id="terms" 
-            style={{
-              marginRight: '8px',
-              width: '18px',
-              height: '18px',
-              accentColor: '#464C53'
-            }} 
-          />
-          <label htmlFor="terms" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>서비스 이용약관 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
-          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: '12px',
-          fontSize: '14px'
-        }}>
-          <input 
-            type="checkbox" 
-            id="privacy" 
-            style={{
-              marginRight: '8px',
-              width: '18px',
-              height: '18px',
-              accentColor: '#464C53'
-            }} 
-          />
-          <label htmlFor="privacy" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>개인정보 처리방침 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
-          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          fontSize: '14px'
-        }}>
-          <input 
-            type="checkbox" 
-            id="finance" 
-            style={{
-              marginRight: '8px',
-              width: '18px',
-              height: '18px',
-              accentColor: '#464C53'
-            }} 
-          />
-          <label htmlFor="finance" style={{ flex: 1, paddingLeft: 0, marginLeft: 0 }}>전자금융거래 이용약관 <span style={{ color: '#FF6B00' }}>(필수)</span></label>
-          <span style={{ color: '#666', cursor: 'pointer', textDecoration: 'underline' }}>자세히 보기</span>
-        </div>
       </div>
 
-      <div style={{ marginBottom: '40px' }}>
-        <SubmitButton 
-          style={{
-            backgroundColor: isFormValid ? '#FE4F1A' : '#CDD1D5',
-            color: '#FFFFFF',
-            cursor: isFormValid ? 'pointer' : 'not-allowed',
-            width: '100%'
-          }}
+      <div className={styles.checkboxContainer}>
+        <div className={styles.checkboxRow}>
+          <input type="checkbox" id="terms" required />
+          <label htmlFor="terms">서비스 이용약관 <span className={styles.required}>(필수)</span></label>
+          <span className={styles.detailLink} onClick={() => openTermsModal('service')}>자세히 보기</span>
+        </div>
+        
+        <div className={styles.checkboxRow}>
+          <input type="checkbox" id="privacy" required />
+          <label htmlFor="privacy">개인정보 처리방침 <span className={styles.required}>(필수)</span></label>
+          <span className={styles.detailLink} onClick={() => openTermsModal('privacy')}>자세히 보기</span>
+        </div>
+        
+        <div className={styles.checkboxRow}>
+          <input type="checkbox" id="finance" required />
+          <label htmlFor="finance">전자금융거래 이용약관 <span className={styles.required}>(필수)</span></label>
+          <span className={styles.detailLink} onClick={() => openTermsModal('finance')}>자세히 보기</span>
+        </div>
+      </div>
+      
+      <TermsModal
+        isOpen={modalState.isOpen}
+        onClose={closeTermsModal}
+        title={modalState.title}
+        content={modalState.content}
+      />
+
+      <div className={styles.submitButtonWrapper}>
+        <button 
+          className={`${styles.submitButton} ${isFormValid ? styles.active : ''}`}
           disabled={!isFormValid}
           onClick={handleSubmit}
+          type="button"
         >
           회원가입
-        </SubmitButton>
+        </button>
       </div>
-    </SignupContainer>
+    </div>
   );
 }

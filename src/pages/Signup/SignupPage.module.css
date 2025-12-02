@@ -1,0 +1,402 @@
+.container {
+  /*width: 100%;*/
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: #fff;
+  padding: 0 20px;
+  font-family: "Noto Sans KR", sans-serif;
+  text-align: left;
+}
+
+.container * {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.container a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container input,
+.container button {
+  font-family: "Noto Sans KR", sans-serif;
+  outline: none;
+}
+
+.container input:focus,
+.container button:focus {
+  outline: none;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 1000;
+}
+
+.header img {
+  height: 32px;
+}
+
+.logoButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.subtitle span {
+  color: #2098F3;
+  font-weight: 500;
+}
+
+.loginLink {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.formGroup {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+  padding-left: 12px;
+}
+
+.inputGroup {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.inputGroup input {
+  flex: 1;
+  height: 48px;
+  border-radius: 24px;
+  border: 1px solid #d1d5db;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.inputGroup input::placeholder {
+  color: #9ca3af;
+}
+
+.inputGroup button {
+  padding: 0 16px;
+  height: 48px;
+  border-radius: 24px;
+  background-color: #CDD1D5;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.addressButton {
+  background-color: #CDD1D5;
+  color: #FFFFFF;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-radius: 24px;
+}
+
+.readonlyInput {
+  background-color: #FFFFFF;
+}
+
+.verificationButton {
+  background-color: #CDD1D5;
+  color: #FFFFFF;
+  width: 90px;
+  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+.verificationButton:disabled {
+  cursor: not-allowed;
+}
+
+.verificationButton.active {
+  background-color: #2098F3;
+  cursor: pointer;
+}
+
+.verificationButton.active:hover {
+  background-color: #1a7bbd;
+}
+
+.verificationButton.verified {
+  background-color: #10B981;
+}
+
+.emailInputError {
+  border-color: #EF4444;
+}
+
+.emailInputDisabled {
+  background-color: #f3f4f6;
+}
+
+.emailError {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #EF4444;
+  margin-top: 4px;
+  margin-left: 12px;
+}
+
+.verificationWrapper {
+  margin-top: 8px;
+}
+
+.verificationInputWrapper {
+  position: relative;
+}
+
+.verificationInput {
+  width: 100%;
+  height: 48px;
+  border-radius: 24px;
+  border: 1px solid #d1d5db;
+  padding: 0 100px 0 16px;
+  font-size: 14px;
+}
+
+.verificationInput.error {
+  border: 1px solid #EF4444;
+}
+
+.verificationInput:focus {
+  border-color: #2098F3;
+  box-shadow: 0 0 0 2px rgba(32, 152, 243, 0.2);
+}
+
+.timer {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.timer.warning {
+  color: #EF4444;
+}
+
+.verificationMessage {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  margin-left: 12px;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.verificationMessage.error {
+  color: #EF4444;
+}
+
+.verificationSuccess {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  margin-left: 12px;
+  font-size: 14px;
+  color: #10B981;
+  font-weight: 500;
+}
+
+.messageIcon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.successIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.passwordWrapper {
+  position: relative;
+}
+
+.passwordInput {
+  width: 100%;
+  height: 48px;
+  border-radius: 24px;
+  border: 1px solid #d1d5db;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.passwordInput.error {
+  border: 1px solid #EF4444;
+}
+
+.passwordInput.withIcon {
+  padding-left: 44px;
+}
+
+.passwordError {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #EF4444;
+  margin-top: 4px;
+  margin-left: 8px;
+}
+
+.errorIcon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.lockIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9ca3af;
+}
+
+.eyeIconWrapper {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eyeIcon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.checkboxContainer {
+  margin: 24px 16px;
+  width: calc(100% - 32px);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.checkboxRow:last-child {
+  margin-bottom: 0;
+}
+
+.checkboxRow input[type="checkbox"] {
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  accent-color: #464C53;
+}
+
+.checkboxRow label {
+  flex: 1;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.required {
+  color: #FF6B00;
+}
+
+.detailLink {
+  color: #666;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.submitButtonWrapper {
+  margin-bottom: 40px;
+}
+
+.submitButton {
+  width: 100%;
+  height: 56px;
+  border-radius: 28px;
+  background-color: #CDD1D5;
+  color: #FFFFFF;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: not-allowed;
+  transition: all 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #e65100;
+}
+
+.submitButton:disabled {
+  background-color: #CDD1D5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.submitButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submitButton.active {
+  background-color: #FE4F1A;
+  cursor: pointer;
+}
