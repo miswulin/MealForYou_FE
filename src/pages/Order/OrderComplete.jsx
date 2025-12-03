@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -15,7 +14,26 @@ export default function OrderComplete() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // navigate("/order-complete", { state: { order: {...} } })
+  const fallbackOrder = {
+    orderNumber: "2019380174198447",
+    paidAt: "2025-10-11 17:40:30",
+    items: [
+      {
+        id: 1,
+        name: "밀키트 메뉴 이름",
+        optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g) 1개…",
+        price: 10000,
+        qty: 1,
+      },
+    ],
+    deliveryFee: 2500,
+    shipping: {
+      name: "김멋사",
+      phone: "010-0000-0000",
+      address: "[01797]서울특별시 노원구 화랑로 621(50주년기념관 306호)",
+    },
+  };
+
   const order =
     state?.order || {
       orderNumber: "2019380174198447",
@@ -46,18 +64,16 @@ export default function OrderComplete() {
   );
 
   const handleGoHome = () => {
-    navigate("/"); // 홈 경로는 프로젝트에 맞게 수정해도 돼
+    navigate("/");
   };
 
   const handleGoOrderHistory = () => {
-    // 나중에 주문내역 페이지 만들면 거기로 연결
-    // 예: navigate("/orders");
+    navigate("/order-history");
     console.log("주문 내역 보기 클릭");
   };
 
   return (
     <div className="order-complete-root">
-      <StatusBar />
       <Header
         title="주문완료"
         onBack={() => navigate(-1)}

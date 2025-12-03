@@ -1,6 +1,5 @@
-// src/pages/Pd/Pd.jsx (예시 경로에 맞춰 수정)
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate /*, useParams */ } from "react-router-dom";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate , useParams } from "react-router-dom";
 
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
@@ -17,9 +16,9 @@ import shareIcon from "../../assets/share.svg";
 export default function Pd() {
   const navigate = useNavigate();
 
-  const dishId = 1;
+  const { dishId } = useParams()
 
-  // 상단 이미지
+  // 상단 이미지 (기존 코드 유지)
   const [images, setImages] = useState([bibimbap, bibimbap2]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -85,7 +84,7 @@ export default function Pd() {
     resetAutoSlide();
   };
 
-  // 상품 기본 정보
+  // 상품 기본 정보 (기존 코드 유지)
   const [dishName, setDishName] = useState("");
   const [basePrice, setBasePrice] = useState(0);
   const [userHealthTags, setUserHealthTags] = useState([]);
@@ -93,18 +92,19 @@ export default function Pd() {
 
   // 추천 옵션(칩)
   const [recommendedOptions, setRecommendedOptions] = useState([]);
-  const [selectedRecommendId, setSelectedRecommendId] = useState(null);
+  // [오류 수정] 초기값을 Set으로 설정
+  const [selectedRecommendIds, setSelectedRecommendIds] = useState(new Set()); 
 
-  // 바텀 시트 옵션들
+  // 바텀 시트 옵션들 (기존 코드 유지)
   const [sauceOptions, setSauceOptions] = useState([]);  
   const [baseOptions, setBaseOptions] = useState([]);     
   const [extraOptions, setExtraOptions] = useState([]);   
 
-  // 모달 & 바텀시트
+  // 모달 & 바텀시트 (기존 코드 유지)
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
-  // 영어 productTag -> 한글 라벨
+  // 영어 productTag -> 한글 라벨 (기존 코드 유지)
   const productTagToLabel = (tag) => {
     switch (tag) {
       case "HIGH_PROTEIN":
@@ -116,7 +116,7 @@ export default function Pd() {
     }
   };
 
-  // 상세 정보 불러오기
+  // 상세 정보 불러오기 (기존 코드 유지)
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -129,7 +129,7 @@ export default function Pd() {
         setUserHealthTags(data.userHealthTags || []);
         setIsInterested(data.isInterested ?? data.interested ?? false);
 
-        // 2) 상세 이미지
+        // 2) 상세 이미지 (기존 코드 유지)
         const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
         if (data.dishImages && data.dishImages.length > 0) {
           setImages(
@@ -141,7 +141,7 @@ export default function Pd() {
           );
         }
 
-        // 3) 추천 옵션(칩)
+        // 3) 추천 옵션(칩) (기존 코드 유지)
         setRecommendedOptions(
           (data.recommendedIngredients || []).map((ri) => ({
             id: ri.dishIngredientId,
@@ -150,7 +150,7 @@ export default function Pd() {
           }))
         );
 
-        // 4) 카테고리별 옵션
+        // 4) 카테고리별 옵션 (qty: 0으로 통일)
         const categories = data.ingredientsByCategory || {};
 
         setBaseOptions(
@@ -158,7 +158,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: ing.quantity ?? 0,
+            qty: 0,
           }))
         );
 
@@ -167,7 +167,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: ing.quantity ?? 0,
+            qty: 0,
           }))
         );
 
@@ -176,7 +176,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: ing.quantity ?? 0,
+            qty: 0, // 초기값 0으로 설정
           }))
         );
       } catch (error) {
@@ -188,7 +188,7 @@ export default function Pd() {
     fetchDetail();
   }, [dishId]);
 
-  // 찜 토글 (관심 상품 등록/해제)
+  // 찜 토글 (관심 상품 등록/해제) (기존 코드 유지)
   const handleToggleInterest = async () => {
     try {
       const result = await dishesService.toggleInterest(dishId); 
@@ -199,34 +199,91 @@ export default function Pd() {
     }
   };
 
-  // 수량 조절 함수들
+  // 모든 옵션을 하나의 배열로 합치는 함수
+  const getAllOptions = useCallback(() => {
+    return [...baseOptions, ...extraOptions, ...sauceOptions];
+  }, [baseOptions, extraOptions, sauceOptions]);
+
+  // [수정] 총 금액 관련 로직 제거
+  // const calculateTotal = () => { ... };
+
+  // 옵션 ID를 통해 해당 옵션의 수량을 변경하고 Set을 동기화하는 헬퍼 함수
+  const updateOptionQty = (id, newQty) => {
+    const newQuantity = Math.max(0, newQty); // 수량은 0 미만이 될 수 없음
+
+    const isBase = baseOptions.some(opt => opt.id === id);
+    const isExtra = extraOptions.some(opt => opt.id === id);
+    const isSauce = sauceOptions.some(opt => opt.id === id);
+
+    if (isBase) {
+      setBaseOptions(prev => prev.map(opt => 
+        opt.id === id ? { ...opt, qty: newQuantity } : opt
+      ));
+    } else if (isExtra) {
+      setExtraOptions(prev => prev.map(opt => 
+        opt.id === id ? { ...opt, qty: newQuantity } : opt
+      ));
+    } else if (isSauce) {
+      setSauceOptions(prev => prev.map(opt => 
+        opt.id === id ? { ...opt, qty: newQuantity } : opt
+      ));
+    }
+    
+    // 수량이 0이 되면 추천 칩 Set에서도 제거 (상태 동기화)
+    if (newQuantity === 0) {
+        setSelectedRecommendIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(id);
+            return newSet;
+        });
+    } else {
+        // 수량이 1 이상이면 추천 칩 Set에 추가
+        setSelectedRecommendIds(prev => {
+            const newSet = new Set(prev);
+            newSet.add(id);
+            return newSet;
+        });
+    }
+  };
+
+  // 옵션 추천 칩 토글 로직 (다중 선택 및 수량 반영)
+  const handleToggleRecommend = (id) => {
+    const isSelected = selectedRecommendIds.has(id);
+    
+    if (isSelected) {
+      // 선택 해제: 수량을 0으로 설정
+      updateOptionQty(id, 0); 
+    } else {
+      // 선택: 수량을 1로 설정
+      updateOptionQty(id, 1);
+    }
+  };
+
+  // 수량 조절 함수들 (updateOptionQty를 사용하도록 수정)
   const changeSauceQty = (id, delta) => {
-    setSauceOptions((prev) =>
-      prev.map((opt) =>
-        opt.id === id ? { ...opt, qty: Math.max(0, opt.qty + delta) } : opt
-      )
-    );
+    const opt = sauceOptions.find(o => o.id === id);
+    if (opt) {
+        updateOptionQty(id, opt.qty + delta);
+    }
   };
 
   const changeBaseQty = (id, delta) => {
-    setBaseOptions((prev) =>
-      prev.map((opt) =>
-        opt.id === id ? { ...opt, qty: Math.max(0, opt.qty + delta) } : opt
-      )
-    );
+    const opt = baseOptions.find(o => o.id === id);
+    if (opt) {
+        updateOptionQty(id, opt.qty + delta);
+    }
   };
 
   const changeExtraQty = (id, delta) => {
-    setExtraOptions((prev) =>
-      prev.map((opt) =>
-        opt.id === id ? { ...opt, qty: Math.max(0, opt.qty + delta) } : opt
-      )
-    );
+    const opt = extraOptions.find(o => o.id === id);
+    if (opt) {
+        updateOptionQty(id, opt.qty + delta);
+    }
   };
 
-  // 선택한 옵션 
+  // 선택한 옵션 (기존 코드 유지)
   const getSelectedOptionsForApi = () => {
-    const allOptions = [...baseOptions, ...extraOptions, ...sauceOptions];
+    const allOptions = getAllOptions();
 
     return allOptions
       .filter((opt) => opt.qty > 0)
@@ -236,7 +293,7 @@ export default function Pd() {
       }));
   };
 
-  // 장바구니 담기
+  // 장바구니 담기 (기존 코드 유지)
   const handleAddToCart = async () => {
     const optionsToBuy = getSelectedOptionsForApi();
     if (optionsToBuy.length === 0) {
@@ -254,7 +311,7 @@ export default function Pd() {
     }
   };
 
-  // 바로 구매
+  // 바로 구매 (기존 코드 유지)
   const handleBuyNow = async () => {
     const optionsToBuy = getSelectedOptionsForApi();
     if (optionsToBuy.length === 0) {
@@ -271,6 +328,9 @@ export default function Pd() {
       alert("바로 구매 처리에 실패했습니다. 다시 시도해 주세요.");
     }
   };
+  
+  // [수정] totalPrice 변수 제거 (총 금액 표시 요청 제외)
+  // const totalPrice = calculateTotal();
 
   return (
     <div className="pd-root">
@@ -284,9 +344,9 @@ export default function Pd() {
         onPerson={() => navigate("/mypage")}
       />
 
-      {/* ----- 메인 영역 ----- */}
+      {/* ----- 메인 영역 (기존 코드 유지) ----- */}
       <main className="pd-main">
-        {/* 이미지 슬라이더 */}
+        {/* 이미지 슬라이더 (기존 코드 유지) */}
         <section className="pd-product-img">
           <div className="pd-image-slide-wrapper"
             onTouchStart={handleTouchStart}
@@ -319,7 +379,7 @@ export default function Pd() {
         
         </section>
 
-        {/* 제목 / 가격 */}
+        {/* 제목 / 가격 (기존 코드 유지) */}
         <section className="pd-product-title">
           <div className="pd-title-row">
             <div className="pd-title-left">
@@ -337,7 +397,7 @@ export default function Pd() {
 
           <div className="pd-price-row">
             {/* 할인율도 API에 있으면 계산해서 넣기 */}
-            <span className="pd-discount">26%</span>
+            
             <span className="pd-final-price">
               {basePrice.toLocaleString("ko-KR")}원
             </span>
@@ -346,33 +406,34 @@ export default function Pd() {
           <p className="pd-sub-info">원산지: 상품설명/상세정보 참조</p>
         </section>
 
-        {/* 아래 상세 설명 부분은 기존 더미 그대로 둬도 됨 */}
-        {/* ... (pd-details, pd-story, pd-frame) ... */}
       </main>
 
-      {/* 하단 버튼 */}
+      {/* 하단 버튼 (총 금액 표시 제거) */}
       <div className="pd-bottom-sheet">
       <button
-    className={`pd-like-btn ${isInterested ? "active" : ""}`}
-    aria-label="찜하기"
-    onClick={handleToggleInterest}
-  >
+          className={`pd-like-btn ${isInterested ? "active" : ""}`}
+          aria-label="찜하기"
+          onClick={handleToggleInterest}
+        >
     <img src={isInterested ? heartFilled : heart} alt="찜하기" />
   </button>
-        <button className="pd-buy-btn" onClick={() => setIsSheetOpen(true)}>
-          구매하기
-        </button>
+  <button className="pd-buy-btn" onClick={() => setIsSheetOpen(true)}>
+    구매하기 
+  </button>
       </div>
 
       {/* 바텀 시트 - 옵션 선택 */}
       <BottomSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)}>
+        {/* [수정] 총 금액 표시 제거 */}
+        {/* <div className="pd-sheet-total-price"> ... </div> */}
+
         <h3 className="pd-sheet-section-label">
           {userHealthTags.length > 0
             ? `${userHealthTags.join("·")} 옵션 추천`
             : "추천 옵션"}
         </h3>
 
-        {/* 추천 옵션 칩 */}
+        {/* 추천 옵션 칩 (다중 선택 및 수량 반영 로직 유지) */}
         <div className="pd-sheet-recommend">
           <div className="pd-chip-scroll">
             {recommendedOptions.map((opt) => (
@@ -381,9 +442,9 @@ export default function Pd() {
                 type="button"
                 className={
                   "pd-chip-card" +
-                  (selectedRecommendId === opt.id ? " active" : "")
+                  (selectedRecommendIds && selectedRecommendIds.has(opt.id) ? " active" : "")
                 }
-                onClick={() => setSelectedRecommendId(opt.id)}
+                onClick={() => handleToggleRecommend(opt.id)}
               >
                 <span className="pd-chip-label">{opt.label}</span>
                 <div className="pd-chip-tags">
