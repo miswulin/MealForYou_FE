@@ -19,22 +19,51 @@ import SearchResultsPage from "./pages/Search/SearchResultsPage";
 import MenuListPage from "./pages/MenuList/MenuListPage";
 import OrderHistory from "./pages/MyPage/OrderHistory.jsx";
 import EditPreference from "./pages/MyPage/EditPreference.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx"; //로그인 필요 페이지 보호 라우터
 
 function App() {
   return (
     <Routes>
-      <Route path="/mypage" element={<MyPage />} />
+      {/* 로그인 필요한 페이지들 */}
+      <Route
+        path="/mypage"
+        element={
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/wishlist"
+        element={
+          <ProtectedRoute>
+            <Wishlist />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
+      {/* <Route path="/mypage" element={<MyPage />} /> */}
       <Route path="/home" element={<HomePage />} />
       <Route path="/editinfo" element={<EditInfo />} />
       <Route path="/editpassword" element={<EditPassword />} />
       <Route path="/editaddress" element={<EditAddress />} />
-      <Route path="/wishlist" element={<Wishlist />} />
+      {/* <Route path="/wishlist" element={<Wishlist />} /> */}
       <Route path="/search" element={<SearchResultsPage />} />
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+
+//       <Route path="/product-detail" element={<Pd />} />
       <Route path="/product-detail/:dishId" element={<Pd />} />
-      <Route path="/cart" element={<Cart />} />
       <Route path="/order" element={<Order />} />
       <Route path="/order/:cartItemId" element={<Order />} />
       <Route path="/ordercomplete" element={<OrderComplete />} />

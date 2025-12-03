@@ -82,7 +82,7 @@ export default function MyPage() {
       const timer = setTimeout(() => {
         setShowLogoutDone(false);
         // 3초 뒤 로그인 화면으로 이동
-        navigate("/login");
+        navigate("/");
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -92,6 +92,7 @@ export default function MyPage() {
     if (showDeleteDone) {
       const timer = setTimeout(() => {
         setShowDeleteDone(false);
+        navigate("/signup");
       }, 3000);
       return () => clearTimeout(timer);
     }
