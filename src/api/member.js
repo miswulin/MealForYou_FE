@@ -4,7 +4,7 @@ import { apiClient } from "./auth";
 const ME_API_URL = "/members/me";
 
 export const memberInfo = {
-  // 1) 내 프로필 조회 
+  // 1) 내 프로필 조회
   getMyInfo: async () => {
     try {
       const res = await apiClient.get(`${ME_API_URL}`);
@@ -19,7 +19,7 @@ export const memberInfo = {
     }
   },
 
-  // 2) 내 프로필 수정 
+  // 2) 내 프로필 수정
   updateMyInfo: async (payload) => {
     try {
       const res = await apiClient.patch(`${ME_API_URL}/info`, payload);
@@ -44,6 +44,41 @@ export const memberInfo = {
       throw (
         error.response?.data || {
           message: "주소를 수정하는 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
+  // 4) 내 선호 식단태그 조회
+  getMyHealthTags: async () => {
+    try {
+      const res = await apiClient.get(`${ME_API_URL}/health-tags`);
+      console.log("GET /members/me/health-tags 응답:", res.data);
+      // 배열만 뽑아서 반환
+      return Array.isArray(res.data.healthTags) ? res.data.healthTags : [];
+    } catch (error) {
+      console.error("건강 태그 조회 오류:", error);
+      throw (
+        error.response?.data || {
+          message: "식단 태그를 불러오는 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
+
+  // 5) 내 선호 식단태그 수정
+  updateMyHealthTags: async (tags) => {
+    try {
+      console.log("PATCH /members/me/health-tags payload:", tags);
+      const res = await apiClient.patch(`${ME_API_URL}/health-tags`, {
+        healthTags: tags,
+      });
+      console.log("PATCH /health-tags 응답:", res.data);
+      return res.data;
+    } catch (error) {
+      console.error("건강 태그 수정 오류:", error);
+      throw (
+        error.response?.data || {
+          message: "식단 태그를 수정하는 중 오류가 발생했습니다.",
         }
       );
     }
