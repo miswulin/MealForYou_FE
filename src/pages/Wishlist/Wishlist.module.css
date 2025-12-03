@@ -1,17 +1,24 @@
 .page {
   width: 100%;
   margin: 0 auto;
-  padding: 0 16px; /* 🔹 좌우 패딩 통일 */
+  padding: 0 16px;
+  box-sizing: border-box;
+  height: 90vh;
+}
+.header {
+  top: 0;
+  width: 100%;
+  position: fixed;
+  max-width: 390px;
   box-sizing: border-box;
 }
-
 /* 상단 선택 영역 */
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  padding: 0;
+  padding-top: 30px;
   margin: 25px 3px 20px;
 }
 

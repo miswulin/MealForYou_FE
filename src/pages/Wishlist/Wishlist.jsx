@@ -1,56 +1,15 @@
 import styles from "../Wishlist/Wishlist.module.css";
 import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
+import { useNavigate } from "react-router-dom";
 import checkIcon from "../../assets/images/check.png";
-// 테스트용 더미데이터
-const INITIAL_MEALBOXES = [
-  {
-    id: 1,
-    name: "밀포유 소불고기 밀박스",
-    originalPrice: 12000,
-    discountRate: 20,
-    price: 9600,
-  },
-  {
-    id: 2,
-    name: "밀포유 영양 삼계탕 밀박스",
-    originalPrice: 15000,
-    discountRate: 0,
-    price: 12750,
-  },
-  {
-    id: 3,
-    name: "밀포유 돼지갈비찜 밀박스",
-    originalPrice: 14000,
-    discountRate: 0,
-    price: 10500,
-  },
-  {
-    id: 4,
-    name: "밀포유 삼겹살 정식 밀박스",
-    originalPrice: 16000,
-    discountRate: 0,
-    price: 14400,
-  },
-  {
-    id: 5,
-    name: "밀포유 돼지갈비찜 밀박스",
-    originalPrice: 14000,
-    discountRate: 25,
-    price: 10500,
-  },
-  {
-    id: 6,
-    name: "밀포유 삼겹살 정식 밀박스",
-    originalPrice: 16000,
-    discountRate: 10,
-    price: 14400,
-  },
-];
+import { dishesService } from "../../api/dishes";
 
 export default function Wishlist() {
+  const navigate = useNavigate();
+
   //전체 찜 목록 리스트
-  const [mealboxes, setMealboxes] = useState(INITIAL_MEALBOXES);
+  const [mealboxes, setMealboxes] = useState([]);
   //선택된 상품 id 저장(배열)
   const [selectedIds, setSelectedIds] = useState([]);
 
@@ -60,6 +19,27 @@ export default function Wishlist() {
   const selectedCount = selectedIds.length;
   //전체선택인지 판단
   const isAllSelected = totalCount > 0 && selectedCount === totalCount;
+
+  // 관심상품 목록 불러오기
+  useEffect(() => {
+    const fetchInterestList = async () => {
+      try {
+        const data = await dishesService.getInterestList();
+        const mapped = data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          image: item.imageUrl,
+          price: item.basePrice,
+        }));
+        setMealboxes(mapped);
+      } catch (error) {
+        console.error("관심 상품 목록 불러오기 오류:", error);
+        // alert(error.message || "관심 상품 목록을 불러오는 중 오류가 발생했습니다.");
+      }
+    };
+
+    fetchInterestList();
+  }, []);
 
   // 전체 선택/ 전체 해제
   const toggleSelectAll = () => {
@@ -87,17 +67,28 @@ export default function Wishlist() {
   };
 
   //선택된 상품 찜 삭제
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     // 선택된게 없을 경우 종료
     if (selectedIds.length === 0) return;
+    try {
+      // 선택된 모든 상품에 대해 관심 토글 API 호출
+      await Promise.all(
+        selectedIds.map((id) => dishesService.toggleInterest(id))
+      );
 
-    // 선택된 상품 id를 제거하여 목록에서 삭제
-    setMealboxes((prev) =>
-      prev.filter((item) => !selectedIds.includes(item.id))
-    );
-
-    // 삭제 후 선택 초기화
-    setSelectedIds([]);
+      // 로컬 리스트에서도 제거
+      setMealboxes((prev) =>
+        prev.filter((item) => !selectedIds.includes(item.id))
+      );
+      // 선택 초기화
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("선택 관심상품 해제 오류:", error);
+      alert(
+        error.message ||
+          "선택한 상품을 삭제(관심 해제)하는 중 오류가 발생했습니다."
+      );
+    }
   };
 
   return (
@@ -109,6 +100,7 @@ export default function Wishlist() {
         showHeart={false}
         showCart={false}
         showPerson={false}
+        className={styles.header}
       />
       <section>
         <div className={styles.page}>
