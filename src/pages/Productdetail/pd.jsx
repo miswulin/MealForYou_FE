@@ -23,7 +23,7 @@ export default function Pd() {
   const [sliderImages, setSliderImages] = useState([]);
   const [detailImages, setDetailImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [images, setImages] = useState([]);
+
 
   const slideInterval = useRef(null);
   const touchStart = useRef(0);
@@ -51,7 +51,7 @@ export default function Pd() {
 
     if (sliderImages.length > 1) {
       slideInterval.current = setInterval(() => {
-        setCurrentIndex(prev => (prev + 1) % images.length);
+        setCurrentIndex(prev => (prev + 1) % sliderImages.length);
       }, 3000);
     }
   };
@@ -122,11 +122,6 @@ export default function Pd() {
   // 상세 정보 불러오기 (기존 코드 유지)
 
   useEffect(() => {
-    dishesService.getDishDetail(dishId).then((data) => {
-      if (data.dishImages && data.dishImages.length > 0) {
-        setImages(data.dishImages.map(img => img.url));  // ✅ URL 배열로 변환
-      }
-    });
     const fetchDetail = async () => {
       try {
         const data = await dishesService.getDishDetail(dishId);
@@ -375,7 +370,7 @@ export default function Pd() {
                 transform: `translateX(-${currentIndex * 100}%)`, // 이미지 이동
               }}
             >
-              {images.map((src, i) => (
+              {sliderImages.map((src, i) => (
                 <div key={i} className="pd-image-slide-item">
                   <img
                     src={src}
@@ -388,8 +383,8 @@ export default function Pd() {
           </div>
 
           <div className="pd-img-indicator">
-            {images.length > 0
-              ? `${currentIndex + 1} / ${images.length}` // 번호 슬라이드 표시
+            {sliderImages.length > 0
+              ? `${currentIndex + 1} / ${sliderImages.length}` // 번호 슬라이드 표시
               : "0 / 0"}
           </div>
 
@@ -406,18 +401,6 @@ export default function Pd() {
             <img src={shareIcon} alt="공유하기" className="pd-share-icon" />
           </div>
 
-          {/* 상세 정보 이미지 렌더링 영역 */}
-        <section className="pd-detail-images-container">
-          {detailImages.length > 0 && detailImages.map((imgUrl, index) => (
-            <img 
-              key={index} 
-              src={imgUrl} 
-              alt={`상세정보_${index}`} 
-              className="pd-detail-img" 
-            />
-          ))}
-        </section>
-
           <div className="pd-price-row">
             <span className="pd-origin-price">
               {/* TODO: 원가격 있으면 여기 넣기 */}
@@ -433,6 +416,13 @@ export default function Pd() {
           </div>
 
           <p className="pd-sub-info">원산지: 상품설명/상세정보 참조</p>
+          {detailImages[0] && (
+        <img
+          src={detailImages[0]}
+          alt="상세 이미지"
+          className="pd-detail-img"
+        />
+      )}
         </section>
 
       </main>
