@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
 import { dishesService } from "../../api/dishes";
+import { cartService } from "../../api/cart";
 
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -320,7 +321,7 @@ export default function Pd() {
     }
 
     try {
-      const cartItemId = await dishesService.buyNow(dishId, optionsToBuy);
+      const cartItemId = await cartService.buyNow(dishId, optionsToBuy);
       setIsSheetOpen(false);
       navigate(`/order/${cartItemId}`);
     } catch (error) {
@@ -328,9 +329,7 @@ export default function Pd() {
       alert("바로 구매 처리에 실패했습니다. 다시 시도해 주세요.");
     }
   };
-  
-  // [수정] totalPrice 변수 제거 (총 금액 표시 요청 제외)
-  // const totalPrice = calculateTotal();
+
 
   return (
     <div className="pd-root">
