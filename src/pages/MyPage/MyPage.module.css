@@ -5,8 +5,16 @@ h5 {
   padding: 0;
   letter-spacing: -1px;
 }
+.header {
+  top: 0;
+  width: 100%;
+  position: fixed;
+  max-width: 390px;
+  box-sizing: border-box;
+}
 .section {
   margin-top: 4px;
+  height:100%;
 }
 .email {
   font-size: 13px;
