@@ -116,6 +116,7 @@ export default function Order() {
                 //const itemUnitPrice = qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : 0;
                 return {
                   id: item.cartItemId,
+                  cartItemId: item.cartItemId,
                   name: item.dishName,
                   price: basePriceNum,
                   qty: qtyNum,
