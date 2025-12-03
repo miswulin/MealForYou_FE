@@ -392,9 +392,7 @@ const HomePage = () => {
                     </div>
                     <div className={styles.productInfo}>
                       <h3 className={styles.productName}>{product.name}</h3>
-                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
                         <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
@@ -445,9 +443,7 @@ const HomePage = () => {
                     </div>
                     <div className={styles.productInfo}>
                       <h3 className={styles.productName}>{product.name}</h3>
-                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
                         <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
@@ -497,9 +493,7 @@ const HomePage = () => {
                     </div>
                     <div className={styles.productInfo}>
                       <h3 className={styles.productName}>{product.name}</h3>
-                      <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}원</span>
                       <div className={styles.priceContainer}>
-                        <span className={styles.discountRate}>{product.discountRate}<span className={styles.percentUnit}>%</span></span>
                         <span className={styles.salePrice}>{formatPrice(salePrice)}<span className={styles.priceUnit}>원</span></span>
                       </div>
                     </div>
