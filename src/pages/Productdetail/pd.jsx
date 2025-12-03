@@ -400,6 +400,18 @@ export default function Pd() {
             <img src={shareIcon} alt="공유하기" className="pd-share-icon" />
           </div>
 
+          {/* 상세 정보 이미지 렌더링 영역 */}
+        <section className="pd-detail-images-container">
+          {detailImages.length > 0 && detailImages.map((imgUrl, index) => (
+            <img 
+              key={index} 
+              src={imgUrl} 
+              alt={`상세정보_${index}`} 
+              className="pd-detail-img" 
+            />
+          ))}
+        </section>
+
           <div className="pd-price-row">
             <span className="pd-origin-price">
               {/* TODO: 원가격 있으면 여기 넣기 */}
