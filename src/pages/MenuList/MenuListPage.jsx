@@ -61,11 +61,19 @@ const MenuListPage = () => {
     const fetchMenuItems = async () => {
       try {
         setIsLoading(true);
+        const accessToken = getAccessToken();
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        
+        // 토큰이 있으면 Authorization 헤더 추가
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+        
         const response = await fetch(`/api/dishes?sort=${selectedSort}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: headers,
           credentials: 'include'
         });
         
@@ -75,7 +83,18 @@ const MenuListPage = () => {
         
         const data = await response.json();
         console.log('API Response:', data);
-        setMenuItems(Array.isArray(data) ? data : []);
+        
+        // 각 항목에 interested 속성이 있는지 확인
+        const processedData = Array.isArray(data) 
+          ? data.map(item => ({
+              ...item,
+              // interested를 불리언 값으로 변환
+              interested: !!item.interested
+            }))
+          : [];
+        
+        console.log('Processed Menu Items:', processedData);
+        setMenuItems(processedData);
         setError(null);
       } catch (err) {
         console.error('Error fetching menu items:', err);
