@@ -57,20 +57,72 @@ const HomePage = () => {
   const navigate = useNavigate();
   const bannerInterval = useRef(null);
 
+  // 토큰 갱신 함수
+  const refreshToken = async () => {
+    try {
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('토큰 갱신 실패');
+      }
+      
+      const data = await response.json();
+      localStorage.setItem('user', JSON.stringify(data));
+      return data.accessToken;
+    } catch (error) {
+      console.error('토큰 갱신 오류:', error);
+      localStorage.removeItem('user');
+      navigate('/login');
+      return null;
+    }
+  };
+
   // API에서 데이터 가져오기
   useEffect(() => {
     const fetchDishes = async () => {
       try {
-        const response = await fetch('/api/dishes/main');
+        let accessToken = getAccessToken();
+        let headers = {
+          'Content-Type': 'application/json'
+        };
+
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        let response = await fetch('/api/dishes/main', {
+          headers: headers,
+          credentials: 'include'
+        });
+
+        // 토큰 만료 시 갱신 시도
+        if (response.status === 401) {
+          const newToken = await refreshToken();
+          if (newToken) {
+            headers['Authorization'] = `Bearer ${newToken}`;
+            response = await fetch('/api/dishes/main', {
+              headers: headers,
+              credentials: 'include'
+            });
+          } else {
+            throw new Error('인증 실패');
+          }
+        }
+
         if (!response.ok) {
           throw new Error('API 요청에 실패했습니다.');
         }
+
         const data = await response.json();
+        console.log('API Response (Home):', data);
 
         setProducts({
           popular: transformDishData(data.popularDishes || []),
           new: transformDishData(data.newDishes || []),
-          all: transformDishData(data.recommendedDishes || []) // 추천 상품을 all 메뉴로 사용
+          all: transformDishData(data.recommendedDishes || [])
         });
         setError(null);
       } catch (err) {
