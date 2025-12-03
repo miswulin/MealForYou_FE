@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import StatusBar from "../../components/StatusBar";
 import Header from "../../components/Header";
 
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -57,7 +56,6 @@ export default function OrderComplete() {
 
   return (
     <div className="order-complete-root">
-      <StatusBar />
       <Header
         title="주문완료"
         onBack={() => navigate(-1)}
