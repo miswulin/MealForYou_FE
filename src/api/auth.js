@@ -201,5 +201,37 @@ export const authService = {
 };
 
 
-export { apiClient };
+// 비밀번호 재설정 (이메일 인증 후)
+const resetPassword = async (email, newPassword, newPasswordConfirm) => {
+  try {
+    const response = await apiClient.post('/auth/password/reset', {
+      email,
+      newPassword,
+      newPasswordConfirm
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// 비밀번호 변경 (로그인 후)
+const changePassword = async (currentPassword, newPassword, newPasswordConfirm) => {
+  try {
+    const response = await apiClient.post('/auth/password/change', {
+      currentPassword,
+      newPassword,
+      newPasswordConfirm
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+export { 
+  apiClient, 
+  resetPassword,
+  changePassword
+};
 
