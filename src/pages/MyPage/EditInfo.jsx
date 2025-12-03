@@ -178,7 +178,7 @@ export default function EditInfo() {
           <p>{originalForm?.email}</p>
         </div>
       </section>
-
+    
       {/* 구분선 */}
       <hr className={styles.hr1} />
 

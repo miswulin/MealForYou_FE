@@ -18,6 +18,7 @@ import HomePage from "./pages/Home/HomePage";
 import SearchResultsPage from "./pages/Search/SearchResultsPage";
 import MenuListPage from "./pages/MenuList/MenuListPage";
 import OrderHistory from "./pages/MyPage/OrderHistory.jsx";
+import EditPreference from "./pages/MyPage/EditPreference.jsx";
 
 function App() {
   return (
@@ -34,13 +35,13 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/product-detail" element={<Pd />} />
       <Route path="/cart" element={<Cart />} />
-\
       <Route path="/order/:cartItemId" element={<Order />} />
       <Route path="/ordercomplete" element={<OrderComplete />} />
       <Route path="/onboarding-test" element={<OnboardingTestPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
       <Route path="/menu-list" element={<MenuListPage />} />
       <Route path="/order-history" element={<OrderHistory />} />
+      <Route path="/editpreference" element={<EditPreference />} />
     </Routes>
   );
 }
