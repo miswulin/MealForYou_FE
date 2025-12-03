@@ -200,10 +200,11 @@ h5 {
   display: flex;
   justify-content: space-between;
   margin-top: 24px;
+  gap: 10px;
 }
 .btnBox button {
   height: 40px;
-  min-width: 90px;
+  min-width: 100px;
   padding: 0 18px;
   justify-content: center;
   align-items: center;
