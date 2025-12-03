@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArrowLeft from '@mui/icons-material/ArrowBackIosNew';
+import { resetPassword, authService } from '../../api/auth';
 import styles from './FindPasswordPage.module.css';
 import lockIcon from '../../assets/lock.svg';
 import eyeIcon from '../../assets/eye.svg';
@@ -55,31 +56,77 @@ function FindPasswordPage() {
     }, 1000);
   };
 
-  const handleVerifyCode = () => {
-    setIsVerified(true);
-    clearInterval(timerRef.current);
+  const handleVerificationCodeChange = async (e) => {
+    const code = e.target.value.replace(/\D/g, '').slice(0, 4); // 숫자만 허용하고 4자리로 제한
+    setVerificationCode(code);
+    
+    // 4자리 입력 시 자동으로 인증 시도
+    if (code.length === 4) {
+      try {
+        await authService.verifyEmailCode(email, code);
+        setIsVerified(true);
+        clearInterval(timerRef.current);
+        // alert는 사용자 경험을 위해 제거하고, UI로만 표시
+      } catch (error) {
+        console.error('인증코드 검증 오류:', error);
+        // 오류 메시지는 UI에 표시되므로 alert 제거
+      }
+    }
   };
 
-  const handleSendVerification = () => {
-    setVerificationSent(true);
-    startTimer();
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!email) return '이메일을 입력해주세요.';
+    if (!regex.test(email)) return '유효한 이메일 주소를 입력해주세요.';
+    return '';
+  };
+
+  const handleSendVerification = async () => {
+    try {
+      const emailError = validateEmail(email);
+      if (emailError) {
+        alert(emailError);
+        return;
+      }
+
+      const response = await authService.sendVerificationCode(email);
+      startTimer();
+      alert('인증코드가 이메일로 전송되었습니다.');
+      
+      // In development, log the verification code to console
+      if (process.env.NODE_ENV === 'development' && response.devCode) {
+        console.log('Dev Verification Code:', response.devCode);
+      }
+    } catch (error) {
+      console.error('인증코드 전송 오류:', error);
+      alert(error.message || '인증코드 전송 중 오류가 발생했습니다.');
+    }
   };
 
   const [isPasswordReset, setIsPasswordReset] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Password reset submitted');
     
-    setIsPasswordReset(true);
+    if (passwordError || passwordMatchError) {
+      alert('입력 정보를 확인해주세요.');
+      return;
+    }
     
-    setEmail('');
-    setVerificationCode('');
-    setNewPassword('');
-    setConfirmPassword('');
+    if (!isVerified) {
+      alert('이메일 인증을 완료해주세요.');
+      return;
+    }
     
-    setIsPasswordReset(false);
-    navigate('/login');
+    try {
+      await resetPassword(email, newPassword, confirmPassword);
+      alert('비밀번호가 성공적으로 변경되었습니다.\n새 비밀번호로 로그인해주세요.');
+      navigate('/login');
+    } catch (error) {
+      console.error('비밀번호 재설정 오류:', error);
+      const errorMessage = error.message || '비밀번호 재설정 중 오류가 발생했습니다.';
+      alert(errorMessage);
+    }
   };
 
   const validatePassword = (password) => {
@@ -158,27 +205,44 @@ function FindPasswordPage() {
             </button>
           </div>
           <div className={styles.verificationWrapper}>
-            <input
-              type="text"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              placeholder="인증번호 입력"
-              disabled={!verificationSent}
-              className={styles.verificationInput}
-            />
-            {verificationSent && (
-              <div className={styles.verificationSuccessMessage}>
-                <img 
-                  src={correctIcon} 
-                  alt="인증완료" 
-                  className={styles.verificationSuccessIcon}
-                />
-                인증번호가 전송되었습니다.
-              </div>
-            )}
-            {verificationSent && timeLeft > 0 && (
+            <div className={styles.verificationInputContainer}>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={verificationCode}
+                onChange={handleVerificationCodeChange}
+                placeholder="인증번호 4자리 입력"
+                disabled={!verificationSent || isVerified}
+                className={`${styles.verificationInput} ${isVerified ? styles.verified : ''} ${
+                  verificationCode.length === 4 && !isVerified ? styles.verifying : ''
+                }`}
+                maxLength={4}
+              />
+              {isVerified && (
+                <div className={styles.verificationSuccessMessage}>
+                  <img 
+                    src={correctIcon} 
+                    alt="인증완료" 
+                    className={styles.verificationSuccessIcon}
+                  />
+                  인증이 완료되었습니다.
+                </div>
+              )}
+            </div>
+            {verificationSent && !isVerified && timeLeft > 0 && (
               <div className={styles.timerDisplay}>
                 {formatTime(timeLeft)}
+              </div>
+            )}
+            {verificationSent && !isVerified && timeLeft === 0 && (
+              <div className={styles.errorText}>
+                인증 시간이 만료되었습니다. 다시 시도해주세요.
+              </div>
+            )}
+            {verificationCode.length === 4 && !isVerified && (
+              <div className={styles.verifyingText}>
+                인증 중...
               </div>
             )}
           </div>
