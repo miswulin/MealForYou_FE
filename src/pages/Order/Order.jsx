@@ -212,21 +212,45 @@ export default function Order() {
       };
 
       try {
-        const finalOrderNumber =
-          await paymentService.completePayment(completeData);
+        const finalOrderId = await paymentService.completePayment(completeData);
+        const completeRes = await orderService.getOrderComplete(finalOrderId);
+
+        const parsePriceNumber = (priceStr) => {
+          if (!priceStr) return 0;
+          if (typeof priceStr === "number") return priceStr;
+          const numeric = String(priceStr).replace(/[^0-9]/g, "");
+          return Number(numeric) || 0;
+        };
+
+        const parseQuantityNumber = (qtyStr) => {
+          if (!qtyStr) return 1;
+          if (typeof qtyStr === "number") return qtyStr;
+          const numeric = String(qtyStr).replace(/[^0-9]/g, "");
+          return Number(numeric) || 1;
+        };
+
+        const orderForView = {
+          orderNumber: completeRes.orderNumber,
+          paidAt: completeRes.orderDate, // "2025-10-11 17:40:30" 이런 형식
+          items: (completeRes.items || []).map((item, idx) => ({
+            id: idx + 1,
+            name: item.dishName,
+            optionsSummary: item.optionDescription,
+            price: parsePriceNumber(item.price),
+            qty: parseQuantityNumber(item.count),
+            imageUrl: item.imageUrl, // 필요하면 사용
+          })),
+          deliveryFee: parsePriceNumber(completeRes.shippingFee),
+          shipping: {
+            name: completeRes.receiverName,
+            phone: completeRes.receiverPhone,
+            address: completeRes.address,
+          },
+          totalPrice: parsePriceNumber(completeRes.totalAmount),
+        };
 
         navigate("/ordercomplete", {
-          state: {
-            order: {
-              orderNumber: finalOrderNumber,
-              items: selectedItems,
-              deliveryFee,
-              shipping,
-              paidAt: new Date().toLocaleString("ko-KR"),
-              payMethod: payMethodLabel,
-              totalPrice: finalTotal,
-            },
-          },
+          state: { order: orderForView },
         });
       } catch (error) {
         console.error("결제 검증 및 주문 생성 실패:", error);
