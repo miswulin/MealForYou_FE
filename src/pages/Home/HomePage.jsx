@@ -11,18 +11,22 @@ import cartIcon from '../../assets/bag.svg';
 import personIcon from '../../assets/person.svg';
 import searchIcon from '../../assets/magnifyingglass.svg';
 import bibimbap from '../../assets/images/bibimbap.png';
-import bannerImg from '../../assets/images/banner_img.png';
+import bannerImg1 from '../../assets/images/banner_img.png';
+import bannerImg2 from '../../assets/images/삼겹살.png';
+import bannerImg3 from '../../assets/images/삼계탕.png';
+import bannerImg4 from '../../assets/images/잔치국수.png';
+import bannerImg5 from '../../assets/images/떡볶이.png';
 import rightArrowIcon from '../../assets/right_arrow.svg';
 
 // CSS Modules are now in HomePage.module.css
 
 // 배너 데이터
 const banners = [
-  { id: 1, title: '배너 1' },
-  { id: 2, title: '배너 2' },
-  { id: 3, title: '배너 3' },
-  { id: 4, title: '배너 4' },
-  { id: 5, title: '배너 5' },
+  { id: 1, title: '기본 배너', image: bannerImg1 },
+  { id: 2, title: '삼겹살', image: bannerImg2 },
+  { id: 3, title: '삼계탕', image: bannerImg3 },
+  { id: 4, title: '잔치국수', image: bannerImg4 },
+  { id: 5, title: '떡볶이', image: bannerImg5 },
 ];
 
 // API에서 받아온 데이터를 컴포넌트에서 사용하는 형식으로 변환
@@ -179,14 +183,30 @@ const HomePage = () => {
       <div className={styles.bannerContainer}>
         <div
           className={styles.bannerSlide}
-          style={{ transform: `translateX(-${currentBannerIndex * 100}%)` }}
+          style={{
+            transform: `translateX(-${currentBannerIndex * (100 / banners.length)}%)`,
+            width: `${banners.length * 100}%`
+          }}
         >
           {banners.map((banner, index) => (
-            <div key={banner.id} className={styles.banner}>
+            <div 
+              key={banner.id} 
+              className={styles.banner}
+              style={{
+                width: `${100 / banners.length}%`,
+                height: '100%',
+                flexShrink: 0
+              }}
+            >
               <img
-                src={bannerImg}
-                alt={`배너 ${banner.id}`}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                src={banner.image}
+                alt={banner.title}
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
               />
             </div>
           ))}
