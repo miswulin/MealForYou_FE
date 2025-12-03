@@ -397,10 +397,26 @@ export default function Cart() {
 
       {/* 하단 주문 버튼 */}
       <div className="cart-bottom-bar">
-        <button
+      <button
           className="cart-order-btn"
           disabled={checkedCount === 0}
-          onClick={() => navigate("/order")}
+          onClick={() => {
+            const selectedItemIds = items
+              .filter(item => item.checked)
+              .map(item => item.id);
+
+            if (selectedItemIds.length === 0) {
+              alert("선택된 상품이 없습니다.");
+              return;
+            }
+
+            navigate("/order", {
+              state: {
+                cartItemIds: selectedItemIds,
+                deliveryFee: shippingFee, 
+              },
+            });
+          }}
         >
           <span className="cart-order-count">{checkedCount}</span>
           <span className="cart-order-text">

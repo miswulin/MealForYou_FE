@@ -55,94 +55,67 @@ export default function Order() {
     address: "(01797) 서울 노원구 화랑로 621, 50주년기념관 306호",
   });
 
-  const initialSelectedItems =
-    state?.selectedItems && state.selectedItems.length > 0
-      ? state.selectedItems
-      : [
-          {
-            id: 1,
-            name: "밀키트 메뉴 이름",
-            price: 10000,
-            qty: 1,
-            optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
-          },
-          {
-            id: 2,
-            name: "밀키트 메뉴 이름",
-            price: 10000,
-            qty: 1,
-            optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
-          },
-        ];
+  
 
 
-        useEffect(() => {
-          // ① Cart → Order 플로우
-          if (state?.selectedItems && state.selectedItems.length > 0) {
-            setSelectedItems(state.selectedItems);
+  useEffect(() => {
+    // 1. 장바구니에서 넘어오는 cartItemIds 배열 또는 바로구매의 단일 cartItemId 추출
+    const itemIdsFromState = state?.cartItemIds || [];
+    const itemIdsToFetch = cartItemId ? [cartItemId] : itemIdsFromState; // ⭐️ 통합 처리 ⭐️
+
+    // 주문할 상품 ID가 없으면 함수 종료 (상품 0원 문제 해결)
+    if (itemIdsToFetch.length === 0) return;
+    
+    // API 호출 로직은 하나로 통합 (장바구니/바로구매 공통)
+    const fetchOrderSheet = async () => {
       
-            if (state.shipping) {
-              setShipping(state.shipping);
-            }
-            if (state.deliveryFee != null) {
-              setDeliveryFee(state.deliveryFee);
-            }
-            return; // 여기서 끝
-          }
-      
-          // ② 바로구매 플로우 (/order/:cartItemId)
-          if (!cartItemId) return;
-      
-          const fetchOrderSheet = async () => {
+        try {
+            // itemIdsToFetch는 단일 ID 배열이거나 복수 ID 배열이 됩니다.
+            const data = await orderService.getOrderSheet(itemIdsToFetch);
+            console.log("order sheet:", data);
             
-            try {
-              const itemIdsToFetch = [cartItemId];
-              const data = await orderService.getOrderSheet(itemIdsToFetch);
-              console.log("order sheet:", data);
-              // 백엔드 요구사항: /orders/sheet?items={cartItemId}
-
-              const orderItems = data.orderItems || [];
-              const totalProductPrice = parsePriceNumber(data.totalProductPrice); // 7700
-              const totalItemsCount = data.orderItems.length || 1;
-              
-      
-              // cartItems → 화면용 selectedItems 로 변환
-              const mappedItems = (data.orderItems || []).map((item) => {
-                const qtyNum = parseQuantityNumber(item.quantity);   
-                const basePriceNum = parsePriceNumber(
-                  item.basePrice ?? data.totalProductPrice
-                ); 
-               
-                //const itemUnitPrice = qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : 0;
-                return {
-                  id: item.cartItemId,
-                  cartItemId: item.cartItemId,
-                  name: item.dishName,
-                  price: basePriceNum,
-                  qty: qtyNum,
-                  optionsSummary: item.optionDescription,
-                };
-              });
-      
-              setSelectedItems(mappedItems);
-              setDeliveryFee(parsePriceNumber(data.shippingFee));
-      
-              // 백엔드에서 배송지 내려주면 여기에 매핑
-              if (data.receiverName || data.receiverPhone || data.address) {
-                setShipping((prev) => ({
-                  name: data.receiverName ?? prev.name,
-                  phone: data.receiverPhone ?? prev.phone,
-                  address: data.address ?? prev.address,
-                }));
-              }
-            } catch (error) {
-              console.error("주문서 조회 실패:", error);
-              alert(error.message || "주문 정보를 불러오지 못했습니다.");
+            // cartItems → 화면용 selectedItems 로 변환 
+            const mappedItems = (data.orderItems || []).map((item) => {
+              const qtyNum = parseQuantityNumber(item.quantity);   
+              const basePriceNum = parsePriceNumber(
+                item.basePrice ?? data.totalProductPrice
+              ); 
+             
+              return {
+                id: item.cartItemId,
+                cartItemId: item.cartItemId,
+                name: item.dishName,
+                price: basePriceNum,
+                qty: qtyNum,
+                optionsSummary: item.optionDescription,
+              };
+            });
+    
+            setSelectedItems(mappedItems);
+            setDeliveryFee(parsePriceNumber(data.shippingFee));
+    
+            // 백엔드에서 배송지 내려주면 여기에 매핑
+            if (data.receiverName || data.receiverPhone || data.address) {
+              setShipping((prev) => ({
+                name: data.receiverName ?? prev.name,
+                phone: data.receiverPhone ?? prev.phone,
+                address: data.address ?? prev.address,
+              }));
             }
-          };
-      
-          fetchOrderSheet();
-        }, [cartItemId, state]);
+          } catch (error) {
+            console.error("주문서 조회 실패:", error);
+            alert(error.message || "주문 정보를 불러오지 못했습니다.");
+          }
+    };
+
+    fetchOrderSheet();
+    
+    // 장바구니에서 넘어온 deliveryFee가 있다면 (state 유실 방지)
+    if (state?.deliveryFee != null) {
+        setDeliveryFee(parsePriceNumber(state.deliveryFee));
+    }
+
+}, [cartItemId, state]);
 
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
@@ -173,7 +146,7 @@ export default function Order() {
       return;
     }
 
-    const cartItemIds = selectedItems.map(item => item.id);
+    const cartItemIds = selectedItems.map(item => item.cartItemId);
     const payMethodLabel = PAYMENT_METHODS.find(m => m.id === selectedMethod)?.label || '카드 간편결제';
 
     const merchantUid = `ORD_${new Date().getTime()}`;
