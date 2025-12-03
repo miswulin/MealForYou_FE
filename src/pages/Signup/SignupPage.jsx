@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../api/auth';
 import styles from './SignupPage.module.css';
 import TermsModal from '../../components/TermsModal/TermsModal';
 import { SERVICE_TERMS, PRIVACY_POLICY, FINANCIAL_TERMS } from '../../constants/terms';
@@ -10,6 +9,7 @@ import eyeHideIcon from '../../assets/eye-hide-line.svg';
 import lockIcon from '../../assets/lock.svg';
 import correctIcon from '../../assets/correct.svg';
 import wrongIcon from '../../assets/wrong.svg';
+import { authService } from '../../api/auth';
 
 // Daum Postcode Script
 const loadDaumPostcodeScript = () => {
@@ -260,8 +260,6 @@ export default function SignupPage() {
     if (value.length === 4) {
       handleVerifyCode(value);
     } else if (isVerified) {
-      // 입력이 변경되면 인증 상태 초기화
-      setIsVerified(false);
     }
   };
 
@@ -272,7 +270,8 @@ export default function SignupPage() {
     if (!isFormValid) return;
     
     try {
-      const userData = {
+      // 최종 제출할 데이터 구조
+      const signupData = {
         email: formData.email,
         name: `${formData.lastName}${formData.firstName}`,
         password: password,
@@ -282,16 +281,12 @@ export default function SignupPage() {
           zipCode: address.postcode,
           roadAddress: address.roadAddress,
           detailAddress: address.detailAddress
-        }
+        },
+        healthTags: [] // 온보딩에서 채워질 빈 배열로 초기화
       };
-      
-      // 회원가입 API 호출
-      await authService.signup(userData);
-      
-      // 회원가입 성공 시 로그인 페이지로 리다이렉트
-      alert('회원가입이 완료되었습니다. 로그인해주세요.');
-      navigate('/login');
-      
+
+      // 온보딩 페이지로 이동 (회원가입 데이터 전달)
+      navigate('/onboarding-test', { state: { signupData } });
     } catch (error) {
       console.error('회원가입 실패:', error);
       alert(error.message || '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
