@@ -14,7 +14,6 @@ export default function OrderComplete() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // navigate("/order-complete", { state: { order: {...} } })
   const order =
     state?.order || {
       orderNumber: "2019380174198447",
@@ -45,12 +44,11 @@ export default function OrderComplete() {
   );
 
   const handleGoHome = () => {
-    navigate("/"); // 홈 경로는 프로젝트에 맞게 수정해도 돼
+    navigate("/");
   };
 
   const handleGoOrderHistory = () => {
-    // 나중에 주문내역 페이지 만들면 거기로 연결
-    // 예: navigate("/orders");
+    navigate("/order-history");
     console.log("주문 내역 보기 클릭");
   };
 
