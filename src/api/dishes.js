@@ -69,4 +69,23 @@ export const dishesService = {
       );
     }
   },
+
+  // 5) 관심 상품 목록 GET
+  getInterestList: async () => {
+    try {
+      const res = await apiClient.get(`${DISH_API_URL}/interest`);
+      // 응답 예시:
+      // [
+      //   { id, name, imageUrl, basePrice, interested }
+      // ]
+      return res.data;
+    } catch (error) {
+      console.error("관심 상품 목록 조회 오류:", error);
+      throw (
+        error.response?.data || {
+          message: "관심 상품 목록을 불러오는 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
 };
