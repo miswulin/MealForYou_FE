@@ -88,6 +88,9 @@
   height: 74px;
   background-color: #f4f5f6;
   border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  object-fit: cover;
 }
 .option {
   width: 205px;

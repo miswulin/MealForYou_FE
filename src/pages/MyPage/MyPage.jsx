@@ -10,6 +10,7 @@ import { authService } from "../../api/auth";
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const API_BASE_URL = "https://mealforyou.store";
 
   // 프로필 정보 상태
   const [profile, setProfile] = useState({
@@ -149,13 +150,9 @@ export default function MyPage() {
             </div>
             {latestOrder.items.map((item, idx) => (
               <div key={idx} className={styles.item}>
-                <div
+                <img
+                  src={`${API_BASE_URL}${item.imageUrl}`}
                   className={styles.imgBox}
-                  style={{
-                    backgroundImage: `url(${item.imageUrl})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
                 />
                 <div className={styles.textBox}>
                   <div>
