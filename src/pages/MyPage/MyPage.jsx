@@ -120,24 +120,22 @@ export default function MyPage() {
           <p onClick={() => navigate("/editaddress")}>배송지 관리</p>
         </div>
         <hr className={styles.hr} />
-        <div className={styles.container}>
+        <div
+          className={styles.container}
+          onClick={() => navigate("/editpreference")}
+          style={{ cursor: "pointer" }}
+        >
           <h3>선호 식단 유형 수정</h3>
-          <img
-            src={arrow}
-            alt="arrow Icon"
-            onClick={() => navigate("/onboarding-test")}
-            style={{ cursor: "pointer" }}
-          />
+          <img src={arrow} alt="arrow Icon" />
         </div>
         <hr className={styles.hr} />
-        <div className={styles.container}>
+        <div
+          className={styles.container}
+          onClick={() => navigate("/order-history")}
+          style={{ cursor: "pointer" }}
+        >
           <h3>주문내역</h3>
-          <img
-            src={arrow}
-            alt="arrow Icon"
-            onClick={() => navigate("/order-history")}
-            style={{ cursor: "pointer" }}
-          />
+          <img src={arrow} alt="arrow Icon" />
         </div>
         <hr className={styles.hr2} />
         {/* 최근 주문내역 */}
@@ -162,10 +160,10 @@ export default function MyPage() {
                 <div className={styles.textBox}>
                   <div>
                     <p>{item.dishName}</p>
-                    <p className={styles.quantity}>{item.count}개</p>
+                    <p className={styles.quantity}>{item.count}</p>
                   </div>
                   <p className={styles.option}>{item.optionDescription}</p>
-                  <p className={styles.price}>{item.price}원</p>
+                  <p className={styles.price}>{item.price}</p>
                 </div>
               </div>
             ))}

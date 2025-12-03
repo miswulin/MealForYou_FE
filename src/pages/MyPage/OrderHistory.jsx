@@ -95,7 +95,7 @@ export default function OrderHistory() {
         showPerson={false}
         className={styles.header}
       />
-      <section>
+      <section className={styles.section}>
         {orders.map((order, idx) => (
           <React.Fragment key={order.orderId}>
             <div className={styles.wrapper}>

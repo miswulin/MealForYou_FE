@@ -11,6 +11,9 @@ h3 {
   max-width: 390px;
   box-sizing: border-box;
 }
+.profile {
+  margin-top: 70px;
+}
 .profile h3 {
   margin-top: 15px;
   margin-bottom: 10px;
@@ -24,6 +27,7 @@ h3 {
   flex: 1 0 0;
   border: none;
   margin: 34px 0px;
+  background-color: #f4f5f6;
 }
 /* 입력폼 */
 form {
