@@ -61,6 +61,7 @@ const dummyOrders = [
 export default function OrderHistory() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const API_BASE_URL = "https://mealforyou.store";
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -124,11 +125,10 @@ export default function OrderHistory() {
                 <div className={styles.itemBox}>
                   {order.items.map((item, i) => (
                     <div key={i} className={styles.item}>
-                      <div
+                      <img
+                        src={`${API_BASE_URL}${item.imageUrl}`}
                         className={styles.imgBox}
-                        style={{ backgroundImage: `url(${item.imageUrl})` }}
-                      ></div>
-
+                      />
                       <div className={styles.textBox}>
                         <div>
                           <p>{item.dishName}</p>
