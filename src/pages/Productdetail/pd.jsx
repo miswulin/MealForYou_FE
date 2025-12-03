@@ -31,10 +31,10 @@ export default function Pd() {
   const swipeThreshold = 50;
 
   useEffect(() => {
-    if (images.length <= 1) return;
+    if (sliderImages.length <= 1) return;
 
     slideInterval.current = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % images.length);
+      setCurrentIndex(prev => (prev + 1) % sliderImages.length);
     }, 2000); 
 
     return () => {
@@ -42,14 +42,14 @@ export default function Pd() {
         clearInterval(slideInterval.current);
       }
     };
-  }, [images]);
+  }, [sliderImages]);
 
   const resetAutoSlide = () => {
     if (slideInterval.current) {
       clearInterval(slideInterval.current);
     }
 
-    if (images.length > 1) {
+    if (sliderImages.length > 1) {
       slideInterval.current = setInterval(() => {
         setCurrentIndex(prev => (prev + 1) % images.length);
       }, 3000);
@@ -77,7 +77,7 @@ export default function Pd() {
     let newIndex = currentIndex;
 
     if (touchStart.current > touchEnd.current) {
-      newIndex = Math.min(images.length - 1, currentIndex + 1);
+      newIndex = Math.min(sliderImages.length - 1, currentIndex + 1);
     }
     if (touchStart.current < touchEnd.current) {
       newIndex = Math.max(0, currentIndex - 1);
@@ -120,7 +120,13 @@ export default function Pd() {
   };
 
   // 상세 정보 불러오기 (기존 코드 유지)
+
   useEffect(() => {
+    dishesService.getDishDetail(dishId).then((data) => {
+      if (data.dishImages && data.dishImages.length > 0) {
+        setImages(data.dishImages.map(img => img.url));  // ✅ URL 배열로 변환
+      }
+    });
     const fetchDetail = async () => {
       try {
         const data = await dishesService.getDishDetail(dishId);
