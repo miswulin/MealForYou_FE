@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header";
 import { orderService } from "../../api/order";
+import { paymentService } from "../../api/payment";
 
 import "./Order.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -150,6 +151,18 @@ export default function Order() {
 
   const finalTotal = productsTotal + deliveryFee;
 
+  const getPaymentType = (methodId) => {
+    switch(methodId) {
+        case 'card-easy': return 'QUICK_CARD';
+        case 'account-easy': return 'QUICK_ACCOUNT';
+        case 'normal': return 'NORMALPAY';
+        case 'naverpay': return 'NAVER_PAY';
+        case 'kakaopay': return 'KAKAO_PAY';
+        case 'tosspay': return 'TOSS_PAY';
+        default: return 'QUICK_CARD'; 
+        }
+    };
+
   const handlePay = async () => {
 
     if (!shipping.address) {
@@ -160,21 +173,22 @@ export default function Order() {
     const cartItemIds = selectedItems.map(item => item.id);
     const payMethodLabel = PAYMENT_METHODS.find(m => m.id === selectedMethod)?.label || '카드 간편결제';
 
-    const merchantId = "imp00000000";
+    const merchantUid = `ORD_${new Date().getTime()}`;
+    const merchantId = "imp36122872";
     const pgChannel = "html5_inicis";
     const orderName = selectedItems[0]?.name + (selectedItems.length > 1 ? ` 외 ${selectedItems.length - 1}개` : '');
 
     const payParams = {
       pg: pgChannel,
       pay_method: 'card', 
-      merchant_uid: `ORD_${new Date().getTime()}`, 
+      merchant_uid: merchantUid, 
       name: orderName,
       amount: finalTotal,
       buyer_email: 'test@meal.co.kr',
       buyer_name: shipping.name,
       buyer_tel: shipping.phone,
       buyer_addr: shipping.address,
-      m_redirect_url: "",
+      m_redirect_url: window.location.origin + "/ordercomplete",
   };
 
     // 2. 아임포트 팝업 호출
@@ -192,13 +206,13 @@ export default function Order() {
               };
               
               try {
-                  const orderNumber = await paymentService.completePayment(completeData);
+                  const finalOrderNumber = await paymentService.completePayment(completeData);
                   
                   // 3. 주문 완료 페이지로 이동
                   navigate("/ordercomplete", {
                       state: {
                           order: {
-                              orderNumber: orderNumber,
+                              orderNumber: finalOrderNumber,
                               items: selectedItems,
                               deliveryFee,
                               shipping,
@@ -224,51 +238,6 @@ export default function Order() {
       alert("결제 모듈 (아임포트) 로딩에 실패했습니다.");
   }
   
-
-  const getPaymentType = (methodId) => {
-      switch(methodId) {
-          case 'card-easy': return 'QUICK_CARD';
-          case 'account-easy': return 'QUICK_ACCOUNT';
-          case 'normal': return 'NORMALPAY';
-          case 'naverpay': return 'NAVER_PAY';
-          case 'kakaopay': return 'KAKAO_PAY';
-          case 'tosspay': return 'TOSS_PAY';
-          default: return 'QUICK_CARD'; 
-          }
-      };
-    const orderData = {
-        cartItemIds: cartItemIds,
-        paymentType: getPaymentType(selectedMethod),
-        receiverName: shipping.name,
-        receiverPhone: shipping.phone,
-        address: shipping.address,
-    };
-
-    // 2. 주문 생성 (결제) API 호출
-    try {
-      const orderNumberFromApi = await orderService.createOrder(orderData);
-      
-      // 3. 성공 처리: 주문 완료 페이지로 이동
-      navigate("/ordercomplete", {
-        state: {
-          order: {
-            // 서버에서 받은 값 사용 (서버 응답이 주문번호일 경우)
-            // NOTE: 서버 응답이 '0' 등 의미없는 값이면 별도 처리 필요
-            orderNumber: orderNumberFromApi !== '0' ? orderNumberFromApi : Date.now().toString(), 
-            items: selectedItems,
-            deliveryFee,
-            shipping,
-            paidAt: new Date().toLocaleString("ko-KR"),
-            payMethod: selectedMethod,
-            totalPrice: finalTotal,
-          },
-        },
-      });
-      
-      } catch (error) {
-          console.error("결제 실패:", error);
-          alert('결제 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      }
     };
 
 
