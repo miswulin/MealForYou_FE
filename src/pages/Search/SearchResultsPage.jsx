@@ -226,7 +226,7 @@ const SearchResultsPage = () => {
                       src={item.imageUrl || bibimbap} 
                       alt={item.name} 
                       className={styles.productImage} 
-                      onClick={() => navigate(`/product-detail/${dish.id}`)}
+                      onClick={() => navigate(`/product-detail/${item.id}`)}
                     />
                     <button 
                       className={styles.heartButton}
