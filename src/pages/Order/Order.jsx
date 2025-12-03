@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/Header";
 import { orderService } from "../../api/order";
+import { paymentService } from "../../api/payment";
 
 import "./Order.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -96,23 +97,28 @@ export default function Order() {
             
             try {
               const itemIdsToFetch = [cartItemId];
-              // 백엔드 요구사항: /orders/sheet?items={cartItemId}
               const data = await orderService.getOrderSheet(itemIdsToFetch);
               console.log("order sheet:", data);
+              // 백엔드 요구사항: /orders/sheet?items={cartItemId}
+
+              const orderItems = data.orderItems || [];
+              const totalProductPrice = parsePriceNumber(data.totalProductPrice); // 7700
+              const totalItemsCount = data.orderItems.length || 1;
+              
       
               // cartItems → 화면용 selectedItems 로 변환
               const mappedItems = (data.orderItems || []).map((item) => {
-                const qtyNum = parseQuantityNumber(item.quantity);      // "2개" → 2
-                const totalPriceNum = parsePriceNumber(item.totalPrice); // "20,000원" → 20000
-                const unitPrice =
-                  qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : totalPriceNum;
-      
+                const qtyNum = parseQuantityNumber(item.quantity);   
+                const basePriceNum = parsePriceNumber(
+                  item.basePrice ?? data.totalProductPrice
+                ); 
+               
+                //const itemUnitPrice = qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : 0;
                 return {
                   id: item.cartItemId,
                   name: item.dishName,
-                  price: unitPrice,
+                  price: basePriceNum,
                   qty: qtyNum,
-                  // ✅ 여기로 옵션 설명 넣어줌 → 주문 상품 리스트에서 그대로 사용
                   optionsSummary: item.optionDescription,
                 };
               });
@@ -147,8 +153,19 @@ export default function Order() {
 
   const finalTotal = productsTotal + deliveryFee;
 
+  const getPaymentType = (methodId) => {
+    switch(methodId) {
+        case 'card-easy': return 'QUICK_CARD';
+        case 'account-easy': return 'QUICK_ACCOUNT';
+        case 'normal': return 'NORMALPAY';
+        case 'naverpay': return 'NAVER_PAY';
+        case 'kakaopay': return 'KAKAO_PAY';
+        case 'tosspay': return 'TOSS_PAY';
+        default: return 'QUICK_CARD'; 
+        }
+    };
+
   const handlePay = async () => {
-    const orderNumber = Date.now().toString();
 
     if (!shipping.address) {
       alert("배송지 정보가 유효하지 않습니다.");
@@ -156,52 +173,72 @@ export default function Order() {
     }
 
     const cartItemIds = selectedItems.map(item => item.id);
+    const payMethodLabel = PAYMENT_METHODS.find(m => m.id === selectedMethod)?.label || '카드 간편결제';
 
-    const getPaymentType = (methodId) => {
-      switch(methodId) {
-          case 'card-easy': return 'QUICK_CARD';
-          case 'account-easy': return 'QUICK_ACCOUNT';
-          case 'normal': return 'NORMALPAY';
-          case 'naverpay': return 'NAVER_PAY';
-          case 'kakaopay': return 'KAKAO_PAY';
-          case 'tosspay': return 'TOSS_PAY';
-          default: return 'QUICK_CARD'; 
-          }
-      };
-    const orderData = {
+    const merchantUid = `ORD_${new Date().getTime()}`;
+    const merchantId = "imp36122872";
+    const pgChannel = "html5_inicis.INIpayTest";
+    const orderName = selectedItems[0]?.name + (selectedItems.length > 1 ? ` 외 ${selectedItems.length - 1}개` : '');
+
+    const payParams = {
+      pg: pgChannel,
+      pay_method: 'card', 
+      merchant_uid: merchantUid, 
+      name: orderName,
+      amount: finalTotal,
+      buyer_email: 'test@meal.co.kr',
+      buyer_name: shipping.name,
+      buyer_tel: shipping.phone,
+      buyer_addr: shipping.address,
+      m_redirect_url: window.location.origin + "/ordercomplete",
+  };
+
+    // 2. 아임포트 팝업 호출
+    const { IMP } = window;
+  if (!IMP) {
+    alert("결제 모듈 (아임포트) 로딩에 실패했습니다.");
+    return;
+  }
+
+  IMP.init(merchantId);
+
+  IMP.request_pay(payParams, async function (rsp) {
+    if (rsp.success) {
+      const completeData = {
+        impUid: rsp.imp_uid,
+        merchantUid: rsp.merchant_uid,
         cartItemIds: cartItemIds,
         paymentType: getPaymentType(selectedMethod),
-        receiverName: shipping.name,
-        receiverPhone: shipping.phone,
-        address: shipping.address,
-    };
+      };
 
-    // 2. 주문 생성 (결제) API 호출
-    try {
-      const orderNumberFromApi = await orderService.createOrder(orderData);
-      
-      // 3. 성공 처리: 주문 완료 페이지로 이동
-      navigate("/ordercomplete", {
-        state: {
-          order: {
-            // 서버에서 받은 값 사용 (서버 응답이 주문번호일 경우)
-            // NOTE: 서버 응답이 '0' 등 의미없는 값이면 별도 처리 필요
-            orderNumber: orderNumberFromApi !== '0' ? orderNumberFromApi : Date.now().toString(), 
-            items: selectedItems,
-            deliveryFee,
-            shipping,
-            paidAt: new Date().toLocaleString("ko-KR"),
-            payMethod: selectedMethod,
-            totalPrice: finalTotal,
+      try {
+        const finalOrderNumber =
+          await paymentService.completePayment(completeData);
+
+        navigate("/ordercomplete", {
+          state: {
+            order: {
+              orderNumber: finalOrderNumber,
+              items: selectedItems,
+              deliveryFee,
+              shipping,
+              paidAt: new Date().toLocaleString("ko-KR"),
+              payMethod: payMethodLabel,
+              totalPrice: finalTotal,
+            },
           },
-        },
-      });
-      
+        });
       } catch (error) {
-          console.error("결제 실패:", error);
-          alert('결제 처리 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        console.error("결제 검증 및 주문 생성 실패:", error);
+        alert(
+          `결제는 되었으나 주문 생성에 실패했습니다. 고객센터에 문의해주세요. (PG사 주문번호: ${rsp.merchant_uid})`
+        );
       }
-    };
+    } else {
+      alert(`결제에 실패하였습니다. 에러 내용: ${rsp.error_msg}`);
+    }
+  });
+};
 
 
   return (
