@@ -8,19 +8,6 @@ import { memberInfo } from "../../api/member";
 export default function EditInfo() {
   const navigate = useNavigate();
 
-  // // 임시 더미데이터
-  // const [form, setForm] = useState({
-  //   lastname: "김",
-  //   firstname: "멋사",
-  //   phone1: "010",
-  //   phone2: "1234",
-  //   phone3: "5678",
-  //   email: "likelion13th@swu.ac.kr",
-  // });
-  // const [errors, setErrors] = useState({});
-  // // UI용 handleChange — 동작은 X, 에러 방지
-  // const handleChange = (e) => {};
-
   // 원본 폼(백에서 가져온 값)
   const [originalForm, setOriginalForm] = useState(null);
 
@@ -179,6 +166,7 @@ export default function EditInfo() {
         showHeart={false}
         showCart={false}
         showPerson={false}
+        className={styles.header}
       />
       <section>
         <div className={styles.profile}>

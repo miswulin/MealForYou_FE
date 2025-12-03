@@ -183,6 +183,7 @@ export default function EditAddress() {
         showHeart={false}
         showCart={false}
         showPerson={false}
+        className={styles.header}
       />
 
       {/* 현재 주소정보 */}

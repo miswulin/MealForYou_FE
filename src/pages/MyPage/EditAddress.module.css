@@ -1,3 +1,10 @@
+.header {
+  top: 0;
+  width: 100%;
+  position: fixed;
+  max-width: 390px;
+  box-sizing: border-box;
+}
 .section1 {
   width: 100%;
   display: flex;
