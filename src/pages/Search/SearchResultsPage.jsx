@@ -30,18 +30,81 @@ const SearchResultsPage = () => {
     { value: 'low_price', label: '저가순' },
   ];
 
-  const toggleLike = async (id) => {
+  // 쿠키에서 CSRF 토큰 가져오는 함수
+  const getCsrfToken = () => {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [key, value] = cookie.trim().split('=');
+      if (key === name) {
+        return value;
+      }
+    }
+    return null;
+  };
+
+  // localStorage에서 accessToken 가져오는 함수
+  const getAccessToken = () => {
     try {
-      // TODO: Implement like API call when available
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData.accessToken;
+      }
+    } catch (error) {
+      console.error('토큰 파싱 오류:', error);
+    }
+    return null;
+  };
+
+  const toggleLike = async (id) => {
+    const csrfToken = getCsrfToken();
+    const accessToken = getAccessToken();
+    
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      };
+      
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      }
+      
+      const response = await fetch(`/api/dishes/${id}/interest`, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert('로그인이 필요한 서비스입니다.');
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+        throw new Error('관심 상품 등록/해제에 실패했습니다.');
+      }
+
+      const isLiked = await response.json();
+
       setSearchResults(prevItems => 
         prevItems.map(item => 
           item.id === id 
-            ? { ...item, interested: !item.interested } 
+            ? { ...item, interested: isLiked } 
             : item
         )
       );
     } catch (err) {
-      console.error('찜하기 오류:', err);
+      console.error('관심 상품 등록/해제 중 오류:', err);
+      alert('관심 상품 등록/해제에 실패했습니다. 다시 시도해주세요.');
     }
   };
 

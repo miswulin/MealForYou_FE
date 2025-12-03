@@ -115,15 +115,90 @@ const HomePage = () => {
     }
   };
 
-  const toggleLike = (category, id) => {
-    setProducts(prev => ({
-      ...prev,
-      [category]: prev[category].map(product =>
-        product.id === id
-          ? { ...product, isLiked: !product.isLiked }
-          : product
-      )
-    }));
+  // 쿠키에서 CSRF 토큰 가져오는 함수
+  const getCsrfToken = () => {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [key, value] = cookie.trim().split('=');
+      if (key === name) {
+        return value;
+      }
+    }
+    return null;
+  };
+
+  // localStorage에서 accessToken 가져오는 함수
+  const getAccessToken = () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData.accessToken;
+      }
+    } catch (error) {
+      console.error('토큰 파싱 오류:', error);
+    }
+    return null;
+  };
+
+  const toggleLike = async (category, id) => {
+    const csrfToken = getCsrfToken();
+    const accessToken = getAccessToken();
+    
+    console.log('CSRF 토큰:', csrfToken);
+    console.log('Access 토큰:', accessToken);
+    
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      };
+      
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      }
+      
+      const response = await fetch(`/api/dishes/${id}/interest`, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+      });
+
+      console.log('응답 상태:', response.status);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          const errorText = await response.text();
+          console.log('401 에러 응답:', errorText);
+          alert('로그인이 필요한 서비스입니다.');
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+        throw new Error('관심 상품 등록/해제에 실패했습니다.');
+      }
+
+      const isLiked = await response.json();
+
+      setProducts(prev => ({
+        ...prev,
+        [category]: prev[category].map(product =>
+          product.id === id
+            ? { ...product, isLiked: isLiked }
+            : product
+        )
+      }));
+    } catch (err) {
+      console.error('관심 상품 등록/해제 중 오류:', err);
+      alert('관심 상품 등록/해제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const calculateSalePrice = (originalPrice, discountRate) => {
