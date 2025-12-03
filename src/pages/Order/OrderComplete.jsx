@@ -15,46 +15,26 @@ export default function OrderComplete() {
   const { state } = useLocation();
 
   const fallbackOrder = {
-    orderNumber: "2019380174198447",
-    paidAt: "2025-10-11 17:40:30",
+    orderNumber: "380174198447",
+    paidAt: "2025-12-03 21:40:30",
     items: [
       {
         id: 1,
-        name: "밀키트 메뉴 이름",
-        optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g) 1개…",
-        price: 10000,
+        name: "순두부 찌개",
+        optionsSummary: "순두부 1봉 1개, 팽이버섯 1봉 1개, 애호박 1개, 대파 1뿌리",
+        price: 6700,
         qty: 1,
       },
     ],
     deliveryFee: 2500,
     shipping: {
-      name: "김멋사",
-      phone: "010-0000-0000",
+      name: "김슈니",
+      phone: "010-1234-5677",
       address: "[01797]서울특별시 노원구 화랑로 621(50주년기념관 306호)",
     },
   };
 
-  const order =
-    state?.order || {
-      orderNumber: "2019380174198447",
-      paidAt: "2025-10-11 17:40:30",
-      items: [
-        {
-          id: 1,
-          name: "밀키트 메뉴 이름",
-          optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g) 1개…",
-          price: 10000,
-          qty: 1,
-        },
-      ],
-      deliveryFee: 2500,
-      shipping: {
-        name: "김멋사",
-        phone: "010-0000-0000",
-        address:
-          "[01797]서울특별시 노원구 화랑로 621(50주년기념관 306호)",
-      },
-    };
+  const order = fallbackOrder;
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
 
