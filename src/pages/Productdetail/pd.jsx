@@ -20,7 +20,8 @@ export default function Pd() {
   const { dishId } = useParams()
 
   // 상단 이미지 (기존 코드 유지)
-  const [images, setImages] = useState([bibimbap, bibimbap2]);
+  const [sliderImages, setSliderImages] = useState([]);
+  const [detailImages, setDetailImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const slideInterval = useRef(null);
@@ -132,14 +133,24 @@ export default function Pd() {
 
         // 2) 상세 이미지 (기존 코드 유지)
         const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+        
         if (data.dishImages && data.dishImages.length > 0) {
-          setImages(
-            data.dishImages.map((img) =>
-              img.imgUrl.startsWith("http")
-                ? img.imgUrl
-                : `${baseUrl}${img.imgUrl}`
-            )
-          );
+            
+            const allImages = data.dishImages.map((img) =>
+                img.imgUrl.startsWith("http")
+                  ? img.imgUrl
+                  : `${baseUrl}${img.imgUrl}`
+            );
+
+            // 첫 번째 이미지를 슬라이더 이미지로 설정
+            setSliderImages(allImages.slice(0, 1)); // ⭐️ 첫 번째 이미지만 슬라이더에 사용
+            
+            // 나머지 이미지들을 상세 이미지로 설정
+            setDetailImages(allImages.slice(1)); // ⭐️ 두 번째 이미지부터 상세 이미지로 사용
+
+        } else {
+            setSliderImages([]);
+            setDetailImages([]);
         }
 
         // 3) 추천 옵션(칩) (기존 코드 유지)
