@@ -23,6 +23,7 @@ export default function Pd() {
   const [sliderImages, setSliderImages] = useState([]);
   const [detailImages, setDetailImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [images, setImages] = useState([]);
 
   const slideInterval = useRef(null);
   const touchStart = useRef(0);
