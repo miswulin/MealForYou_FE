@@ -1,6 +1,5 @@
-// src/pages/Pd/Pd.jsx (예시 경로에 맞춰 수정)
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate /*, useParams */ } from "react-router-dom";
+import { useNavigate , useParams } from "react-router-dom";
 
 import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
