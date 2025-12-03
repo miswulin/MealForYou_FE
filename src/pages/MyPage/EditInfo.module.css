@@ -4,6 +4,13 @@ h3 {
   padding: 0;
   letter-spacing: -1px;
 }
+.header {
+  top: 0;
+  width: 100%;
+  position: fixed;
+  max-width: 390px;
+  box-sizing: border-box;
+}
 .profile h3 {
   margin-top: 15px;
   margin-bottom: 10px;

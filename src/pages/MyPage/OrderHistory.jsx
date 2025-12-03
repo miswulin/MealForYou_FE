@@ -93,6 +93,7 @@ export default function OrderHistory() {
         showHeart={false}
         showCart={false}
         showPerson={false}
+        className={styles.header}
       />
       <section>
         {orders.map((order, idx) => (
