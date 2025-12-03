@@ -21,27 +21,105 @@ const SearchResultsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const location = useLocation();
-  
-  const sortOptions = [
-    { value: 'default', label: '기본순' },
-    { value: 'popular', label: '인기순' },
-    { value: 'recommend', label: '추천순' },
-    { value: 'new', label: '최신순' },
-    { value: 'low_price', label: '저가순' },
-  ];
+
+  // 쿠키에서 CSRF 토큰 가져오는 함수
+  const getCsrfToken = () => {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [key, value] = cookie.trim().split('=');
+      if (key === name) {
+        return value;
+      }
+    }
+    return null;
+  };
+
+  // localStorage에서 accessToken 가져오는 함수
+  const getAccessToken = () => {
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData.accessToken;
+      }
+    } catch (error) {
+      console.error('토큰 파싱 오류:', error);
+    }
+    return null;
+  };
+
+  // 토큰 갱신 함수
+  const refreshToken = async () => {
+    try {
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('토큰 갱신 실패');
+      }
+      
+      const data = await response.json();
+      localStorage.setItem('user', JSON.stringify(data));
+      return data.accessToken;
+    } catch (error) {
+      console.error('토큰 갱신 오류:', error);
+      localStorage.removeItem('user');
+      navigate('/login');
+      return null;
+    }
+  };
 
   const toggleLike = async (id) => {
+    const csrfToken = getCsrfToken();
+    const accessToken = getAccessToken();
+    
+    if (!accessToken) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+    
     try {
-      // TODO: Implement like API call when available
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      };
+      
+      if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+      }
+      
+      const response = await fetch(`/api/dishes/${id}/interest`, {
+        method: 'POST',
+        headers: headers,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert('로그인이 필요한 서비스입니다.');
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+        throw new Error('관심 상품 등록/해제에 실패했습니다.');
+      }
+
+      const isLiked = await response.json();
+
       setSearchResults(prevItems => 
         prevItems.map(item => 
           item.id === id 
-            ? { ...item, interested: !item.interested } 
+            ? { ...item, interested: isLiked } 
             : item
         )
       );
     } catch (err) {
-      console.error('찜하기 오류:', err);
+      console.error('관심 상품 등록/해제 중 오류:', err);
+      alert('관심 상품 등록/해제에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -58,7 +136,15 @@ const SearchResultsPage = () => {
     const option = sortOptions.find(opt => opt.value === value);
     return option ? option.label : '기본순';
   };
-  
+
+  const sortOptions = [
+    { value: 'default', label: '기본순' },
+    { value: 'popular', label: '인기순' },
+    { value: 'recommend', label: '추천순' },
+    { value: 'new', label: '최신순' },
+    { value: 'low_price', label: '저가순' },
+  ];
+
   // 검색어가 변경될 때마다 검색 실행
   useEffect(() => {
     const searchKeyword = location.state?.searchQuery || '';
@@ -81,26 +167,51 @@ const SearchResultsPage = () => {
     setError(null);
     
     try {
-      const response = await fetch(`/api/dishes/search?keyword=${encodeURIComponent(keyword.trim())}&sort=${selectedSort}`, {
+      let accessToken = getAccessToken();
+      let headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      let response = await fetch(`/api/dishes/search?keyword=${encodeURIComponent(keyword.trim())}&sort=${selectedSort}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'  // 쿠키를 포함한 요청
+        headers: headers,
+        credentials: 'include'
       });
+
+      // 토큰 만료 시 갱신 시도
+      if (response.status === 401) {
+        const newToken = await refreshToken();
+        if (newToken) {
+          headers['Authorization'] = `Bearer ${newToken}`;
+          response = await fetch(`/api/dishes/search?keyword=${encodeURIComponent(keyword.trim())}&sort=${selectedSort}`, {
+            method: 'GET',
+            headers: headers,
+            credentials: 'include'
+          });
+        } else {
+          throw new Error('인증 실패');
+        }
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      setSearchResults(Array.isArray(data) ? data : []);
+      // API 응답이 배열이 아닌 경우를 대비해 처리
+      const results = Array.isArray(data) ? data : [];
+      setSearchResults(results);
     } catch (err) {
       console.error('검색 중 오류가 발생했습니다:', err);
       
-      // CORS 오류인 경우
       if (err.code === 'ERR_NETWORK' || err.response?.status === 403) {
         setError('서버에 접근할 수 없습니다. 나중에 다시 시도해주세요.');
+      } else if (err.message === '인증 실패') {
+        setError('인증에 실패했습니다. 다시 로그인해주세요.');
       } else {
         setError('검색 중 오류가 발생했습니다. 다시 시도해주세요.');
       }

@@ -5,6 +5,7 @@ import Header from "../../components/Header";
 import BottomSheet from "./BottomSheet";
 import CartModal from "./CartModal";
 import { dishesService } from "../../api/dishes";
+import { cartService } from "../../api/cart";
 
 import "./pd.css";
 import bibimbap from "../../assets/images/bibimbap.png";
@@ -19,8 +20,10 @@ export default function Pd() {
   const { dishId } = useParams()
 
   // 상단 이미지 (기존 코드 유지)
-  const [images, setImages] = useState([bibimbap, bibimbap2]);
+  const [sliderImages, setSliderImages] = useState([]);
+  const [detailImages, setDetailImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [images, setImages] = useState([]);
 
   const slideInterval = useRef(null);
   const touchStart = useRef(0);
@@ -28,10 +31,10 @@ export default function Pd() {
   const swipeThreshold = 50;
 
   useEffect(() => {
-    if (images.length <= 1) return;
+    if (sliderImages.length <= 1) return;
 
     slideInterval.current = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % images.length);
+      setCurrentIndex(prev => (prev + 1) % sliderImages.length);
     }, 2000); 
 
     return () => {
@@ -39,14 +42,14 @@ export default function Pd() {
         clearInterval(slideInterval.current);
       }
     };
-  }, [images]);
+  }, [sliderImages]);
 
   const resetAutoSlide = () => {
     if (slideInterval.current) {
       clearInterval(slideInterval.current);
     }
 
-    if (images.length > 1) {
+    if (sliderImages.length > 1) {
       slideInterval.current = setInterval(() => {
         setCurrentIndex(prev => (prev + 1) % images.length);
       }, 3000);
@@ -74,7 +77,7 @@ export default function Pd() {
     let newIndex = currentIndex;
 
     if (touchStart.current > touchEnd.current) {
-      newIndex = Math.min(images.length - 1, currentIndex + 1);
+      newIndex = Math.min(sliderImages.length - 1, currentIndex + 1);
     }
     if (touchStart.current < touchEnd.current) {
       newIndex = Math.max(0, currentIndex - 1);
@@ -117,7 +120,13 @@ export default function Pd() {
   };
 
   // 상세 정보 불러오기 (기존 코드 유지)
+
   useEffect(() => {
+    dishesService.getDishDetail(dishId).then((data) => {
+      if (data.dishImages && data.dishImages.length > 0) {
+        setImages(data.dishImages.map(img => img.url));  // ✅ URL 배열로 변환
+      }
+    });
     const fetchDetail = async () => {
       try {
         const data = await dishesService.getDishDetail(dishId);
@@ -131,14 +140,24 @@ export default function Pd() {
 
         // 2) 상세 이미지 (기존 코드 유지)
         const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+        
         if (data.dishImages && data.dishImages.length > 0) {
-          setImages(
-            data.dishImages.map((img) =>
-              img.imgUrl.startsWith("http")
-                ? img.imgUrl
-                : `${baseUrl}${img.imgUrl}`
-            )
-          );
+            
+            const allImages = data.dishImages.map((img) =>
+                img.imgUrl.startsWith("http")
+                  ? img.imgUrl
+                  : `${baseUrl}${img.imgUrl}`
+            );
+
+            // 첫 번째 이미지를 슬라이더 이미지로 설정
+            setSliderImages(allImages.slice(0, 1)); // ⭐️ 첫 번째 이미지만 슬라이더에 사용
+            
+            // 나머지 이미지들을 상세 이미지로 설정
+            setDetailImages(allImages.slice(1)); // ⭐️ 두 번째 이미지부터 상세 이미지로 사용
+
+        } else {
+            setSliderImages([]);
+            setDetailImages([]);
         }
 
         // 3) 추천 옵션(칩) (기존 코드 유지)
@@ -320,7 +339,7 @@ export default function Pd() {
     }
 
     try {
-      const cartItemId = await dishesService.buyNow(dishId, optionsToBuy);
+      const cartItemId = await cartService.buyNow(dishId, optionsToBuy);
       setIsSheetOpen(false);
       navigate(`/order/${cartItemId}`);
     } catch (error) {
@@ -328,9 +347,7 @@ export default function Pd() {
       alert("바로 구매 처리에 실패했습니다. 다시 시도해 주세요.");
     }
   };
-  
-  // [수정] totalPrice 변수 제거 (총 금액 표시 요청 제외)
-  // const totalPrice = calculateTotal();
+
 
   return (
     <div className="pd-root">
@@ -388,6 +405,18 @@ export default function Pd() {
             </div>
             <img src={shareIcon} alt="공유하기" className="pd-share-icon" />
           </div>
+
+          {/* 상세 정보 이미지 렌더링 영역 */}
+        <section className="pd-detail-images-container">
+          {detailImages.length > 0 && detailImages.map((imgUrl, index) => (
+            <img 
+              key={index} 
+              src={imgUrl} 
+              alt={`상세정보_${index}`} 
+              className="pd-detail-img" 
+            />
+          ))}
+        </section>
 
           <div className="pd-price-row">
             <span className="pd-origin-price">

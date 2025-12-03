@@ -59,7 +59,7 @@ export const dishesService = {
         dishId,
         options,
       });
-      return res.data;
+      return lastItem.id;
     } catch (error) {
       console.error("바로 구매 요청 오류:", error);
       throw (

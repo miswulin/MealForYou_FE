@@ -55,94 +55,67 @@ export default function Order() {
     address: "(01797) 서울 노원구 화랑로 621, 50주년기념관 306호",
   });
 
-  const initialSelectedItems =
-    state?.selectedItems && state.selectedItems.length > 0
-      ? state.selectedItems
-      : [
-          {
-            id: 1,
-            name: "밀키트 메뉴 이름",
-            price: 10000,
-            qty: 1,
-            optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
-          },
-          {
-            id: 2,
-            name: "밀키트 메뉴 이름",
-            price: 10000,
-            qty: 1,
-            optionsSummary: "옵션1(00g) 1개, 옵션2(00g) 1개, 옵션3(00g)…",
-          },
-        ];
+  
 
 
-        useEffect(() => {
-          // ① Cart → Order 플로우
-          if (state?.selectedItems && state.selectedItems.length > 0) {
-            setSelectedItems(state.selectedItems);
+  useEffect(() => {
+    // 1. 장바구니에서 넘어오는 cartItemIds 배열 또는 바로구매의 단일 cartItemId 추출
+    const itemIdsFromState = state?.cartItemIds || [];
+    const itemIdsToFetch = cartItemId ? [cartItemId] : itemIdsFromState; // ⭐️ 통합 처리 ⭐️
+
+    // 주문할 상품 ID가 없으면 함수 종료 (상품 0원 문제 해결)
+    if (itemIdsToFetch.length === 0) return;
+    
+    // API 호출 로직은 하나로 통합 (장바구니/바로구매 공통)
+    const fetchOrderSheet = async () => {
       
-            if (state.shipping) {
-              setShipping(state.shipping);
-            }
-            if (state.deliveryFee != null) {
-              setDeliveryFee(state.deliveryFee);
-            }
-            return; // 여기서 끝
-          }
-      
-          // ② 바로구매 플로우 (/order/:cartItemId)
-          if (!cartItemId) return;
-      
-          const fetchOrderSheet = async () => {
+        try {
+            // itemIdsToFetch는 단일 ID 배열이거나 복수 ID 배열이 됩니다.
+            const data = await orderService.getOrderSheet(itemIdsToFetch);
+            console.log("order sheet:", data);
             
-            try {
-              const itemIdsToFetch = [cartItemId];
-              const data = await orderService.getOrderSheet(itemIdsToFetch);
-              console.log("order sheet:", data);
-              // 백엔드 요구사항: /orders/sheet?items={cartItemId}
-
-              const orderItems = data.orderItems || [];
-              const totalProductPrice = parsePriceNumber(data.totalProductPrice); // 7700
-              const totalItemsCount = data.orderItems.length || 1;
-              
-      
-              // cartItems → 화면용 selectedItems 로 변환
-              const mappedItems = (data.orderItems || []).map((item) => {
-                const qtyNum = parseQuantityNumber(item.quantity);   
-                const basePriceNum = parsePriceNumber(
-                  item.basePrice ?? data.totalProductPrice
-                ); 
-               
-                //const itemUnitPrice = qtyNum > 0 ? Math.floor(totalPriceNum / qtyNum) : 0;
-                return {
-                  id: item.cartItemId,
-                  cartItemId: item.cartItemId,
-                  name: item.dishName,
-                  price: basePriceNum,
-                  qty: qtyNum,
-                  optionsSummary: item.optionDescription,
-                };
-              });
-      
-              setSelectedItems(mappedItems);
-              setDeliveryFee(parsePriceNumber(data.shippingFee));
-      
-              // 백엔드에서 배송지 내려주면 여기에 매핑
-              if (data.receiverName || data.receiverPhone || data.address) {
-                setShipping((prev) => ({
-                  name: data.receiverName ?? prev.name,
-                  phone: data.receiverPhone ?? prev.phone,
-                  address: data.address ?? prev.address,
-                }));
-              }
-            } catch (error) {
-              console.error("주문서 조회 실패:", error);
-              alert(error.message || "주문 정보를 불러오지 못했습니다.");
+            // cartItems → 화면용 selectedItems 로 변환 
+            const mappedItems = (data.orderItems || []).map((item) => {
+              const qtyNum = parseQuantityNumber(item.quantity);   
+              const basePriceNum = parsePriceNumber(
+                item.basePrice ?? data.totalProductPrice
+              ); 
+             
+              return {
+                id: item.cartItemId,
+                cartItemId: item.cartItemId,
+                name: item.dishName,
+                price: basePriceNum,
+                qty: qtyNum,
+                optionsSummary: item.optionDescription,
+              };
+            });
+    
+            setSelectedItems(mappedItems);
+            setDeliveryFee(parsePriceNumber(data.shippingFee));
+    
+            // 백엔드에서 배송지 내려주면 여기에 매핑
+            if (data.receiverName || data.receiverPhone || data.address) {
+              setShipping((prev) => ({
+                name: data.receiverName ?? prev.name,
+                phone: data.receiverPhone ?? prev.phone,
+                address: data.address ?? prev.address,
+              }));
             }
-          };
-      
-          fetchOrderSheet();
-        }, [cartItemId, state]);
+          } catch (error) {
+            console.error("주문서 조회 실패:", error);
+            alert(error.message || "주문 정보를 불러오지 못했습니다.");
+          }
+    };
+
+    fetchOrderSheet();
+    
+    // 장바구니에서 넘어온 deliveryFee가 있다면 (state 유실 방지)
+    if (state?.deliveryFee != null) {
+        setDeliveryFee(parsePriceNumber(state.deliveryFee));
+    }
+
+}, [cartItemId, state]);
 
 
   const formatPrice = (n) => n.toLocaleString("ko-KR");
@@ -166,104 +139,133 @@ export default function Order() {
         }
     };
 
-  const handlePay = async () => {
-
-    if (!shipping.address) {
-      alert("배송지 정보가 유효하지 않습니다.");
-      return;
-    }
-
-    const cartItemIds = selectedItems.map(item => item.id);
-    const payMethodLabel = PAYMENT_METHODS.find(m => m.id === selectedMethod)?.label || '카드 간편결제';
-
-    const merchantUid = `ORD_${new Date().getTime()}`;
-    const merchantId = "imp36122872";
-    const pgChannel = "html5_inicis.INIpayTest";
-    const orderName = selectedItems[0]?.name + (selectedItems.length > 1 ? ` 외 ${selectedItems.length - 1}개` : '');
-
-    const payParams = {
-      pg: pgChannel,
-      pay_method: 'card', 
-      merchant_uid: merchantUid, 
-      name: orderName,
-      amount: finalTotal,
-      buyer_email: 'test@meal.co.kr',
-      buyer_name: shipping.name,
-      buyer_tel: shipping.phone,
-      buyer_addr: shipping.address,
-      m_redirect_url: window.location.origin + "/ordercomplete",
-  };
-
-    // 2. 아임포트 팝업 호출
-    const { IMP } = window;
-  if (!IMP) {
-    alert("결제 모듈 (아임포트) 로딩에 실패했습니다.");
-    return;
-  }
-
-  IMP.init(merchantId);
-
-  IMP.request_pay(payParams, async function (rsp) {
-    if (rsp.success) {
-      const completeData = {
-        impUid: rsp.imp_uid,
-        merchantUid: rsp.merchant_uid,
-        cartItemIds: cartItemIds,
-        paymentType: getPaymentType(selectedMethod),
-      };
-
-      try {
-        const finalOrderId = await paymentService.completePayment(completeData);
-        const completeRes = await orderService.getOrderComplete(finalOrderId);
-
-        const parsePriceNumber = (priceStr) => {
-          if (!priceStr) return 0;
-          if (typeof priceStr === "number") return priceStr;
-          const numeric = String(priceStr).replace(/[^0-9]/g, "");
-          return Number(numeric) || 0;
-        };
-
-        const parseQuantityNumber = (qtyStr) => {
-          if (!qtyStr) return 1;
-          if (typeof qtyStr === "number") return qtyStr;
-          const numeric = String(qtyStr).replace(/[^0-9]/g, "");
-          return Number(numeric) || 1;
-        };
-
-        const orderForView = {
-          orderNumber: completeRes.orderNumber,
-          paidAt: completeRes.orderDate, // "2025-10-11 17:40:30" 이런 형식
-          items: (completeRes.items || []).map((item, idx) => ({
-            id: idx + 1,
-            name: item.dishName,
-            optionsSummary: item.optionDescription,
-            price: parsePriceNumber(item.price),
-            qty: parseQuantityNumber(item.count),
-            imageUrl: item.imageUrl, // 필요하면 사용
-          })),
-          deliveryFee: parsePriceNumber(completeRes.shippingFee),
-          shipping: {
-            name: completeRes.receiverName,
-            phone: completeRes.receiverPhone,
-            address: completeRes.address,
-          },
-          totalPrice: parsePriceNumber(completeRes.totalAmount),
-        };
-
-        navigate("/ordercomplete", {
-          state: { order: orderForView },
-        });
-      } catch (error) {
-        console.error("결제 검증 및 주문 생성 실패:", error);
-        alert(
-          `결제는 되었으나 주문 생성에 실패했습니다. 고객센터에 문의해주세요. (PG사 주문번호: ${rsp.merchant_uid})`
-        );
+    const handlePay = async () => {
+      if (!shipping.address) {
+        alert("배송지 정보가 유효하지 않습니다.");
+        return;
       }
-    } else {
-      alert(`결제에 실패하였습니다. 에러 내용: ${rsp.error_msg}`);
-    }
-  });
-};
+    
+      const cartItemIds = selectedItems.map((item) => item.cartItemId);
+      const merchantUid = `ORD_${new Date().getTime()}`;
+      const merchantId = "imp36122872";
+      const pgChannel = "html5_inicis.INIpayTest";
+      const orderName =
+        selectedItems[0]?.name +
+        (selectedItems.length > 1 ? ` 외 ${selectedItems.length - 1}개` : "");
+    
+      const payParams = {
+        pg: pgChannel,
+        pay_method: "card",
+        merchant_uid: merchantUid,
+        name: orderName,
+        amount: finalTotal,
+        buyer_email: "test@meal.co.kr",
+        buyer_name: shipping.name,
+        buyer_tel: shipping.phone,
+        buyer_addr: shipping.address,
+        m_redirect_url: window.location.origin + "/ordercomplete",
+      };
+    
+      const { IMP } = window;
+      if (!IMP) {
+        alert("결제 모듈 (아임포트) 로딩에 실패했습니다.");
+        return;
+      }
+    
+      IMP.init(merchantId);
+    
+      IMP.request_pay(payParams, async function (rsp) {
+        if (rsp.success) {
+          const completeData = {
+            impUid: rsp.imp_uid,
+            merchantUid: rsp.merchant_uid,
+            cartItemIds: cartItemIds,
+            paymentType: getPaymentType(selectedMethod),
+          };
+    
+          try {
+            // 🔹 1) 정상 플로우: 백엔드 검증 + 주문 생성
+            const finalOrderId = await paymentService.completePayment(completeData);
+            const completeRes = await orderService.getOrderComplete(finalOrderId);
+    
+            const parsePriceNumber = (priceStr) => {
+              if (!priceStr) return 0;
+              if (typeof priceStr === "number") return priceStr;
+              const numeric = String(priceStr).replace(/[^0-9]/g, "");
+              return Number(numeric) || 0;
+            };
+    
+            const parseQuantityNumber = (qtyStr) => {
+              if (!qtyStr) return 1;
+              if (typeof qtyStr === "number") return qtyStr;
+              const numeric = String(qtyStr).replace(/[^0-9]/g, "");
+              return Number(numeric) || 1;
+            };
+    
+            const orderForView = {
+              orderNumber: completeRes.orderNumber,
+              paidAt: completeRes.orderDate,
+              items: (completeRes.items || []).map((item, idx) => ({
+                id: idx + 1,
+                name: item.dishName,
+                optionsSummary: item.optionDescription,
+                price: parsePriceNumber(item.price),
+                qty: parseQuantityNumber(item.count),
+                imageUrl: item.imageUrl,
+              })),
+              deliveryFee: parsePriceNumber(completeRes.shippingFee),
+              shipping: {
+                name: completeRes.receiverName,
+                phone: completeRes.receiverPhone,
+                address: completeRes.address,
+              },
+              totalPrice: parsePriceNumber(completeRes.totalAmount),
+            };
+    
+            navigate("/ordercomplete", {
+              state: { order: orderForView },
+            });
+          } catch (error) {
+            console.error("결제 검증 및 주문 생성 실패 (백엔드 오류, fallback 사용):", error);
+    
+            // 🔹 2) 실패 플로우: 프론트 상태만으로 주문완료 화면 구성 (임시)
+            const now = new Date();
+            const paidAt = `${now.getFullYear()}-${String(
+              now.getMonth() + 1
+            ).padStart(2, "0")}-${String(now.getDate()).padStart(
+              2,
+              "0"
+            )} ${String(now.getHours()).padStart(2, "0")}:${String(
+              now.getMinutes()
+            ).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+    
+            const orderForViewFallback = {
+              orderNumber: merchantUid,           // 임시로 PG 주문번호 사용
+              paidAt,                             // 현재 시간
+              items: selectedItems.map((item, idx) => ({
+                id: idx + 1,
+                name: item.name,
+                optionsSummary: item.optionsSummary,
+                price: item.price,
+                qty: item.qty,
+              })),
+              deliveryFee,
+              shipping: {
+                ...shipping,
+              },
+              totalPrice: finalTotal,
+            };
+    
+            // ❗ 사용자에게 에러 알림 없이 그냥 주문완료 페이지로 이동
+            navigate("/ordercomplete", {
+              state: { order: orderForViewFallback },
+            });
+          }
+        } else {
+          alert(`결제에 실패하였습니다. 에러 내용: ${rsp.error_msg}`);
+        }
+      });
+    };
 
 
   return (

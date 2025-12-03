@@ -1,6 +1,7 @@
 import { apiClient } from "./auth";
 
 const CART_API_URL = "/cart";
+const DISH_API_URL = "/dishes";
 
 export const cartService = {
   // 1. 장바구니 조회 
@@ -85,6 +86,29 @@ export const cartService = {
       throw (
         error.response?.data || {
           message: "선택 상품 삭제 중 오류가 발생했습니다.",
+        }
+      );
+    }
+  },
+  buyNow: async (dishId, options) => {
+    try {
+      // options 형태는 [{ ingredientId, quantity }, ...] 여야 함
+      const payload = {
+        dishId,
+        options, 
+      };
+  
+      const res = await apiClient.post(`${CART_API_URL}/buy`, payload);
+  
+      // 백엔드에서 어떤 응답을 주는지에 따라 사용
+      // 일단 전체 data 반환해 두는 게 안전
+      return res.data;
+  
+    } catch (error) {
+      console.error(`바로 구매 요청 오류 (Dish ID: ${dishId}):`, error);
+      throw (
+        error.response?.data || {
+          message: "바로 구매 처리에 실패했습니다. 다시 시도해 주세요.",
         }
       );
     }
