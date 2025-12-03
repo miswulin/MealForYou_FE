@@ -175,7 +175,7 @@ export default function Order() {
 
     const merchantUid = `ORD_${new Date().getTime()}`;
     const merchantId = "imp36122872";
-    const pgChannel = "html5_inicis";
+    const pgChannel = "html5_inicis.INIpayTest";
     const orderName = selectedItems[0]?.name + (selectedItems.length > 1 ? ` 외 ${selectedItems.length - 1}개` : '');
 
     const payParams = {
