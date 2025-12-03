@@ -240,7 +240,7 @@ const HomePage = () => {
                   <div
                     key={product.id}
                     className={styles.productCard}
-                    onClick={() => navigate('/product-detail', { state: { product } })}
+                    onClick={() => navigate(`/product-detail/${dish.id}`, { state: { product } })}
                     style={{ cursor: 'pointer' }}
                   >
                     <div className={styles.productImage}>
@@ -293,7 +293,7 @@ const HomePage = () => {
                   <div
                     key={product.id}
                     className={styles.productCard}
-                    onClick={() => navigate('/product-detail', { state: { product } })}
+                    onClick={() => navigate(`/product-detail/${dish.id}`, { state: { product } })}
                     style={{ cursor: 'pointer' }}
                   >
                     <div className={styles.productImage}>
@@ -346,7 +346,7 @@ const HomePage = () => {
                   <div
                     key={product.id}
                     className={styles.productCard}
-                    onClick={() => navigate('/product-detail', { state: { product } })}
+                    onClick={() => navigate(`/product-detail/${dish.id}`, { state: { product } })}
                   >
                     <div className={styles.productImage}>
                       <img src={product.imageUrl || product.image} alt={product.name} className={styles.productImage}
