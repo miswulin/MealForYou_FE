@@ -1,4 +1,5 @@
 import axios from 'axios';
+import useAuthStore from '../store/authStore';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
@@ -112,7 +113,9 @@ export const authService = {
   // 로그아웃
   logout: () => {
     localStorage.removeItem('user');
-    // 서버 측 로그아웃도 필요한 경우 여기에 추가
+     // zustand auth-storage 상태도 초기화
+  const { logout } = useAuthStore.getState();
+  logout();
   },
   
   // 토큰 재발급
