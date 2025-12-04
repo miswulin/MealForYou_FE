@@ -53,12 +53,13 @@
 .bannerContainer {
   position: relative;
   /* width: 100vw; */
-  left: 50%;
-  transform: translateX(-50%);
+  /*left: 50%;
+  transform: translateX(-50%);*/
   /*height: 200px;*/
+  margin: 16px -16px;
   overflow: hidden;
   border-radius: 0;
-  margin: 16px 0;
+  /*margin: 16px 0;*/
 }
 
 .bannerSlide {
