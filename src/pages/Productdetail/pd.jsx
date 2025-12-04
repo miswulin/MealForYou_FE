@@ -8,8 +8,6 @@ import { dishesService } from "../../api/dishes";
 import { cartService } from "../../api/cart";
 
 import "./pd.css";
-import bibimbap from "../../assets/images/bibimbap.png";
-import bibimbap2 from "../../assets/images/bibimbap2.png";
 import heart from "../../assets/heart-m.svg";
 import heartFilled from "../../assets/heart-menu-Icon.svg";
 import shareIcon from "../../assets/share.svg";
@@ -417,11 +415,11 @@ export default function Pd() {
 
           <p className="pd-sub-info">원산지: 상품설명/상세정보 참조</p>
           {detailImages[0] && (
-        <img
-          src={detailImages[0]}
-          alt="상세 이미지"
-          className="pd-detail-img"
-        />
+            <img
+              src={detailImages[0]}
+              alt="상세 이미지"
+              className="pd-detail-img"
+            />
       )}
         </section>
 
