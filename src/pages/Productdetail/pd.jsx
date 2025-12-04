@@ -181,7 +181,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: 0,
+            qty: ing.quantity ?? 0,
           }))
         );
 
@@ -190,7 +190,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: 0, // 초기값 0으로 설정
+            qty: ing.quantity ?? 0,
           }))
         );
       } catch (error) {
