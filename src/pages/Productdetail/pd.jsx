@@ -172,7 +172,7 @@ export default function Pd() {
             id: ing.dishIngredientId,
             name: ing.name,
             price: ing.price,
-            qty: 0,
+            qty: ing.quantity ?? 0,
           }))
         );
 
